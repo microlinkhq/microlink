@@ -300,34 +300,73 @@ microlink function   https://example.com --file ./fn.js
 - Replace the boilerplate `bin/index.js` (it references undefined `cwd`, reads `./help.txt` from
   cwd, and `require('microlink')` as a single function — all placeholder).
 
-### Module format & packaging
+### Module format & packaging — JavaScript, dual ESM + CJS, TypeScript types
 
-Match the ecosystem exactly (`@microlink/google`, `@microlink/function`): CJS source + thin ESM
-re-export + hand-written types, no build step.
+Plain JavaScript, no build/transpile step. Dual ESM + CJS from the same source, plus a hand-written
+`.d.ts`. Mirror `@microlink/google` exactly — it's the same shape (a factory that returns a client),
+so its CJS/ESM/types wiring (`google/src/index.js`, `src/main.mjs`, `src/index.d.ts`) is the
+template.
 
-- `src/index.js` — CJS implementation (`'use strict'`, `module.exports`).
-- `src/main.mjs` — `export { default } from './index.js'` style re-export (mirror
-  `google/src/main.mjs`).
-- `src/index.d.ts` — TypeScript types for every product and the factory.
-- `bin/index.js` — CLI entry (CJS).
-- `package.json` updates:
-  - `exports`: `{ "types": "./src/index.d.ts", "require": "./src/index.js", "import": "./src/main.mjs" }`
-    (current value `"./cli/index.js"` is wrong — that path doesn't exist).
+- **CJS source** — `src/index.js` (`'use strict'`). The factory plus any named helpers:
+  ```js
+  const create = (ctx = {}) => ({ /* products */ })
+  module.exports = create
+  module.exports.MicrolinkError = require('@microlink/mql').MicrolinkError // re-export for catch()
+  ```
+  Usage: `const microlink = require('microlink')()`.
+- **ESM entry** — `src/main.mjs` re-exports the CJS default + named (mirror `google/src/main.mjs`):
+  ```js
+  import create from './index.js'
+  export const MicrolinkError = create.MicrolinkError
+  export default create
+  ```
+  Usage: `import microlink from 'microlink'` then `microlink()`. Named: `import { MicrolinkError }`.
+- **Types** — `src/index.d.ts`, callable-factory style (matches `google/src/index.d.ts`):
+  ```ts
+  interface MicrolinkClient {
+    metadata(url: string, options?: Options): Promise<Metadata>
+    markdown(url: string, options?: ContentOptions): Promise<string>
+    screenshot(url: string, options?: ScreenshotOptions): Promise<Screenshot>
+    links(url: string, options?: CollectionOptions): Promise<string[]>
+    embed(url: string, options?: EmbedOptions): Promise<Embed>
+    logo(url: string, options?: LogoOptions): Promise<Logo>
+    search(query: string, options?: SearchOptions): Promise<SearchPage>
+    function<T = unknown>(url: string, code: FunctionInput, options?: Options): Promise<FunctionResult<T>>
+    run: MicrolinkClient['function']
+    extract(url: string, rules: object, options?: Options): Promise<Record<string, unknown>>
+    /* ...html, text, pdf, videos, audios, images, technologies, lighthouse */
+  }
+  interface ClientOptions { apiKey?: string; endpoint?: string; headers?: Record<string, string>; /* ...transport */ }
+  interface create { (options?: ClientOptions): MicrolinkClient }
+  declare const create: create
+  export default create
+  ```
+  Reuse upstream types where possible: import `SearchPage`/etc. shapes from `@microlink/google` and
+  `FunctionInput`/`FunctionResponse` from `@microlink/function` rather than redefining.
+- **`bin/index.js`** — CLI entry (CJS), calls `require('../src')(ctx)[command](...)`.
+- **`package.json`**:
+  - `exports`: `{ "types": "./src/index.d.ts", "require": "./src/index.js", "import": "./src/main.mjs", "default": "./src/main.mjs" }` (current `"./cli/index.js"` is wrong — that path doesn't exist).
+  - `type`: omit (default CJS); the `.mjs` extension + `import` condition handle ESM. Matches `@microlink/google`.
   - `bin`: keep `{ "microlink": "bin/index.js" }`.
+  - `files`: ship `src` + `bin` (so `.d.ts` and `.mjs` are published).
   - `dependencies`: add `@microlink/mql`, `@microlink/function`, `@microlink/google`, `jsome`
     (CLI pretty-print), keep `mri`. Pin with `~` per repo `.npmrc` (`save-prefix=~`).
   - delete placeholder root `index.js`.
 
+Both entry points are exercised by tests: `test/*.mjs` import the ESM build, and a `test/cjs.js`
+(or an AVA case using `require`) loads `src/index.js` — asserting `require('microlink')()` and
+`import microlink from 'microlink'` expose the same product methods (mirrors `mql/test/build.mjs`).
+
 ## Files to create / modify
 
-- `src/index.js` — **new**, core product layer over `@microlink/mql`.
-- `src/main.mjs` — **new**, ESM re-export.
-- `src/index.d.ts` — **new**, types.
+- `src/index.js` — **new**, CJS factory + product layer over `@microlink/mql`.
+- `src/main.mjs` — **new**, ESM re-export (`export default create`).
+- `src/index.d.ts` — **new**, callable-factory TypeScript types.
 - `bin/index.js` — **rewrite** as product-subcommand CLI.
 - `bin/help.txt` — **rewrite** with real product usage.
-- `package.json` — fix `exports`, `dependencies`; remove dead `index.js`.
+- `package.json` — fix `exports`/`type`/`files`, add `dependencies` + `tsd`; remove dead `index.js`.
 - `README.md` — **rewrite** documenting each product with one example apiece.
-- `test/` — see below.
+- `test/unit.mjs`, `test/integration.mjs`, `test/cjs.js`, `test/index.test-d.ts` — see Tests.
 - delete `index.js` (placeholder).
 
 ## Tests & evals (same commit)
@@ -354,6 +393,11 @@ Two lanes, per the repo's AVA setup (`c8 ava`, `standard` lint).
   non-deterministic but must pass shape thresholds.
 - CLI smoke: spawn `bin/index.js markdown https://example.com` and assert stdout is non-empty
   string; `links ...` / `screenshot ...` emit JSON (array / object with a `url`).
+- **Type tests** — `test/index.test-d.ts` run with `tsd` (mirror `@microlink/mql`, which lints with
+  `standard && tsd`). Assert `require('microlink')()` and `import microlink` are callable, return a
+  client, and each method's return type is correct: `markdown(...)` is `Promise<string>`,
+  `links(...)` is `Promise<string[]>`, `screenshot(...)` resolves to the rich object, `search('q', { type: 'news' })`
+  narrows to `NewsPage`. Add `tsd` to devDependencies and to the `lint`/`test` script.
 
 ## Verification (end to end)
 
