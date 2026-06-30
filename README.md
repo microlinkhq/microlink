@@ -166,6 +166,7 @@ params), then calls `mql(url, mqlOpts, got)` and unwraps the field. The table sh
 | `text(url, options)` | `selector,selectorAll,type` | `meta:false, data:{text:{attr:'text', ...sub}}, ...top` | `string` (`data.text`) |
 | `screenshot(url, options)` | screenshot knobs | `meta:false, screenshot: sub or true, ...top` | `{ url, type, width, height, size, ... }` |
 | `pdf(url, options)` | pdf knobs | `meta:false, pdf: sub or true, ...top` | `{ url, type, size, ... }` |
+| `embed(url, options)` | `maxWidth,maxHeight` | `meta:false, iframe: sub or true, ...top` | `{ html, scripts }` (`data.iframe`) |
 | `technologies(url, options)` | insights config | `meta:false, insights:{technologies:true, lighthouse:false, ...sub}, ...top` | `array` (`data.insights.technologies`) |
 | `lighthouse(url, options)` | insights config | `meta:false, insights:{lighthouse:true, technologies:false, ...sub}, ...top` | lighthouse report |
 | `search(query, options)` | — | wraps `@microlink/google` `createGoogleClient(ctx)(query, options)` | paginated results w/ `.next()`, per-result `.html()`/`.markdown()` |
@@ -200,6 +201,11 @@ Notes:
   same rich object shape as `image`/`screenshot`; `logo(url, { square: true })` prefers the square
   variant (`meta.logo.square`). It's a focused slice of `metadata()` — `metadata(url)` also carries
   `logo`, but `logo(url)` is the direct one-field call.
+- `embed` returns the oEmbed-style embeddable iframe: `{ html, scripts }` (the markup to drop in a
+  page + the `<script>` URLs it needs, e.g. a YouTube/Tweet/CodePen embed). It uses the `iframe`
+  param, which runs independently of `meta` (`api/src/extract/meta/index.js:202` adds the iframe
+  rules even when `meta:false`), so `embed(url)` fetches just the embed. `embed(url, { maxWidth, maxHeight })`
+  constrains the embed size (`iframe.maxWidth`/`maxHeight`).
 - `insights` is split into two products — `technologies` and `lighthouse` — each disabling the
   other half so the call is cheap and the result is the bare field.
 - `function` is a legal JS property name; `run` is provided as a friendlier alias. For `function`,
@@ -270,6 +276,7 @@ microlink screenshot https://example.com --fullPage
 microlink markdown   https://example.com
 microlink metadata   https://example.com
 microlink logo       https://example.com --square
+microlink embed      https://www.youtube.com/watch?v=dQw4w9WgXcQ
 microlink pdf        https://example.com
 microlink links      https://example.com
 microlink images     https://example.com
@@ -331,7 +338,8 @@ Two lanes, per the repo's AVA setup (`c8 ava`, `standard` lint).
   via a small seam, or assert on `mql.getApiUrl`) to verify each product sets the correct params and
   unwraps the correct field: `markdown` → `data.markdown`, `screenshot` → `data.screenshot`,
   `technologies` → `data.insights.technologies`, `logo` → `data.logo` (and `{ square: true }` →
-  `meta.logo.square`), `links`/`images`/`videos`/`audios` → `data.<field>` with the right
+  `meta.logo.square`), `embed` → `data.iframe` with `iframe:true, meta:false` (and `{ maxWidth }` →
+  `iframe.maxWidth`), `links`/`images`/`videos`/`audios` → `data.<field>` with the right
   `selectorAll`/`attr`/`type` rule, `extract` returns the full `data` object, factory threads `apiKey` into the call options, `function`/`run` alias identity. No
   network. **Single-bag routing** is asserted explicitly: `screenshot(url, { fullPage: true, device: 'X' })`
   must call mql with `screenshot:{ fullPage:true }` and top-level `device:'X'`;
