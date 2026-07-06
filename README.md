@@ -75,7 +75,7 @@ Every [microlink.io](https://microlink.io) product maps to a client method:
 | Lighthouse | `lighthouse(url)` |
 | Technologies | `technologies(url)` |
 | Search | `search(query)` |
-| Function | `function(url, code)` / `run(url, code)` |
+| Function | `run(url, code)` (alias `function`) |
 
 Plus library extras: `links` / `images` / `videos` / `audios` collections and `extract` for custom data rules.
 
@@ -194,9 +194,9 @@ microlink.search('best coffee', { limit: 10, location: 'es' }).then(page => {
 })
 ```
 
-### function(url, code, options)
+### run(url, code, options)
 
-Run any JavaScript remotely in a sandboxed runtime — no Lambda bundle, no browser fleet, no server ([guide](https://microlink.io/docs/guides/function)). `run` is a friendlier alias. You write a plain function; the library handles serialization, compression and the API call for you. When the code doesn't reference `page`, no browser is started, making execution faster and cheaper:
+Run any JavaScript remotely in a sandboxed runtime — no Lambda bundle, no browser fleet, no server ([guide](https://microlink.io/docs/guides/function)). Also exposed as `function`, matching the API parameter name. You write a plain function; the library handles serialization, compression and the API call for you. When the code doesn't reference `page`, no browser is started, making execution faster and cheaper:
 
 ```js
 microlink.run('https://example.com', () => 40 + 2).then(({ value }) => {
