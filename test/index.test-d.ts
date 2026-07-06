@@ -30,6 +30,12 @@ async function assertions (): Promise<void> {
   const logo = await client.logo('https://example.com', { square: true })
   expectType<string>(logo.url)
 
+  const video = await client.video('https://vimeo.com/76979871')
+  expectType<string>(video.url)
+
+  const audio = await client.audio('https://example.com')
+  expectType<string>(audio.url)
+
   const metadata = await client.metadata('https://example.com')
   expectAssignable<Record<string, unknown>>(metadata)
 

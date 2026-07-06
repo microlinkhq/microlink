@@ -41,6 +41,12 @@ test('images returns resolved URLs', async t => {
   t.true(images.every(url => /^(https?:|data:)/.test(url)))
 })
 
+test('video detects the primary video', async t => {
+  const video = await microlink.video('https://vimeo.com/76979871')
+  t.truthy(video.url)
+  t.is(typeof video.url, 'string')
+})
+
 test('extract runs custom data rules end-to-end', async t => {
   const { image } = await microlink.extract('https://microlink.io', {
     image: {

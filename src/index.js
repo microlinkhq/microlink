@@ -85,6 +85,14 @@ const create = (ctx = {}) => {
     ).then(({ data }) => data[field])
   }
 
+  /* Primary media detection (`data.video` / `data.audio`). */
+  const media = field => (url, options) => {
+    const { top, got } = route(options)
+    return mql(url, { ...top, meta: false, [field]: true }, got).then(
+      ({ data }) => data[field]
+    )
+  }
+
   const googleClient = createGoogleClient()
 
   const run = (url, code, options) => {
@@ -108,6 +116,8 @@ const create = (ctx = {}) => {
     markdown: content('markdown'),
     html: content('html'),
     text: content('text'),
+    video: media('video'),
+    audio: media('audio'),
     links: collection('links', { selectorAll: 'a', attr: 'href', type: 'url' }),
     images: collection('images', {
       selectorAll: 'img',

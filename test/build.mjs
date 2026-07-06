@@ -7,6 +7,7 @@ const evalScript = (code, flags = []) =>
 evalScript.esm = code => evalScript(code, ['--input-type', 'module'])
 
 const PRODUCTS = [
+  'audio',
   'audios',
   'embed',
   'extract',
@@ -24,6 +25,7 @@ const PRODUCTS = [
   'search',
   'technologies',
   'text',
+  'video',
   'videos'
 ]
 

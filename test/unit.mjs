@@ -16,6 +16,8 @@ const DATA = {
   insights: { technologies: ['react'], lighthouse: { performance: 1 } },
   links: ['https://example.com/'],
   images: ['https://example.com/image.png'],
+  video: { url: 'https://example.com/video.mp4', type: 'mp4' },
+  audio: { url: 'https://example.com/audio.mp3', type: 'mp3' },
   videos: ['https://example.com/video.mp4'],
   audios: ['https://example.com/audio.mp3'],
   avatar: { url: 'https://example.com/avatar.png' }
@@ -163,6 +165,15 @@ test('lighthouse disables technologies and unwraps the report', async t => {
     technologies: false,
     lighthouse: { onlyCategories: ['performance'] }
   })
+})
+
+test('video/audio detect the primary media and unwrap the field', async t => {
+  const { create, calls } = setup()
+  const client = create()
+  t.deepEqual(await client.video(URL), DATA.video)
+  t.deepEqual(calls[0].mqlOpts, { meta: false, video: true })
+  t.deepEqual(await client.audio(URL), DATA.audio)
+  t.deepEqual(calls[1].mqlOpts, { meta: false, audio: true })
 })
 
 test('collections set the right default rules', async t => {

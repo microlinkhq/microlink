@@ -60,6 +60,25 @@ microlink.screenshot('https://example.com', {
 
 ## Products
 
+Every [microlink.io](https://microlink.io) product maps to a client method:
+
+| Product | Method |
+|---|---|
+| Link preview / Metadata | `metadata(url)` |
+| Markdown / HTML / Text | `markdown(url)` / `html(url)` / `text(url)` |
+| Screenshot | `screenshot(url)` |
+| Animated Screenshot | `screenshot(url, { animated: true })` |
+| PDF | `pdf(url)` |
+| Logo | `logo(url)` |
+| Embed | `embed(url)` |
+| Video / Audio | `video(url)` / `audio(url)` |
+| Lighthouse | `lighthouse(url)` |
+| Technologies | `technologies(url)` |
+| Search | `search(query)` |
+| Function | `function(url, code)` / `run(url, code)` |
+
+Plus library extras: `links` / `images` / `videos` / `audios` collections and `extract` for custom data rules.
+
 ### metadata(url, options)
 
 The unified metadata object (title, description, image, publisher, ...):
@@ -117,6 +136,16 @@ The oEmbed-style embeddable iframe (`{ html, scripts }`), e.g. for a YouTube vid
 ```js
 microlink.embed('https://www.youtube.com/watch?v=dQw4w9WgXcQ').then(({ html }) => {
   console.log(html)
+})
+```
+
+### video(url, options) / audio(url, options)
+
+The primary video or audio of the page (e.g. the video of a Vimeo page or a Tweet), detected by the API and returned as the asset object:
+
+```js
+microlink.video('https://vimeo.com/76979871').then(({ url, type }) => {
+  console.log(url) // → direct .mp4 URL
 })
 ```
 

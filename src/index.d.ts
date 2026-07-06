@@ -139,6 +139,8 @@ interface MicrolinkClient {
   markdown (url: string, options?: ContentOptions): Promise<string>
   html (url: string, options?: ContentOptions): Promise<string>
   text (url: string, options?: ContentOptions): Promise<string>
+  video (url: string, options?: Options): Promise<Asset>
+  audio (url: string, options?: Options): Promise<Asset>
   links (url: string, options?: CollectionOptions): Promise<string[]>
   images (url: string, options?: CollectionOptions): Promise<string[]>
   videos (url: string, options?: CollectionOptions): Promise<string[]>
