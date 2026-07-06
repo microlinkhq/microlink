@@ -1,0 +1,174 @@
+{
+  "results": [
+    {
+      "title": "Cluster Architecture | Kubernetes",
+      "image": {
+        "url": "https://kubernetes.io/images/docs/kubernetes-cluster-architecture.svg",
+        "width": 1402,
+        "height": 882
+      },
+      "thumbnail": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfRhoylgxd_-qN18TWNhFRSQanbMBRLQMVoA&s",
+        "width": 283,
+        "height": 178
+      },
+      "google": {
+        "url": "https://www.google.com/imgres?imgurl=https%3A%2F%2Fkubernetes.io%2Fimages%2Fdocs%2Fkubernetes-cluster-architecture.svg&tbnid=Jg7u7jTcQjC_DM&imgrefurl=https%3A%2F%2Fkubernetes.io%2Fdocs%2Fconcepts%2Farchitecture%2F&docid=rGp-oQUHQVmXlM&w=1402&h=882"
+      },
+      "url": "https://kubernetes.io/docs/concepts/architecture/"
+    },
+    {
+      "title": "Understanding Kubernetes Architecture with Diagrams",
+      "image": {
+        "url": "https://phoenixnap.com/kb/wp-content/uploads/2021/04/full-kubernetes-model-architecture.png",
+        "width": 800,
+        "height": 478
+      },
+      "thumbnail": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSc2zEh-NWR8DpJZ9B8VH3ERCNCg9wIm5ALsw&s",
+        "width": 291,
+        "height": 173
+      },
+      "google": {
+        "url": "https://www.google.com/imgres?imgurl=https%3A%2F%2Fphoenixnap.com%2Fkb%2Fwp-content%2Fuploads%2F2021%2F04%2Ffull-kubernetes-model-architecture.png&tbnid=sSknThtEEDecFM&imgrefurl=https%3A%2F%2Fphoenixnap.com%2Fkb%2Funderstanding-kubernetes-architecture-diagrams&docid=zbCqKKWLrPVv5M&w=800&h=478"
+      },
+      "url": "https://phoenixnap.com/kb/understanding-kubernetes-architecture-diagrams"
+    },
+    {
+      "title": "What is Kubernetes Architecture?",
+      "image": {
+        "url": "https://cdn.shopaccino.com/igmguru/articles/kubernetes-architecture-3528463276791325_l.jpg?v=547",
+        "width": 1511,
+        "height": 850
+      },
+      "thumbnail": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgsqthkuwJgIQBUBjPYQXyyHOlz_Jx8hhflw&s",
+        "width": 299,
+        "height": 168
+      },
+      "google": {
+        "url": "https://www.google.com/imgres?imgurl=https%3A%2F%2Fcdn.shopaccino.com%2Figmguru%2Farticles%2Fkubernetes-architecture-3528463276791325_l.jpg%3Fv%3D547&tbnid=vFSDz-x_-Qor7M&imgrefurl=https%3A%2F%2Fwww.igmguru.com%2Fblog%2Fkubernetes-architecture&docid=19_We0PQTRMOZM&w=1511&h=850"
+      },
+      "url": "https://www.igmguru.com/blog/kubernetes-architecture"
+    },
+    {
+      "title": "Learn About Kubernetes Concepts and Architecture",
+      "image": {
+        "url": "https://platform9.com/media/kubernetes-constructs-concepts-architecture.jpg",
+        "width": 1041,
+        "height": 813
+      },
+      "thumbnail": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKJmTYJRagSZWjbwTmaZeSasd3sHZ5jbrHnw&s",
+        "width": 254,
+        "height": 198
+      },
+      "google": {
+        "url": "https://www.google.com/imgres?imgurl=https%3A%2F%2Fplatform9.com%2Fmedia%2Fkubernetes-constructs-concepts-architecture.jpg&tbnid=QUejyBfRN5jDxM&imgrefurl=https%3A%2F%2Fplatform9.com%2Fblog%2Fkubernetes-enterprise-chapter-2-kubernetes-architecture-concepts%2F&docid=p1NWs5kBLqhHSM&w=1041&h=813"
+      },
+      "url": "https://platform9.com/blog/kubernetes-enterprise-chapter-2-kubernetes-architecture-concepts/"
+    },
+    {
+      "title": "Kubernetes: Architecture and Components explained | by ...",
+      "image": {
+        "url": "https://miro.medium.com/1*9TA8CE3DyPkNzgZ0Kymbwg.png",
+        "width": 940,
+        "height": 447
+      },
+      "thumbnail": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbn0Uw-Ld9kbGBxx0F9Gjn1RlJQby0vWDOFQ&s",
+        "width": 326,
+        "height": 155
+      },
+      "google": {
+        "url": "https://www.google.com/imgres?imgurl=https%3A%2F%2Fmiro.medium.com%2F1*9TA8CE3DyPkNzgZ0Kymbwg.png&tbnid=iTFZq1N7JoekZM&imgrefurl=https%3A%2F%2Fmedium.com%2F%40himanshusangshetty%2Fkubernetes-architecture-and-components-explained-e489e98db15d&docid=6FQjg9MDJUY8kM&w=940&h=447"
+      },
+      "url": "https://medium.com/@himanshusangshetty/kubernetes-architecture-and-components-explained-e489e98db15d"
+    },
+    {
+      "title": "Kubernetes Architecture & Components With Diagram",
+      "image": {
+        "url": "https://k21academy.com/wp-content/uploads/2020/06/Kubernetes_Architecture-1.png",
+        "width": 2612,
+        "height": 1544
+      },
+      "thumbnail": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRI9YATqW01Hrdk22Sx72YKWlyZQjSdCbO0HA&s",
+        "width": 292,
+        "height": 172
+      },
+      "google": {
+        "url": "https://www.google.com/imgres?imgurl=https%3A%2F%2Fk21academy.com%2Fwp-content%2Fuploads%2F2020%2F06%2FKubernetes_Architecture-1.png&tbnid=h7iwQg5jsnaK7M&imgrefurl=https%3A%2F%2Fk21academy.com%2Fkubernetes%2Fkubernetes-architecture-components-overview-for-beginners%2F&docid=QievVlTsx3J_7M&w=2612&h=1544"
+      },
+      "url": "https://k21academy.com/kubernetes/kubernetes-architecture-components-overview-for-beginners/"
+    },
+    {
+      "title": "Kubernetes Architecture & Components With Diagram",
+      "image": {
+        "url": "https://k21academy.com/wp-content/uploads/2020/06/KubernetesArchitecture_BlogImage.png",
+        "width": 1920,
+        "height": 1080
+      },
+      "thumbnail": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQowI38nDqDhJyzCcCMo6HbhRzZVqTz3eN5vQ&s",
+        "width": 300,
+        "height": 168
+      },
+      "google": {
+        "url": "https://www.google.com/imgres?imgurl=https%3A%2F%2Fk21academy.com%2Fwp-content%2Fuploads%2F2020%2F06%2FKubernetesArchitecture_BlogImage.png&tbnid=3ZqW_BCbtHLujM&imgrefurl=https%3A%2F%2Fk21academy.com%2Fkubernetes%2Fkubernetes-architecture-components-overview-for-beginners%2F&docid=QievVlTsx3J_7M&w=1920&h=1080"
+      },
+      "url": "https://k21academy.com/kubernetes/kubernetes-architecture-components-overview-for-beginners/"
+    },
+    {
+      "title": "Kubernetes Cluster Architecture Template | Moqups",
+      "image": {
+        "url": "https://landing.moqups.com/img/_optimized/templates/diagrams/network/kubernetes-cluster-architecture-w400.jpeg",
+        "width": 400,
+        "height": 225
+      },
+      "thumbnail": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSj10b3OZsMou2vLtgIp9LhhuWbICI_Up9FBw&s",
+        "width": 300,
+        "height": 168
+      },
+      "google": {
+        "url": "https://www.google.com/imgres?imgurl=https%3A%2F%2Flanding.moqups.com%2Fimg%2F_optimized%2Ftemplates%2Fdiagrams%2Fnetwork%2Fkubernetes-cluster-architecture-w400.jpeg&tbnid=7TJpFcAi9LKxtM&imgrefurl=https%3A%2F%2Fmoqups.com%2Ftemplates%2Fmapping-and-diagramming%2Fnetwork-diagrams%2Fkubernetes-diagram%2F&docid=Nu524yIdF6B0sM&w=400&h=225"
+      },
+      "url": "https://moqups.com/templates/mapping-and-diagramming/network-diagrams/kubernetes-diagram/"
+    },
+    {
+      "title": "Kubernetes Architecture Explained: Components & Workloads ...",
+      "image": {
+        "url": "https://www.cherryservers.com/v3/assets/blog/2025-05-19/img-01.png",
+        "width": 1940,
+        "height": 1420
+      },
+      "thumbnail": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7sVHW5fdMKuR6edERM6TSegEvvluorkUFGg&s",
+        "width": 262,
+        "height": 192
+      },
+      "google": {
+        "url": "https://www.google.com/imgres?imgurl=https%3A%2F%2Fwww.cherryservers.com%2Fv3%2Fassets%2Fblog%2F2025-05-19%2Fimg-01.png&tbnid=4cogRm6allw4SM&imgrefurl=https%3A%2F%2Fwww.cherryservers.com%2Fblog%2Fkubernetes-architecture&docid=sPOvUtYyvmB28M&w=1940&h=1420"
+      },
+      "url": "https://www.cherryservers.com/blog/kubernetes-architecture"
+    },
+    {
+      "title": "Kubernetes Architecture. | AWS in Plain English",
+      "image": {
+        "url": "https://miro.medium.com/1*eVqphQ2aNKxqHPMPxjRzAA.png",
+        "width": 3600,
+        "height": 2100
+      },
+      "thumbnail": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFvZkFinrLD3fsriiuepPhNz11of2lpOojsQ&s",
+        "width": 294,
+        "height": 171
+      },
+      "google": {
+        "url": "https://www.google.com/imgres?imgurl=https%3A%2F%2Fmiro.medium.com%2F1*eVqphQ2aNKxqHPMPxjRzAA.png&tbnid=00qrBs-bE_alIM&imgrefurl=https%3A%2F%2Faws.plainenglish.io%2Fkubernetes-architecture-c93cb9c798d8&docid=TK_OpSJJmtY7lM&w=3600&h=2100"
+      },
+      "url": "https://aws.plainenglish.io/kubernetes-architecture-c93cb9c798d8"
+    }
+  ]
+}

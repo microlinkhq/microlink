@@ -1,0 +1,18 @@
+{
+  "results": [
+    {
+      "title": "Madrid",
+      "address": "Madrid, Spain",
+      "latitude": 40.4167279,
+      "longitude": -3.7032905,
+      "cid": "14138733002322879081",
+      "fid": "0xd422997800a3c81:0xc436dec1618c2269",
+      "thumbnail": {
+        "url": "https://lh3.googleusercontent.com/gps-cs-s/AHVAweqAxghmpyB1JjHCf4zn1Dy3w3Xp4CZQX0MLthjBF5a_rJD39ELfIK2Pl75fi5UIagttMb2eSUGBHqw2cdkp7w-CDWtAZHgFiHji2ZkPdAmR84zOtx5qUpCBMvls8mXuFzw5pZ0"
+      },
+      "place": {
+        "id": "ChIJgTwKgJcpQg0RaSKMYcHeNsQ"
+      }
+    }
+  ]
+}

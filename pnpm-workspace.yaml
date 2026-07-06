@@ -1,5 +1,8 @@
 lockfile: false
 
+packages:
+  - 'packages/*'
+
 allowBuilds:
   simple-git-hooks: true
   spawn-sync: false

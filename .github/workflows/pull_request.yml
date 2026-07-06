@@ -12,14 +12,28 @@ env:
   SKIP_INSTALL_SIMPLE_GIT_HOOKS: true
 
 jobs:
-  test:
+  matrix:
     if: github.ref != 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+      - id: matrix
+        run: echo "matrix=$(node .github/workflows/get-matrix.mjs)" >> $GITHUB_OUTPUT
+      - run: echo ${{ steps.matrix.outputs.matrix }}
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+
+  test:
+    name: Test ${{ matrix.package.name }}
+    needs: matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJson(needs.matrix.outputs.matrix)}}
+    steps:
       - name: Checkout
         uses: actions/checkout@v7
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -31,11 +45,23 @@ jobs:
       - name: Install
         run: pnpm install --dangerously-allow-all-builds
       - name: Test
-        run: pnpm test
-      - name: Report
-        run: npx c8 report --reporter=text-lcov > coverage/lcov.info
+        run: pnpm --filter "${{ matrix.package.filter }}" exec c8 pnpm test
       - name: Coverage
+        run: pnpm --filter "${{ matrix.package.filter }}" exec c8 report --reporter=lcov --report-dir=coverage
+      - name: Upload
         uses: coverallsapp/github-action@main
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: ${{ matrix.package.name }}
+          parallel: true
+          file: $(pnpm --filter "${{ matrix.package.filter }}" exec pwd)/coverage/lcov.info
+          fail-on-error: false
+
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@main
+        with:
+          parallel-finished: true
           fail-on-error: false

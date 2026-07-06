@@ -1,0 +1,54 @@
+{
+  "results": [
+    {
+      "title": "Fetch API - MDN Web Docs",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API",
+      "description": "The Fetch API provides an interface for fetching resources (including across the network). It is a more powerful and flexible replacement for XMLHttpRequest."
+    },
+    {
+      "title": "Using the Fetch API - MDN Web Docs",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch",
+      "description": "The Fetch API provides a JavaScript interface for making HTTP requests and processing the responses. Fetch is the modern replacement for XMLHttpRequest."
+    },
+    {
+      "title": "Request - Web APIs - MDN Web Docs",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Request",
+      "description": "The Request interface of the Fetch API represents a resource request. You can create a new Request object using the Request() constructor."
+    },
+    {
+      "title": "Using Deferred Fetch - Web APIs | MDN",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Deferred_Fetch",
+      "description": "The fetchLater() API extends the Fetch API to allow setting fetch requests up in advance. These deferred fetches can be updated before they have ..."
+    },
+    {
+      "title": "Response - Web APIs - MDN Web Docs - Mozilla",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Response",
+      "description": "The Response interface of the Fetch API represents the response to a request. You can create a new Response object using the Response() constructor."
+    },
+    {
+      "title": "Window: fetch() method - Web APIs | MDN",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch",
+      "description": "The fetch() method of the Window interface starts the process of fetching a resource from the network, returning a promise that is fulfilled once the response ..."
+    },
+    {
+      "title": "Background Fetch API - MDN Web Docs",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Background_Fetch_API",
+      "description": "The Background Fetch API provides a method for managing downloads that may take a significant amount of time such as movies, audio files, ..."
+    },
+    {
+      "title": "Web APIs - MDN Web Docs - Mozilla",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API",
+      "description": "Below is a list of all the APIs and interfaces (object types) that you may be able to use while developing your Web app or site."
+    },
+    {
+      "title": "ServiceWorkerGlobalScope: fetch event - Web APIs | MDN",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/fetch_event",
+      "description": "The fetch event of the ServiceWorkerGlobalScope interface is fired in the service worker's global scope when the main app thread makes a network request."
+    },
+    {
+      "title": "WorkerGlobalScope: fetch() method - Web APIs | MDN",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/WorkerGlobalScope/fetch",
+      "description": "The fetch() method of the WorkerGlobalScope interface starts the process of fetching a resource from the network, returning a promise that is fulfilled once ..."
+    }
+  ]
+}

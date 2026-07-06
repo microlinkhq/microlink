@@ -1,0 +1,104 @@
+{
+  "results": [
+    {
+      "title": "Introducing GPT‑5 for developers",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTep8PgZymNQQ4wTCRMoR6uUB9nFBm59Q2wQNX1w_z_RkPBx1sSpreoTLc&usqp=CAI&s"
+      },
+      "date": "2025-08-07T12:00:00.000Z",
+      "publisher": "OpenAI",
+      "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
+      "description": "Introducing GPT-5 in our API platform—offering high reasoning performance, new controls for devs, and best-in-class results on real coding..."
+    },
+    {
+      "title": "OpenAI ramps up developer push with more powerful models in its API",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlKq3q8yfYDgMWgqE1cYeBYs349foELdbm8ZTN-v6k6BUgSzpKOV6m8e8&usqp=CAI&s"
+      },
+      "date": "2025-10-06T12:00:00.000Z",
+      "publisher": "TechCrunch",
+      "url": "https://techcrunch.com/2025/10/06/openai-ramps-up-developer-push-with-more-powerful-models-in-its-api/",
+      "description": "OpenAI ramps up developer push with more powerful models in its API ... OpenAI unveiled new API updates at its Dev Day on Monday, introducing GPT-..."
+    },
+    {
+      "title": "OpenAI upgrades its Responses API to support agent skills and a complete terminal shell",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLz8IpRfb_2vSzFy5Y79w7TKEkj59OI-8TOAYWTJmOI7T2Qq-fSQroWis&usqp=CAI&s"
+      },
+      "date": "2026-02-21T11:21:43.477Z",
+      "publisher": "VentureBeat",
+      "url": "https://venturebeat.com/orchestration/openai-upgrades-its-responses-api-to-support-agent-skills-and-a-complete",
+      "description": "Until recently, the practice of building AI agents has been a bit like training a long-distance runner with a thirty-second memory."
+    },
+    {
+      "title": "OpenAI brings GPT-5.2 Codex to developers via API",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6Wo6H93oX6ubNaL4G1DY9kta4FHqcTOh6soN9OPbg2pgNhD_-efu6tLE&usqp=CAI&s"
+      },
+      "date": "2026-01-16T12:00:00.000Z",
+      "publisher": "Techzine Global",
+      "url": "https://www.techzine.eu/news/devops/137999/openai-brings-gpt-5-2-codex-to-developers-via-api/",
+      "description": "The move to make GPT-5.2-Codex available via an API underscores OpenAI's focus on developers and professional applications. Whereas the company..."
+    },
+    {
+      "title": "From model to agent: Equipping the Responses API with a computer environment",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbGyZuLJFf1JdFJnnznPGOv-g6qDQQtevJcWD9cdNz3DYGpknhJ-hrvoM&usqp=CAI&s"
+      },
+      "date": "2026-03-14T11:21:43.478Z",
+      "publisher": "OpenAI",
+      "url": "https://openai.com/index/equip-responses-api-computer-environment/",
+      "description": "How OpenAI built an agent runtime using the Responses API, shell tool, and hosted containers to run secure, scalable agents with files,..."
+    },
+    {
+      "title": "OpenAI opens GPT-5.2 Codex to developers through the Responses API",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiH_kOOF7jNdSmBAIa95OA4DVwRrhktFWiGr7PAi8YoZCtADBICezaOtY&usqp=CAI&s"
+      },
+      "date": "2026-01-14T12:00:00.000Z",
+      "publisher": "The Decoder",
+      "url": "https://the-decoder.com/openai-opens-gpt-5-2-codex-to-developers-through-the-responses-api/",
+      "description": "Pricing comes in at $1.75 per million input tokens and $14 per million output tokens, a notable increase from earlier GPT-5 Codex models, which..."
+    },
+    {
+      "title": "Gemini Batch API now supports Embeddings and OpenAI Compatibility",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTC4WGzjeur2bgyLLqOdEzHZzqYlBlNNjy0wC748QLaveBpqlDX3djjUE0&usqp=CAI&s"
+      },
+      "date": "2025-09-10T12:00:00.000Z",
+      "publisher": "blog.google",
+      "url": "https://developers.googleblog.com/en/gemini-batch-api-now-supports-embeddings-and-openai-compatibility/",
+      "description": "Today we are extending the Gemini Batch API to support the newly launched Gemini Embedding model as well as offering developers the ability..."
+    },
+    {
+      "title": "OpenAI makes Sora 2 models available to developers via API",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvhf_wAuHxbM_6lxahHJ5-bBMVwTPnIy1XhzR3Awi6x26ivHftoECHI7g&usqp=CAI&s"
+      },
+      "date": "2025-10-07T12:00:00.000Z",
+      "publisher": "Neowin",
+      "url": "https://www.neowin.net/news/openai-makes-sora-2-models-available-to-developers-via-api/",
+      "description": "OpenAI has released its advanced Sora 2 and Sora 2 Pro video generation models, making them accessible to developers via an API. · Create video:..."
+    },
+    {
+      "title": "Why Google's new Interactions API is such a big deal for AI developers",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsDSdkuxQwnEPcc_RssCoi7bQipQPPBMvVJU2eSo4yOOeiyM0WqshXQ5U&usqp=CAI&s"
+      },
+      "date": "2025-12-17T12:00:00.000Z",
+      "publisher": "VentureBeat",
+      "url": "https://venturebeat.com/infrastructure/why-googles-new-interactions-api-is-such-a-big-deal-for-ai-developers",
+      "description": "For the last two years, the fundamental unit of generative AI development has been the \"completion.\" You send a text prompt to a model,..."
+    },
+    {
+      "title": "Introducing GPT-5.1 for developers",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdpx_Otv3qPEpfVWRdNG-RcpkJQ4-VU-9VEHX8epMTswn6-lBsAMbSVIo&usqp=CAI&s"
+      },
+      "date": "2025-11-13T12:00:00.000Z",
+      "publisher": "OpenAI",
+      "url": "https://openai.com/index/gpt-5-1-for-developers/",
+      "description": "GPT-5.1 is now available in the API, bringing faster adaptive reasoning, extended prompt caching, improved coding performance,..."
+    }
+  ]
+}
