@@ -185,12 +185,75 @@ microlink.technologies('https://microlink.io').then(technologies => {
 
 ### search(query, options)
 
-Structured Google search results (via [@microlink/google](https://github.com/microlinkhq/google)), with pagination and per-result content helpers:
+Google as structured data (via [@microlink/google](https://github.com/microlinkhq/google)) — built for agents, RAG pipelines, and anything that needs fresh Google results without parsing SERP HTML. Requires an `apiKey`. [Google search operators](https://ahrefs.com/blog/google-advanced-search-operators/) (`site:`, `filetype:`, quotes, ...) work as-is:
 
 ```js
-microlink.search('best coffee', { limit: 10, location: 'es' }).then(page => {
+microlink.search('Lotus Elise S2').then(page => {
   console.log(page.results)
-  return page.next() // → next page
+  // → [{ title: 'Lotus Elise - Wikipedia', url, description }, ...]
+  console.log(page.knowledgeGraph) // entity card, when Google shows one
+  console.log(page.peopleAlsoAsk) // related questions
+  console.log(page.relatedSearches) // query expansion ideas
+})
+```
+
+`type` routes the query to any of the 10 Google verticals, each returning fields normalized for that surface:
+
+| `type` | Returns |
+|---|---|
+| `search` (default) | web results + knowledge graph, related questions/searches |
+| `news` | articles with `publisher`, `date`, thumbnail |
+| `images` | full-resolution image URLs with dimensions |
+| `videos` | video metadata with duration |
+| `places` / `maps` | local entities with address, phone, coordinates, ratings, hours |
+| `shopping` | products with parsed `price` and ratings |
+| `scholar` | papers with citation counts and PDF links |
+| `patents` | filings with ISO 8601 dates |
+| `autocomplete` | query suggestions |
+
+```js
+microlink.search('open source llm', { type: 'news', period: 'week' }).then(({ results }) => {
+  console.log(results[0])
+  // → { title: 'DeepSeek open sources DSpark...', publisher: 'VentureBeat', date: '2026-06-30T...' }
+})
+
+microlink.search('macbook pro', { type: 'shopping' }).then(({ results }) => {
+  console.log(results[0].price) // → { symbol: '$', amount: 1999 }
+})
+
+microlink.search('how to fine tune', { type: 'autocomplete' }).then(({ results }) => {
+  console.log(results.map(r => r.value)) // → ['how to fine tune llm', ...]
+})
+```
+
+`location` (ISO 3166-1 country code) localizes ranking and language; `period` (`hour`/`day`/`week`/`month`/`year`) constrains freshness; `limit` caps results per page:
+
+```js
+microlink.search('recetas de pasta', { location: 'es', limit: 10 })
+```
+
+Results compose in depth: every result with a `url` exposes lazy `.html()` and `.markdown()` for fetching the full page content only when needed — the source-expansion pattern for RAG:
+
+```js
+microlink.search('site:openai.com function calling guide').then(page =>
+  Promise.all(
+    page.results.slice(0, 3).map(async result => ({
+      title: result.title,
+      url: result.url,
+      markdown: await result.markdown()
+    }))
+  )
+)
+```
+
+Pages chain with `.next()`:
+
+```js
+microlink.search('node.js frameworks').then(async page => {
+  while (page) {
+    for (const result of page.results) console.log(result.title)
+    page = await page.next()
+  }
 })
 ```
 

@@ -19,7 +19,9 @@ Products
   embed         oEmbed-style embeddable iframe ({ html, scripts })
   technologies  Detect the tech stack behind the site
   lighthouse    Run a Lighthouse report
-  search        Google search results (query instead of url)
+  search        Google as structured data (query instead of url); --type
+                routes to news, images, videos, places, maps, shopping,
+                scholar, patents or autocomplete
   function      Run code remotely with browser access (--file ./fn.js);
                 extra flags are injected as variables in the function scope
 
@@ -39,5 +41,6 @@ Examples
   $ microlink logo https://github.com --square
   $ microlink links https://example.com
   $ microlink search "best coffee" --limit 10 --location es
+  $ microlink search "open source llm" --type news --period week
   $ microlink extract https://microlink.io --data '{"image":{"selector":"meta[property=og:image]","attr":"content","type":"image"}}'
   $ microlink function https://example.com --file ./fn.js
