@@ -1,13 +1,40 @@
 Usage
-  $ microlink <command>[options]
+  $ microlink <product> <url|query> [options]
 
-Commands
-  --file Read the file
+Products
+  metadata      Unified metadata (title, description, image, ...)
+  logo          Brand logo of the site (--square prefers the square variant)
+  markdown      Page content as Markdown
+  html          Page content as HTML
+  text          Page content as plain text
+  links         Every absolute link URL on the page
+  images        Every absolute image URL on the page
+  videos        Every absolute video URL on the page
+  audios        Every absolute audio URL on the page
+  extract       Custom MQL data rules (--data '{"field":{...}}')
+  screenshot    Take a screenshot (returns the asset object)
+  pdf           Generate a PDF (returns the asset object)
+  embed         oEmbed-style embeddable iframe ({ html, scripts })
+  technologies  Detect the tech stack behind the site
+  lighthouse    Run a Lighthouse report
+  search        Google search results (query instead of url)
+  function      Run a browser function (--file ./fn.js)
 
 Options
-  --wait  Wait for the app to exit
+  --api-key     Microlink API key (defaults to MICROLINK_API_KEY env)
+  --header, -H  Extra request header as 'Name: value' (repeatable)
+  --data        JSON data rules for the extract command
+  --file        Path to the code file for the function command
+  --help        Show this help
+
+Any other flag is passed as an option to the product, e.g. --fullPage,
+--device 'iPhone 11', --waitUntil networkidle0, --selector article.
 
 Examples
-  $ npm-url # Open the current package if you are over package.json path.
-  $ npm-url json-future
-  $ npm-url json-future -- 'google chrome' --incognito
+  $ microlink markdown https://example.com
+  $ microlink screenshot https://example.com --fullPage
+  $ microlink logo https://github.com --square
+  $ microlink links https://example.com
+  $ microlink search "best coffee" --limit 10 --location es
+  $ microlink extract https://microlink.io --data '{"image":{"selector":"meta[property=og:image]","attr":"content","type":"image"}}'
+  $ microlink function https://example.com --file ./fn.js

@@ -1,0 +1,54 @@
+import test from 'ava'
+
+import create from '../src/main.mjs'
+
+const microlink = create()
+
+const targetUrl = 'https://example.com'
+
+const isAbsolute = url => URL.canParse(url)
+
+test('markdown returns a non-empty string', async t => {
+  const markdown = await microlink.markdown(targetUrl)
+  t.is(typeof markdown, 'string')
+  t.true(markdown.length > 0)
+})
+
+test('screenshot returns the asset object', async t => {
+  const screenshot = await microlink.screenshot(targetUrl)
+  t.truthy(screenshot.url)
+  t.true(screenshot.width > 0)
+})
+
+test('metadata has a title', async t => {
+  const metadata = await microlink.metadata(targetUrl)
+  t.is(typeof metadata.title, 'string')
+  t.true(metadata.title.length > 0)
+})
+
+test('links returns deduped absolute URLs', async t => {
+  const links = await microlink.links('https://microlink.io')
+  t.true(Array.isArray(links))
+  t.true(links.length > 0)
+  t.true(links.every(isAbsolute))
+  t.is(links.length, new Set(links).size)
+})
+
+test('images returns resolved URLs', async t => {
+  const images = await microlink.images('https://microlink.io')
+  t.true(Array.isArray(images))
+  t.true(images.length > 0)
+  t.true(images.every(url => /^(https?:|data:)/.test(url)))
+})
+
+test('extract runs custom data rules end-to-end', async t => {
+  const { image } = await microlink.extract('https://microlink.io', {
+    image: {
+      selector: 'meta[property="og:image"]',
+      attr: 'content',
+      type: 'image'
+    }
+  })
+  t.truthy(image.url)
+  t.truthy(image.size_pretty)
+})

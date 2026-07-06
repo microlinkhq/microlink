@@ -1,0 +1,4 @@
+lockfile: false
+
+allowBuilds:
+  simple-git-hooks: true

@@ -1,8 +1,17 @@
 {
-  "name": "microlink",
-  "description": "The microlink.io library",
+  "name": "microlink.io",
+  "description": "The Microlink API organized into products, each returning a direct result",
   "homepage": "https://github.com/microlinkhq/microlink",
   "version": "0.0.0",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "require": "./src/index.js",
+      "import": "./src/main.mjs",
+      "default": "./src/main.mjs"
+    }
+  },
   "bin": {
     "microlink": "bin/index.js"
   },
@@ -18,8 +27,24 @@
   "bugs": {
     "url": "https://github.com/microlinkhq/microlink/issues"
   },
-  "keywords": [],
+  "keywords": [
+    "api",
+    "extract",
+    "lighthouse",
+    "markdown",
+    "metadata",
+    "microlink",
+    "mql",
+    "pdf",
+    "scraper",
+    "screenshot",
+    "seo"
+  ],
   "dependencies": {
+    "@microlink/function": "~0.2.5",
+    "@microlink/google": "~1.0.5",
+    "@microlink/mql": "~0.16.1",
+    "jsome": "~2.5.0",
     "mri": "~1.2.0"
   },
   "devDependencies": {
@@ -31,19 +56,26 @@
     "git-authors-cli": "latest",
     "github-generate-release": "latest",
     "nano-staged": "latest",
+    "proxyquire": "latest",
     "simple-git-hooks": "latest",
     "standard": "latest",
     "standard-markdown": "latest",
-    "standard-version": "latest"
+    "standard-version": "latest",
+    "tinyspawn": "latest",
+    "tsd": "latest"
   },
   "engines": {
     "node": ">= 24"
   },
+  "files": [
+    "bin",
+    "src"
+  ],
   "scripts": {
     "clean": "rm -rf node_modules",
     "contributors": "(npx git-authors-cli && npx finepack && git add package.json && git commit -m 'build: contributors' --no-verify) || true",
     "coverage": "c8 report --reporter=text-lcov > coverage/lcov.info",
-    "lint": "standard-markdown README.md && standard",
+    "lint": "standard-markdown README.md && standard && tsd",
     "postrelease": "pnpm release:tags && pnpm release:github && pnpm publish",
     "pretest": "pnpm lint",
     "release": "standard-version -a",
@@ -53,6 +85,9 @@
   },
   "preferGlobal": true,
   "license": "MIT",
+  "ava": {
+    "timeout": "2m"
+  },
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
@@ -62,9 +97,6 @@
         0
       ]
     }
-  },
-  "exports": {
-    ".": "./cli/index.js"
   },
   "nano-staged": {
     "*.js": [
@@ -81,5 +113,12 @@
   "simple-git-hooks": {
     "commit-msg": "npx commitlint --edit",
     "pre-commit": "npx nano-staged"
+  },
+  "tsd": {
+    "compilerOptions": {
+      "module": "node16",
+      "moduleResolution": "node16"
+    },
+    "directory": "test"
   }
 }
