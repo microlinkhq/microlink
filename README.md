@@ -77,7 +77,7 @@ Every [microlink.io](https://microlink.io) product maps to a client method:
 | Search | `search(query)` |
 | Function | `run(url, code)` (alias `function`) |
 
-Plus library extras: `links` / `images` / `videos` / `audios` collections and `extract` for custom data rules.
+Plus library extras: `links` / `images` / `videos` / `audios` / `emails` collections and `extract` for custom data rules.
 
 ### metadata(url, options)
 
@@ -156,6 +156,16 @@ Every media URL on the page as a clean `string[]` — absolute, junk-filtered an
 ```js
 microlink.links('https://example.com', { selectorAll: 'nav a' }).then(links => {
   console.log(links) // → ['https://example.com/docs', ...]
+})
+```
+
+### emails(url, options)
+
+Every email address present on the page — from `mailto:` links and plain text alike — deduped, with asset filenames that look like emails (`logo@2x.png`) filtered out:
+
+```js
+microlink.emails('https://microlink.io').then(emails => {
+  console.log(emails) // → ['hello@microlink.io']
 })
 ```
 

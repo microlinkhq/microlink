@@ -7,7 +7,7 @@ const proxyquire = require('proxyquire')
 const DATA = {
   title: 'Example Domain',
   markdown: '# Example',
-  html: '<h1>Example</h1>',
+  html: '<a href="mailto:hello@example.com">hello@example.com</a> <img src="logo@2x.png"> sales@example.com',
   text: 'Example',
   logo: { url: 'https://example.com/logo.png', type: 'png' },
   screenshot: { url: 'https://example.com/shot.png', width: 1280 },
@@ -174,6 +174,16 @@ test('video/audio detect the primary media and unwrap the field', async t => {
   t.deepEqual(calls[0].mqlOpts, { meta: false, video: true })
   t.deepEqual(await client.audio(URL), DATA.audio)
   t.deepEqual(calls[1].mqlOpts, { meta: false, audio: true })
+})
+
+test('emails extracts deduped addresses from the page html', async t => {
+  const { create, calls } = setup()
+  const emails = await create().emails(URL)
+  t.deepEqual(emails, ['hello@example.com', 'sales@example.com'])
+  t.deepEqual(calls[0].mqlOpts, {
+    meta: false,
+    data: { html: { attr: 'html' } }
+  })
 })
 
 test('collections set the right default rules', async t => {

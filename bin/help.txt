@@ -9,6 +9,7 @@ Products
   text          Page content as plain text
   video         Primary video of the page (returns the asset object)
   audio         Primary audio of the page (returns the asset object)
+  emails        Every email address present on the page
   links         Every absolute link URL on the page
   images        Every absolute image URL on the page
   videos        Every absolute video URL on the page

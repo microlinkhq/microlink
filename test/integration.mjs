@@ -2,7 +2,8 @@ import test from 'ava'
 
 import create from '../src/main.mjs'
 
-const microlink = create()
+const { MICROLINK_API_KEY: apiKey } = process.env
+const microlink = create(apiKey ? { apiKey } : {})
 
 const targetUrl = 'https://example.com'
 
@@ -55,6 +56,12 @@ test('function runs code remotely with injected scope variables', async t => {
   )
   t.true(isFulfilled)
   t.is(value, 'Example Domain')
+})
+
+test('emails returns the addresses present on the page', async t => {
+  const emails = await microlink.emails('https://microlink.io')
+  t.true(Array.isArray(emails))
+  t.true(emails.includes('hello@microlink.io'))
 })
 
 test('extract runs custom data rules end-to-end', async t => {

@@ -11,6 +11,7 @@ expectType<Promise<string>>(client.html('https://example.com'))
 expectType<Promise<string>>(client.text('https://example.com'))
 
 expectType<Promise<string[]>>(client.links('https://example.com'))
+expectType<Promise<string[]>>(client.emails('https://example.com'))
 expectType<Promise<string[]>>(
   client.images('https://example.com', { selectorAll: 'article img' })
 )

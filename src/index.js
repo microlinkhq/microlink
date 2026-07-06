@@ -37,6 +37,11 @@ const LOGO_KEYS = ['square']
 
 const LIGHTHOUSE_KEYS = ['onlyCategories', 'onlyAudits', 'skipAudits', 'output']
 
+const EMAIL_REGEX = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi
+
+/* Asset filenames look like emails to the regex (e.g. `logo@2x.png`). */
+const EMAIL_JUNK = /\.(png|jpe?g|gif|webp|avif|svg|ico|css|js|mjs|woff2?)$/i
+
 const isEmpty = obj => Object.keys(obj).length === 0
 
 const create = (ctx = {}) => {
@@ -134,6 +139,17 @@ const create = (ctx = {}) => {
       attr: 'src',
       type: 'url'
     }),
+    emails: (url, options) => {
+      const { top, got } = route(options)
+      return mql(
+        url,
+        { ...top, meta: false, data: { html: { attr: 'html' } } },
+        got
+      ).then(({ data }) => {
+        const matches = data.html.match(EMAIL_REGEX) ?? []
+        return [...new Set(matches)].filter(email => !EMAIL_JUNK.test(email))
+      })
+    },
     extract: (url, rules, options) => {
       const { top, got } = route(options)
       return mql(url, { ...top, meta: false, data: rules }, got).then(

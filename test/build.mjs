@@ -9,6 +9,7 @@ evalScript.esm = code => evalScript(code, ['--input-type', 'module'])
 const PRODUCTS = [
   'audio',
   'audios',
+  'emails',
   'embed',
   'extract',
   'function',
