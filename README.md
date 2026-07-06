@@ -246,6 +246,15 @@ microlink.search('site:openai.com function calling guide').then(page =>
 )
 ```
 
+The page itself serializes too: `page.html()` and `page.markdown()` return the whole Google results page as HTML or Markdown — useful for feeding a SERP straight to an LLM or building your own parser on top:
+
+```js
+microlink.search('Lotus Elise S2').then(async page => {
+  const markdown = await page.markdown() // the SERP as Markdown
+  const html = await page.html() // the SERP as HTML
+})
+```
+
 Pages chain with `.next()`:
 
 ```js
