@@ -20,7 +20,8 @@ Products
   technologies  Detect the tech stack behind the site
   lighthouse    Run a Lighthouse report
   search        Google search results (query instead of url)
-  function      Run a browser function (--file ./fn.js)
+  function      Run code remotely with browser access (--file ./fn.js);
+                extra flags are injected as variables in the function scope
 
 Options
   --api-key     Microlink API key (defaults to MICROLINK_API_KEY env)

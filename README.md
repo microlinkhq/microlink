@@ -196,13 +196,54 @@ microlink.search('best coffee', { limit: 10, location: 'es' }).then(page => {
 
 ### function(url, code, options)
 
-Run a browser function against the page (via [@microlink/function](https://github.com/microlinkhq/function)). `run` is a friendlier alias:
+Run JavaScript remotely against the page with Headless Chrome access (via [@microlink/function](https://github.com/microlinkhq/function)). `run` is a friendlier alias. You write a plain function — the library compresses it (Brotli) and executes it in a safe V8 sandbox on Microlink's infrastructure, nothing to deploy:
 
 ```js
-microlink.run('https://example.com', ({ page }) => page.title()).then(result => {
-  console.log(result.value) // → 'Example Domain'
+microlink.run('https://example.com', async ({ page }) => {
+  await page.waitForSelector('h1')
+  return page.$eval('h1', el => el.textContent)
+}).then(({ value }) => {
+  console.log(value) // → 'Example Domain'
 })
 ```
+
+The function receives the [puppeteer `page`](https://pptr.dev/api/puppeteer.page) plus any extra options you pass, injected as variables in scope:
+
+```js
+microlink.run(
+  'https://example.com',
+  ({ page, selector }) => page.$eval(selector, el => el.textContent),
+  { selector: 'h1' }
+).then(({ value }) => console.log(value))
+```
+
+Common npm packages ([allowed list](https://github.com/microlinkhq/function#npm-packages): `cheerio`, `lodash`, `jsdom`, `metascraper`, `got`, ...) can be required inside the sandbox:
+
+```js
+microlink.run('https://news.ycombinator.com', async ({ page }) => {
+  const cheerio = require('cheerio')
+  const $ = cheerio.load(await page.content())
+  return $('.titleline > a').map((i, el) => $(el).text()).toArray()
+}).then(({ value }) => {
+  console.log(value) // → ['Top HN story', ...]
+})
+```
+
+The result carries more than the return value — `console.log` calls are captured in `logging` and `profiling` reports cpu, memory and phase timings:
+
+```js
+microlink.run('https://example.com', ({ page }) => {
+  console.log('visiting page')
+  return page.title()
+}).then(({ isFulfilled, value, logging, profiling }) => {
+  console.log(isFulfilled) // → true
+  console.log(value) // → 'Example Domain'
+  console.log(logging.log) // → [['visiting page']]
+  console.log(profiling.phases.total) // → 73.72
+})
+```
+
+When the code throws, the promise still resolves: `isFulfilled` is `false` and `value` carries the error as `{ name, message }`. From the CLI, put the code in a file and pass extra scope variables as flags: `microlink function https://example.com --file ./fn.js --selector h1`.
 
 ## Authenticated requests
 

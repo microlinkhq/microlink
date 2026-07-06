@@ -47,6 +47,16 @@ test('video detects the primary video', async t => {
   t.is(typeof video.url, 'string')
 })
 
+test('function runs code remotely with injected scope variables', async t => {
+  const { isFulfilled, value } = await microlink.run(
+    targetUrl,
+    ({ page, selector }) => page.$eval(selector, el => el.textContent),
+    { selector: 'h1' }
+  )
+  t.true(isFulfilled)
+  t.is(value, 'Example Domain')
+})
+
 test('extract runs custom data rules end-to-end', async t => {
   const { image } = await microlink.extract('https://microlink.io', {
     image: {
