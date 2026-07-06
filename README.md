@@ -196,7 +196,15 @@ microlink.search('best coffee', { limit: 10, location: 'es' }).then(page => {
 
 ### function(url, code, options)
 
-Run JavaScript remotely against the page with Headless Chrome access (via [@microlink/function](https://github.com/microlinkhq/function)). `run` is a friendlier alias. You write a plain function — the library compresses it (Brotli) and executes it in a safe V8 sandbox on Microlink's infrastructure, nothing to deploy:
+Run any JavaScript remotely in a sandboxed runtime — no Lambda bundle, no browser fleet, no server ([guide](https://microlink.io/docs/guides/function)). `run` is a friendlier alias. You write a plain function; the library handles serialization, compression and the API call for you. When the code doesn't reference `page`, no browser is started, making execution faster and cheaper:
+
+```js
+microlink.run('https://example.com', () => 40 + 2).then(({ value }) => {
+  console.log(value) // → 42
+})
+```
+
+When it references `page`, Microlink starts a headless browser and navigates to the URL first, handing your code the full [puppeteer `page`](https://pptr.dev/api/puppeteer.page) for clicks, waits, evaluation and navigation ([browser interaction](https://microlink.io/docs/guides/function/browser-interaction)):
 
 ```js
 microlink.run('https://example.com', async ({ page }) => {
@@ -207,7 +215,7 @@ microlink.run('https://example.com', async ({ page }) => {
 })
 ```
 
-The function receives the [puppeteer `page`](https://pptr.dev/api/puppeteer.page) plus any extra options you pass, injected as variables in scope:
+Any extra option you pass is forwarded into the function scope — the simplest way to make one function reusable across requests ([custom parameters](https://microlink.io/docs/guides/function/writing-functions)):
 
 ```js
 microlink.run(
@@ -217,7 +225,7 @@ microlink.run(
 ).then(({ value }) => console.log(value))
 ```
 
-Common npm packages ([allowed list](https://github.com/microlinkhq/function#npm-packages): `cheerio`, `lodash`, `jsdom`, `metascraper`, `got`, ...) can be required inside the sandbox:
+You can `require()` any npm package inside the function — dependencies are detected, installed on the fly into the sandbox, and cached for subsequent runs. Pin a version with `require('cheerio@1.0.0')`:
 
 ```js
 microlink.run('https://news.ycombinator.com', async ({ page }) => {
@@ -229,7 +237,7 @@ microlink.run('https://news.ycombinator.com', async ({ page }) => {
 })
 ```
 
-The result carries more than the return value — `console.log` calls are captured in `logging` and `profiling` reports cpu, memory and phase timings:
+The result carries more than the return value — `console.log` calls are captured in `logging`, and `profiling` reports peak cpu/memory plus per-phase timings (`install`/`build`/`spawn`/`run`) so you can spot the bottleneck ([profiling](https://microlink.io/docs/guides/function/profiling-and-performance)):
 
 ```js
 microlink.run('https://example.com', ({ page }) => {
@@ -239,11 +247,11 @@ microlink.run('https://example.com', ({ page }) => {
   console.log(isFulfilled) // → true
   console.log(value) // → 'Example Domain'
   console.log(logging.log) // → [['visiting page']]
-  console.log(profiling.phases.total) // → 73.72
+  console.log(profiling.phases) // → { install: 0, build: 7.8, spawn: 68.5, run: 0.02, total: 73.7 }
 })
 ```
 
-When the code throws, the promise still resolves: `isFulfilled` is `false` and `value` carries the error as `{ name, message }`. From the CLI, put the code in a file and pass extra scope variables as flags: `microlink function https://example.com --file ./fn.js --selector h1`.
+When the code throws, the promise still resolves: `isFulfilled` is `false` and `value` carries the error as `{ name, message }`. Resource limits surface the same way with plan-aware errors (`TimeoutError`, `MemoryError`, `CodeSizeError`, ...) — see [troubleshooting](https://microlink.io/docs/guides/function/troubleshooting). From the CLI, put the code in a file and pass extra scope variables as flags: `microlink function https://example.com --file ./fn.js --selector h1`.
 
 ## Authenticated requests
 
@@ -289,7 +297,7 @@ Flags map to the same single options bag as the library. Use `--api-key` (or the
 
 - [@microlink/mql](https://github.com/microlinkhq/mql) — the low-level Microlink Query Language client (raw envelopes, `buffer`/`stream` access).
 - [@microlink/google](https://github.com/microlinkhq/google) — structured Google data, powering `search`.
-- [@microlink/function](https://github.com/microlinkhq/function) — browser functions, powering `function`/`run`.
+- [@microlink/function](https://github.com/microlinkhq/function) — remote JavaScript functions, powering `function`/`run` ([guides](https://microlink.io/docs/guides/function)).
 
 ## License
 
