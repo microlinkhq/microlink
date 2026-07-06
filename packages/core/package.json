@@ -52,7 +52,6 @@
   "devDependencies": {
     "ava": "latest",
     "proxyquire": "latest",
-    "standard-markdown": "latest",
     "tinyspawn": "latest",
     "tsd": "latest"
   },
@@ -64,7 +63,7 @@
     "src"
   ],
   "scripts": {
-    "lint": "standard-markdown README.md && tsd",
+    "lint": "tsd",
     "test": "ava"
   },
   "preferGlobal": true,

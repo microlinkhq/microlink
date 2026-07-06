@@ -39,7 +39,8 @@
     "github-generate-release": "latest",
     "nano-staged": "latest",
     "simple-git-hooks": "latest",
-    "standard": "latest"
+    "standard": "latest",
+    "standard-markdown": "latest"
   },
   "engines": {
     "node": ">= 24"
@@ -49,7 +50,7 @@
     "contributors": "pnpm run contributors:add && pnpm run contributors:commit",
     "contributors:add": "pnpm --recursive --parallel exec -- finepack",
     "contributors:commit": "(git-authors-cli && finepack && git add package.json && git commit -m 'build: contributors' --no-verify) || true",
-    "lint": "standard",
+    "lint": "standard-markdown README.md && standard",
     "postrelease": "github-generate-release",
     "pretest": "pnpm run lint",
     "release": "lerna publish --yes --sort --conventional-commits --changelog-preset conventionalcommits -m \"chore(release): %s\"",
