@@ -1,476 +1,388 @@
-# Ship the `microlink` library — Stripe-style products over the API
+# microlink.io
 
-## Context
+> The [Microlink API](https://microlink.io) organized into products, each returning a direct result.
 
-The Microlink API is powerful (screenshot, PDF, metadata, content extraction, link/image/media
-collections, Lighthouse, tech detection, browser functions, Google search), but the recommended
-entry point — `@microlink/mql`
-— is too low-level. Turning a page into markdown today means hand-writing a `data` selector and
-remembering to set `meta: false`. Specialized capabilities got scattered into separate packages
-(`@microlink/function`, `@microlink/google`).
-
-The goal: one `microlink` library that organizes the API into **products**, each returning a
-**direct result**, the way Stripe organizes a powerful API into `stripe.customers.create()`.
+Turning a page into markdown, taking a screenshot, or getting every link on a page shouldn't require hand-writing query parameters. This library organizes the Microlink API into products — the way Stripe organizes a powerful API into `stripe.customers.create()`:
 
 ```js
-const microlink = require('microlink')()                              // free client
+const microlink = require('microlink.io')()
 
-const markdown = await microlink.markdown('https://example.com')      // string
-const shot = await microlink.screenshot('https://example.com')        // { url, type, width, ... }
+microlink.markdown('https://example.com').then(markdown => {
+  console.log(markdown) // → the page content as a Markdown string
+})
 ```
 
-This is a thin product layer. It does **not** reinvent HTTP, auth, retries, errors, or binary
-handling — `@microlink/mql` already does all of that. Each product method just sets the right API
-params and unwraps the `{ status, data }` envelope, exactly like `@microlink/function` returns
-`data.function` (`function/src/index.js:33`) and `@microlink/google` returns `data` (`google/src/index.js`).
+It's a thin layer over [@microlink/mql](https://github.com/microlinkhq/mql): HTTP, auth, retries, errors and binary handling are already solved there. Each product just sets the right API parameters and unwraps the result.
 
-## Design
+## Install
 
-### Config pattern — one factory, always invoked
-
-The export is a **single factory**. You always call it once to get a client; the optional argument
-carries `apiKey` and any other client-wide settings. No dual-nature export, no `microlink.markdown`
-without invoking — one unified way:
-
-```js
-const microlink = require('microlink')()                          // free client
-const microlink = require('microlink')({ apiKey })                // pro client
-const microlink = require('microlink')({ apiKey, endpoint, headers, ttl }) // any client-wide default
-
-await microlink.markdown(url)
-await microlink.screenshot(url, { fullPage: true })
+```bash
+npm install microlink.io
 ```
 
-Whatever you pass to the factory becomes the **client context** (`ctx`) merged into every call, so
-per-call options can still override it. Implementation (`src/index.js`):
+## Usage
+
+The export is a single factory. Call it once to get a client; the optional argument carries `apiKey` and any other client-wide defaults:
 
 ```js
-const create = (ctx = {}) => {
-  const route = (opts, nested = []) => { /* see "Passing options" */ }
-  return {
-    metadata, logo, markdown, html, text,
-    links, images, videos, audios, extract,
-    screenshot, pdf, technologies, lighthouse, search,
-    function: fn, run: fn
-  }
-}
-module.exports = create   // require('microlink')(ctx) → client
+const createClient = require('microlink.io')
+
+const microlink = createClient() // free client
+const microlinkPro = createClient({ apiKey: process.env.MICROLINK_API_KEY }) // pro client
 ```
 
-Key constraint discovered in `mql/src/index.js:154-182`: `mql.extend(defaultOpts)` merges into the
-**3rd** arg (`gotOpts`), but `apiKey`/`endpoint` are read from the **2nd** arg in `getApiUrl`
-(`mql/src/index.js:156`). So context (`apiKey`, `endpoint`) must be merged into the per-call options
-object, not via `mql.extend`. This is the same approach `@microlink/google` uses:
-`mql(url, { ...ctx, ...opts })` (`google/src/index.js`). Each product does
-`mql(url, { ...ctx, ...productDefaults, ...userOpts })`.
-
-### Passing options — one bag: `(target, options)`
-
-Every product method takes a **single options object** (no 2nd/3rd-arg split, no `undefined`
-placeholder):
+ESM works the same way:
 
 ```js
-product(target, options?)
+import createClient from 'microlink.io'
+
+const microlink = createClient()
 ```
 
-The library routes the keys of that one object to the three destinations mql actually has
-(`mql(url, mqlOpts, gotOpts)`, `mql/src/index.js:154-173`):
+Whatever you pass to the factory is merged into every call, and per-call options can override it.
 
-1. **`headers` → mql's HTTP layer (`gotOpts`, 3rd arg).** This is mandatory for secrets: `apiKey`
-   becomes the `x-api-key` header and every other `mqlOpts` key is `flatten()`-ed into the URL query
-   string, but `gotOpts.headers` are real request headers. So `x-api-header-cookie` travels as a
-   header, never as a `headers.*` query param — it never lands in URLs/logs. The API forwards any
-   `x-api-header-<name>` header to the target fetch as `<name>`.
-2. **Capability sub-options → nested under the capability key.** Each capability product owns a
-   small, stable allow-list of nested keys; matching keys nest, the rest fall through to (3):
-   - `screenshot`: `fullPage`, `type`, `overlay`, `element`, `omitBackground`, `optimizeForSpeed`,
-     `codeScheme`, `animated`, `palette` → `screenshot: { ... }`
-   - `pdf`: `format`, `margin`, `scale`, `landscape`, `pageRanges`, `width`, `height`,
-     `printBackground` → `pdf: { ... }`
-   - `markdown`/`html`/`text`: `selector`, `selectorAll`, `type` → `data: { <name>: { attr, ... } }`
-   - `lighthouse`/`technologies`: Lighthouse/Wappalyzer config → `insights: { ... }`
-   - `search`: `limit`, `location`, `type`, `period` → handled inside `@microlink/google`
-3. **Everything else → top-level mql query params (`mqlOpts`, 2nd arg).** This is the API's finite,
-   known top-level set (`apiKey`, `endpoint`, `cacheKey`, `ttl`, `staleTtl`, `force`, `retry`,
-   `timeout`, `waitForTimeout`, `waitUntil`, `prerender`, `device`, `viewport`, `colorScheme`,
-   `proxy`, `adblock`, `javascript`, `animations`, `filename`, `iframe`, `video`, `audio`, `meta`,
-   `click`, `scripts`, `styles`, `modules`) — verified against `api/src/constant.js` `DEFAULT_QUERY_TYPES`.
+### Passing options
 
-Routing the small per-capability nested allow-list (rather than enumerating the larger top-level
-set) keeps it robust: an unknown key safely defaults to top-level (the common bucket for transport),
-and only well-known capability knobs nest. One helper centralizes it; `nested` is the per-product
-key set:
+Every product method takes a single options object: `product(url, options)`. The library routes each key to the right destination automatically:
+
+- `headers` travels as real HTTP request headers (never in the URL). The API forwards any `x-api-header-<name>` header to the target fetch as `<name>` — the right way to pass secrets like cookies.
+- Well-known capability keys nest under the product (for example `fullPage` for `screenshot`, `format` for `pdf`, `selector` for `markdown`).
+- Everything else goes as a top-level API query parameter (`device`, `waitUntil`, `prerender`, `ttl`, `proxy`, ...).
 
 ```js
-const HTTP = ['headers']
+const microlink = require('microlink.io')()
 
-const create = (ctx = {}) => {
-  const route = (opts, nested = []) => {
-    const merged = { ...ctx, ...opts }
-    const got = {}; const top = {}; const sub = {}
-    for (const [k, v] of Object.entries(merged)) {
-      if (HTTP.includes(k)) got.headers = v
-      else if (nested.includes(k)) sub[k] = v
-      else top[k] = v
-    }
-    return { top, sub, got: got.headers ? got : undefined }
-  }
-  return { /* products call route() then mql() */ }
-}
+microlink.screenshot('https://example.com', {
+  fullPage: true, // nests under `screenshot`
+  device: 'iPhone 11' // top-level query param
+})
 ```
 
-Common cases stay one-liners, all through the single bag:
+## Products
+
+Every [microlink.io](https://microlink.io) product maps to a client method:
+
+| Product | Method |
+|---|---|
+| Link preview / Metadata | `metadata(url)` |
+| Markdown / HTML / Text | `markdown(url)` / `html(url)` / `text(url)` |
+| Screenshot | `screenshot(url)` |
+| Animated Screenshot | `screenshot(url, { animated: true })` |
+| PDF | `pdf(url)` |
+| Logo | `logo(url)` |
+| Embed | `embed(url)` |
+| Video / Audio | `video(url)` / `audio(url)` |
+| Lighthouse | `lighthouse(url)` |
+| Technologies | `technologies(url)` |
+| Search | `search(query)` |
+| Function | `run(url, code)` (alias `function`) |
+
+Plus library extras: `links` / `images` / `videos` / `audios` / `emails` collections and `extract` for custom data rules.
+
+### metadata(url, options)
+
+The unified metadata object (title, description, image, publisher, ...):
 
 ```js
-const microlink = require('microlink')()
-await microlink.screenshot(url, { fullPage: true })                  // fullPage nests
-await microlink.screenshot(url, { fullPage: true, device: 'iPhone 11' }) // device top-level
-await microlink.markdown(url, { selector: 'article' })
-await require('microlink')({ apiKey }).pdf(url, { format: 'A4' })    // auth via factory
+microlink.metadata('https://vercel.com').then(({ title, description }) => {
+  console.log(title, description)
+})
 ```
 
-Worked example — authenticated X article to markdown (secret cookie stays out of the URL):
+### markdown(url, options) / html(url, options) / text(url, options)
+
+The page content as Markdown, HTML or plain text. Use `selector` to scope it:
 
 ```js
-const microlink = require('microlink')({ apiKey: process.env.MICROLINK_API_KEY })
+microlink.markdown('https://example.com', { selector: 'article' }).then(markdown => {
+  console.log(markdown)
+})
+```
 
-const markdown = await microlink.markdown(
-  'https://x.com/eliana_jordan/article/2064997219648913457',
-  {
-    cacheKey: 'uros',
-    // microlink turns x-api-header-* into target HTTP headers for you
-    headers: { 'x-api-header-cookie': `auth_token=${X_AUTH_TOKEN}; ct0=${X_CT0}` }
-  }
+### screenshot(url, options)
+
+Takes a screenshot and returns the asset object (`url`, `type`, `width`, `height`, `size`, ...):
+
+```js
+microlink.screenshot('https://example.com', { fullPage: true }).then(({ url }) => {
+  console.log(url)
+})
+```
+
+### pdf(url, options)
+
+Generates a PDF and returns the asset object:
+
+```js
+microlink.pdf('https://example.com', { format: 'A4' }).then(({ url }) => {
+  console.log(url)
+})
+```
+
+### logo(url, options)
+
+The brand logo of the site. Pass `square: true` to prefer the square variant:
+
+```js
+microlink.logo('https://github.com', { square: true }).then(({ url }) => {
+  console.log(url)
+})
+```
+
+### embed(url, options)
+
+The oEmbed-style embeddable iframe (`{ html, scripts }`), e.g. for a YouTube video or a Tweet. Constrain with `maxWidth`/`maxHeight`:
+
+```js
+microlink.embed('https://www.youtube.com/watch?v=dQw4w9WgXcQ').then(({ html }) => {
+  console.log(html)
+})
+```
+
+### video(url, options) / audio(url, options)
+
+The primary video or audio of the page (e.g. the video of a Vimeo page or a Tweet), detected by the API and returned as the asset object:
+
+```js
+microlink.video('https://vimeo.com/76979871').then(({ url, type }) => {
+  console.log(url) // → direct .mp4 URL
+})
+```
+
+### links / images / videos / audios — (url, options)
+
+Every media URL on the page as a clean `string[]` — absolute, junk-filtered and deduped. Scope with `selectorAll`:
+
+```js
+microlink.links('https://example.com', { selectorAll: 'nav a' }).then(links => {
+  console.log(links) // → ['https://example.com/docs', ...]
+})
+```
+
+### emails(url, options)
+
+Every email address present on the page — from `mailto:` links and plain text alike. It's a preset over the API's `email` rule type, which extracts and validates addresses server-side:
+
+```js
+microlink.emails('https://microlink.io').then(emails => {
+  console.log(emails) // → ['hello@microlink.io']
+})
+```
+
+### extract(url, rules, options)
+
+Custom data rules with full [MQL rule grammar](https://microlink.io/docs/mql/getting-started/overview) parity — the same `data` rules object you'd write for raw MQL, with the result unwrapped:
+
+```js
+microlink.extract('https://microlink.io', {
+  image: { selector: 'meta[property="og:image"]', attr: 'content', type: 'image' }
+}).then(({ image }) => {
+  console.log(image) // → { url, type, size, size_pretty, width, height }
+})
+```
+
+Nested and array rules work the same way — every named product above is just a preset over this engine.
+
+### technologies(url, options) / lighthouse(url, options)
+
+The tech stack behind a site, or a full Lighthouse report:
+
+```js
+microlink.technologies('https://microlink.io').then(technologies => {
+  console.log(technologies) // → [{ name: 'Cloudflare', ... }]
+})
+```
+
+### search(query, options)
+
+Google as structured data (via [@microlink/google](https://github.com/microlinkhq/google)) — built for agents, RAG pipelines, and anything that needs fresh Google results without parsing SERP HTML. Requires an `apiKey`. [Google search operators](https://ahrefs.com/blog/google-advanced-search-operators/) (`site:`, `filetype:`, quotes, ...) work as-is:
+
+```js
+microlink.search('Lotus Elise S2').then(page => {
+  console.log(page.results)
+  // → [{ title: 'Lotus Elise - Wikipedia', url, description }, ...]
+  console.log(page.knowledgeGraph) // entity card, when Google shows one
+  console.log(page.peopleAlsoAsk) // related questions
+  console.log(page.relatedSearches) // query expansion ideas
+})
+```
+
+`type` routes the query to any of the 10 Google verticals, each returning fields normalized for that surface:
+
+| `type` | Returns |
+|---|---|
+| `search` (default) | web results + knowledge graph, related questions/searches |
+| `news` | articles with `publisher`, `date`, thumbnail |
+| `images` | full-resolution image URLs with dimensions |
+| `videos` | video metadata with duration |
+| `places` / `maps` | local entities with address, phone, coordinates, ratings, hours |
+| `shopping` | products with parsed `price` and ratings |
+| `scholar` | papers with citation counts and PDF links |
+| `patents` | filings with ISO 8601 dates |
+| `autocomplete` | query suggestions |
+
+```js
+microlink.search('open source llm', { type: 'news', period: 'week' }).then(({ results }) => {
+  console.log(results[0])
+  // → { title: 'DeepSeek open sources DSpark...', publisher: 'VentureBeat', date: '2026-06-30T...' }
+})
+
+microlink.search('macbook pro', { type: 'shopping' }).then(({ results }) => {
+  console.log(results[0].price) // → { symbol: '$', amount: 1999 }
+})
+
+microlink.search('how to fine tune', { type: 'autocomplete' }).then(({ results }) => {
+  console.log(results.map(r => r.value)) // → ['how to fine tune llm', ...]
+})
+```
+
+`location` (ISO 3166-1 country code) localizes ranking and language; `period` (`hour`/`day`/`week`/`month`/`year`) constrains freshness; `limit` caps results per page:
+
+```js
+microlink.search('recetas de pasta', { location: 'es', limit: 10 })
+```
+
+Results compose in depth: every result with a `url` exposes lazy `.html()` and `.markdown()` for fetching the full page content only when needed — the source-expansion pattern for RAG:
+
+```js
+microlink.search('site:openai.com function calling guide').then(page =>
+  Promise.all(
+    page.results.slice(0, 3).map(async result => ({
+      title: result.title,
+      url: result.url,
+      markdown: await result.markdown()
+    }))
+  )
 )
-// routes to → mql(url,
-//   { apiKey, cacheKey: 'uros', meta: false, data: { markdown: { attr: 'markdown' } } },
-//   { headers: { 'x-api-header-cookie': ... } })   // identical to the hand-written mql call
 ```
 
-### Products (v1)
-
-Each calls `mql` and returns the unwrapped result. `meta: false` is set on every non-metadata
-product so the response carries only the requested field.
-
-Every product runs its single `options` bag through `route(options, nested)` (which threads `ctx`,
-extracts `headers` to the HTTP layer, nests capability keys, and sends the rest as top-level query
-params), then calls `mql(url, mqlOpts, got)` and unwraps the field. The table shows each product's
-`nested` key set and the assembled `mqlOpts`.
-
-| Method | `nested` keys | assembled `mqlOpts` | Returns |
-|---|---|---|---|
-| `metadata(url, options)` | — | `{ ...top }` (meta default true) | unified metadata object (`data`) |
-| `logo(url, options)` | `square` | `meta: sub.square ? { logo: { square } } : true, ...top` | `{ url, type, width, height, size, ... }` (`data.logo`) |
-| `markdown(url, options)` | `selector,selectorAll,type` | `meta:false, data:{markdown:{attr:'markdown', ...sub}}, ...top` | `string` (`data.markdown`) |
-| `html(url, options)` | `selector,selectorAll,type` | `meta:false, data:{html:{attr:'html', ...sub}}, ...top` | `string` (`data.html`) |
-| `text(url, options)` | `selector,selectorAll,type` | `meta:false, data:{text:{attr:'text', ...sub}}, ...top` | `string` (`data.text`) |
-| `screenshot(url, options)` | screenshot knobs | `meta:false, screenshot: sub or true, ...top` | `{ url, type, width, height, size, ... }` |
-| `pdf(url, options)` | pdf knobs | `meta:false, pdf: sub or true, ...top` | `{ url, type, size, ... }` |
-| `embed(url, options)` | `maxWidth,maxHeight` | `meta:false, iframe: sub or true, ...top` | `{ html, scripts }` (`data.iframe`) |
-| `technologies(url, options)` | insights config | `meta:false, insights:{technologies:true, lighthouse:false, ...sub}, ...top` | `array` (`data.insights.technologies`) |
-| `lighthouse(url, options)` | insights config | `meta:false, insights:{lighthouse:true, technologies:false, ...sub}, ...top` | lighthouse report |
-| `search(query, options)` | — | wraps `@microlink/google` `createGoogleClient(ctx)(query, options)` | paginated results w/ `.next()`, per-result `.html()`/`.markdown()` |
-| `function(url, code, options)` (alias `run`) | — | wraps `@microlink/function` `fn(code, ctx, got)(url, top)` | `data.function` (`{ isFulfilled, value, profiling, logging }`) |
-
-Reference implementation (`sub`/`top`/`got` come from `route(options, nested)`):
+The page itself serializes too: `page.html()` and `page.markdown()` return the whole Google results page as HTML or Markdown — useful for feeding a SERP straight to an LLM or building your own parser on top:
 
 ```js
-screenshot: (url, options) => {
-  const { sub, top, got } = route(options, SCREENSHOT_KEYS)
-  return mql(url, { ...top, meta: false, screenshot: Object.keys(sub).length ? sub : true }, got)
-    .then(r => r.data.screenshot)
-}
-
-markdown: (url, options) => {
-  const { sub, top, got } = route(options, CONTENT_KEYS)
-  return mql(url, { ...top, meta: false, data: { markdown: { attr: 'markdown', ...sub } } }, got)
-    .then(r => r.data.markdown)
-}
+microlink.search('Lotus Elise S2').then(async page => {
+  const markdown = await page.markdown() // the SERP as Markdown
+  const html = await page.html() // the SERP as HTML
+})
 ```
 
-Note: the data-selector output field is named after the product (`data.markdown`, `data.html`,
-`data.text`) — matching how the field key is chosen in raw mql (`data: { markdown: { attr: 'markdown' } }`).
-
-Notes:
-- `markdown` is the headline example from the brief; it ships even though it wasn't in the explicit
-  product list. It shares one content helper with `html`/`text` (one impl, three `attr` values).
-- Binary products (`screenshot`, `pdf`) return the **rich object** per decision — the `url`,
-  `type`, dimensions, and `size`. (`mql.buffer`/`stream` remain reachable via raw `mql` for anyone
-  who wants bytes; not exposed in v1 product methods.)
-- `logo` is the brand logo metadata field (icon/apple-touch-icon/manifest derived). It returns the
-  same rich object shape as `image`/`screenshot`; `logo(url, { square: true })` prefers the square
-  variant (`meta.logo.square`). It's a focused slice of `metadata()` — `metadata(url)` also carries
-  `logo`, but `logo(url)` is the direct one-field call.
-- `embed` returns the oEmbed-style embeddable iframe: `{ html, scripts }` (the markup to drop in a
-  page + the `<script>` URLs it needs, e.g. a YouTube/Tweet/CodePen embed). It uses the `iframe`
-  param, which runs independently of `meta` (`api/src/extract/meta/index.js:202` adds the iframe
-  rules even when `meta:false`), so `embed(url)` fetches just the embed. `embed(url, { maxWidth, maxHeight })`
-  constrains the embed size (`iframe.maxWidth`/`maxHeight`).
-- `insights` is split into two products — `technologies` and `lighthouse` — each disabling the
-  other half so the call is cheap and the result is the bare field.
-- `function` is a legal JS property name; `run` is provided as a friendlier alias. For `function`,
-  `route()` still extracts `headers`→`got` and the rest→`top`, then calls
-  `fn(code, { ...ctx, ...top }, got)(url)` (`@microlink/function` accepts `fn(code, mqlOpts, gotOpts)`,
-  `function/src/index.js:18`). `search` passes the single bag straight to `@microlink/google`, which
-  splits query opts (`limit`/`location`/`type`/`period`) from passthrough mql opts internally
-  (`google/src/index.js`) — see the headers limitation in follow-ups.
-
-### Collection products (data selectors)
-
-"Get all the X from a page" maps directly to the `data` selector with `selectorAll` + `attr`. The
-API already does the heavy lifting: results come back **absolute** (relative URLs resolved against
-the page), **junk-filtered** (`null`/`false`/`undefined` string values dropped), and **deduped** —
-verified in `api/test/unit/extract/meta/data/selector-all.js:56-139`. So each collection method
-returns a clean `string[]`.
-
-Shared factory:
+Pages chain with `.next()`:
 
 ```js
-const COLLECTION_KEYS = ['selector', 'selectorAll', 'attr', 'type'] // user overrides
-
-const collection = (field, selectorAll, attr, type) => (url, options) => {
-  const { sub, top, got } = route(options, COLLECTION_KEYS)
-  const rule = { selectorAll, attr, type, ...sub } // sub can override selectorAll/attr
-  return mql(url, { ...top, meta: false, data: { [field]: rule } }, got)
-    .then(r => r.data[field])
-}
-```
-
-| Method | rule | Returns |
-|---|---|---|
-| `links(url, options)` | `{ selectorAll: 'a', attr: 'href', type: 'url' }` | `string[]` of absolute link URLs |
-| `images(url, options)` | `{ selectorAll: 'img', attr: 'src', type: 'url' }` | `string[]` of absolute image URLs |
-| `videos(url, options)` | `{ selectorAll: ['video[src]', 'video source[src]'], attr: 'src', type: 'url' }` | `string[]` of absolute video URLs |
-| `audios(url, options)` | `{ selectorAll: ['audio[src]', 'audio source[src]'], attr: 'src', type: 'url' }` | `string[]` of absolute audio URLs |
-
-`selectorAll` accepts an array of selectors and unions the matches (`selector-all.js:80-111`), which
-is why `videos`/`audios` cover both the element's own `src` and nested `<source>` tags.
-
-Scoping/overrides flow through the same single bag, e.g. `links(url, { selectorAll: 'nav a' })` or
-`images(url, { selectorAll: 'article img' })`; `headers`/`cacheKey`/etc. route exactly as elsewhere.
-
-These are distinct from `metadata()`, which returns the single *primary* `video`/`audio` (the
-share-preview media); `videos`/`audios` return **every** media URL on the page.
-
-### Custom data rules — full MQL parity (`extract`)
-
-MQL's headline feature is defining **custom data rules** to scrape any field from any page
-([docs](https://microlink.io/docs/mql/getting-started/overview)). That capability is first-class
-here, not an afterthought: `extract(url, rules, options)` accepts the **exact same `data` rules
-object** as `mql`, so MQL knowledge transfers 1:1. In fact every named product above is just a
-preset over this engine (`markdown` is `data: { markdown: { attr: 'markdown' } }`, `links` is
-`data: { links: { selectorAll: 'a', attr: 'href' } }`, ...).
-
-```js
-const microlink = require('microlink')()
-
-const { data } = await mql(url, { data: { /* rules */ } })   // raw MQL
-const data = await microlink.extract(url, { /* same rules */ }) // same rules, result unwrapped
-```
-
-The full rule grammar is supported verbatim because the rules pass straight through to the API:
-
-- `selector` — first matching element; `selectorAll` — all matches as an array
-- `attr` — which attribute/content to read (`href`, `src`, `markdown`, `html`, `text`, ...)
-- `type` — cast/validate the value: `string`, `number`, `url`, `image`, `date`, `boolean`, `author`,
-  `logo`, `audio`, `video`, `object` (`image`/`logo`/etc. return rich objects with `size_pretty`, dimensions)
-- `evaluate` — custom JS evaluation when CSS isn't enough
-- **nested rules** — an `attr` (or rule) whose value is itself a rules object, for structured output
-
-Canonical example from the MQL docs — typed image extraction (returns a rich image object):
-
-```js
-const github = username =>
-  microlink.extract(`https://github.com/${username}`, {
-    avatar: { selector: 'a[itemprop="image"] img', attr: 'src', type: 'image' }
-  })
-
-const { avatar } = await github('microlinkhq')
-// avatar → { url, type, size, size_pretty, width, height, palette? }
-```
-
-Nested + array rules work the same (structured scrape):
-
-```js
-await microlink.extract('https://news.ycombinator.com', {
-  posts: {
-    selectorAll: '.athing',
-    attr: {                              // nested rules → array of objects
-      title: { selector: '.titleline a', attr: 'text' },
-      link: { selector: '.titleline a', attr: 'href', type: 'url' }
-    }
+microlink.search('node.js frameworks').then(async page => {
+  while (page) {
+    for (const result of page.results) console.log(result.title)
+    page = await page.next()
   }
 })
 ```
 
-Implementation: `extract(url, rules, options) → mql(url, { ...top, meta: false, data: rules }, got).then(r => r.data)`
-(`headers`/`apiKey`/etc. in `options` route through the same single bag). Returns the full `data`
-object of extracted fields. This keeps the library complete: named products for the common cases,
-`extract` for the full long tail of MQL data rules — users never have to drop back to raw `mql`.
+### run(url, code, options)
 
-### CLI
+Run any JavaScript remotely in a sandboxed runtime — no Lambda bundle, no browser fleet, no server ([guide](https://microlink.io/docs/guides/function)). Also exposed as `function`, matching the API parameter name. You write a plain function; the library handles serialization, compression and the API call for you. When the code doesn't reference `page`, no browser is started, making execution faster and cheaper:
 
-Ship a `microlink` binary (in scope per decision; overlaps `@microlink/cli` but is product-shaped).
-Subcommand = product:
-
-```bash
-microlink screenshot https://example.com --fullPage
-microlink markdown   https://example.com
-microlink metadata   https://example.com
-microlink logo       https://example.com --square
-microlink embed      https://www.youtube.com/watch?v=dQw4w9WgXcQ
-microlink pdf        https://example.com
-microlink links      https://example.com
-microlink images     https://example.com
-microlink videos     https://example.com
-microlink audios     https://example.com
-microlink technologies https://example.com
-microlink lighthouse https://example.com
-microlink search     "best coffee" --limit 10 --location es
-microlink function   https://example.com --file ./fn.js
-microlink extract    https://github.com/microlinkhq --data '{"avatar":{"selector":"a[itemprop=image] img","attr":"src","type":"image"}}'
+```js
+microlink.run('https://example.com', () => 40 + 2).then(({ value }) => {
+  console.log(value) // → 42
+})
 ```
 
-- Parse with `mri` (already a dep). First positional = product, second = url/query. All other flags
-  collapse into the **single options bag** and are routed by the same `route()` helper the library
-  uses — the CLI does no bucketing of its own. So `microlink screenshot URL --fullPage --device 'iPhone 11'`
-  → `options: { fullPage: true, device: 'iPhone 11' }` → `fullPage` nests, `device` top-level.
-- Repeated `--header 'cookie: ...'` flags (mri collects to array) build `options.headers` (object),
-  which `route()` sends to the HTTP layer — same as `@microlink/cli`.
-- `extract` takes the rules object as a JSON string via `--data '{...}'` (parsed with `JSON.parse`);
-  remaining flags route as options.
-- `apiKey` from `--api-key` or `MICROLINK_API_KEY` env (matches `@microlink/cli`).
-- Output: strings (`markdown`/`html`/`text`) printed raw to stdout; objects pretty-printed with
-  `jsome`. Errors print `MicrolinkError` message and exit 1.
-- Replace the boilerplate `bin/index.js` (it references undefined `cwd`, reads `./help.txt` from
-  cwd, and `require('microlink')` as a single function — all placeholder).
+When it references `page`, Microlink starts a headless browser and navigates to the URL first, handing your code the full [puppeteer `page`](https://pptr.dev/api/puppeteer.page) for clicks, waits, evaluation and navigation ([browser interaction](https://microlink.io/docs/guides/function/browser-interaction)):
 
-### Module format & packaging — JavaScript, dual ESM + CJS, TypeScript types
+```js
+microlink.run('https://example.com', async ({ page }) => {
+  await page.waitForSelector('h1')
+  return page.$eval('h1', el => el.textContent)
+}).then(({ value }) => {
+  console.log(value) // → 'Example Domain'
+})
+```
 
-Plain JavaScript, no build/transpile step. Dual ESM + CJS from the same source, plus a hand-written
-`.d.ts`. Mirror `@microlink/google` exactly — it's the same shape (a factory that returns a client),
-so its CJS/ESM/types wiring (`google/src/index.js`, `src/main.mjs`, `src/index.d.ts`) is the
-template.
+Any extra option you pass is forwarded into the function scope — the simplest way to make one function reusable across requests ([custom parameters](https://microlink.io/docs/guides/function/writing-functions)):
 
-- **CJS source** — `src/index.js` (`'use strict'`). The factory plus any named helpers:
-  ```js
-  const create = (ctx = {}) => ({ /* products */ })
-  module.exports = create
-  module.exports.MicrolinkError = require('@microlink/mql').MicrolinkError // re-export for catch()
-  ```
-  Usage: `const microlink = require('microlink')()`.
-- **ESM entry** — `src/main.mjs` re-exports the CJS default + named (mirror `google/src/main.mjs`):
-  ```js
-  import create from './index.js'
-  export const MicrolinkError = create.MicrolinkError
-  export default create
-  ```
-  Usage: `import microlink from 'microlink'` then `microlink()`. Named: `import { MicrolinkError }`.
-- **Types** — `src/index.d.ts`, callable-factory style (matches `google/src/index.d.ts`):
-  ```ts
-  interface MicrolinkClient {
-    metadata(url: string, options?: Options): Promise<Metadata>
-    markdown(url: string, options?: ContentOptions): Promise<string>
-    screenshot(url: string, options?: ScreenshotOptions): Promise<Screenshot>
-    links(url: string, options?: CollectionOptions): Promise<string[]>
-    embed(url: string, options?: EmbedOptions): Promise<Embed>
-    logo(url: string, options?: LogoOptions): Promise<Logo>
-    search(query: string, options?: SearchOptions): Promise<SearchPage>
-    function<T = unknown>(url: string, code: FunctionInput, options?: Options): Promise<FunctionResult<T>>
-    run: MicrolinkClient['function']
-    extract(url: string, rules: object, options?: Options): Promise<Record<string, unknown>>
-    /* ...html, text, pdf, videos, audios, images, technologies, lighthouse */
-  }
-  interface ClientOptions { apiKey?: string; endpoint?: string; headers?: Record<string, string>; /* ...transport */ }
-  interface create { (options?: ClientOptions): MicrolinkClient }
-  declare const create: create
-  export default create
-  ```
-  Reuse upstream types where possible: import `SearchPage`/etc. shapes from `@microlink/google` and
-  `FunctionInput`/`FunctionResponse` from `@microlink/function` rather than redefining.
-- **`bin/index.js`** — CLI entry (CJS), calls `require('../src')(ctx)[command](...)`.
-- **`package.json`**:
-  - `exports`: `{ "types": "./src/index.d.ts", "require": "./src/index.js", "import": "./src/main.mjs", "default": "./src/main.mjs" }` (current `"./cli/index.js"` is wrong — that path doesn't exist).
-  - `type`: omit (default CJS); the `.mjs` extension + `import` condition handle ESM. Matches `@microlink/google`.
-  - `bin`: keep `{ "microlink": "bin/index.js" }`.
-  - `files`: ship `src` + `bin` (so `.d.ts` and `.mjs` are published).
-  - `dependencies`: add `@microlink/mql`, `@microlink/function`, `@microlink/google`, `jsome`
-    (CLI pretty-print), keep `mri`. Pin with `~` per repo `.npmrc` (`save-prefix=~`).
-  - delete placeholder root `index.js`.
+```js
+microlink.run(
+  'https://example.com',
+  ({ page, selector }) => page.$eval(selector, el => el.textContent),
+  { selector: 'h1' }
+).then(({ value }) => console.log(value))
+```
 
-Both entry points are exercised by tests: `test/*.mjs` import the ESM build, and a `test/cjs.js`
-(or an AVA case using `require`) loads `src/index.js` — asserting `require('microlink')()` and
-`import microlink from 'microlink'` expose the same product methods (mirrors `mql/test/build.mjs`).
+You can `require()` any npm package inside the function — dependencies are detected, installed on the fly into the sandbox, and cached for subsequent runs. Pin a version with `require('cheerio@1.0.0')`:
 
-## Files to create / modify
+```js
+microlink.run('https://news.ycombinator.com', async ({ page }) => {
+  const cheerio = require('cheerio')
+  const $ = cheerio.load(await page.content())
+  return $('.titleline > a').map((i, el) => $(el).text()).toArray()
+}).then(({ value }) => {
+  console.log(value) // → ['Top HN story', ...]
+})
+```
 
-- `src/index.js` — **new**, CJS factory + product layer over `@microlink/mql`.
-- `src/main.mjs` — **new**, ESM re-export (`export default create`).
-- `src/index.d.ts` — **new**, callable-factory TypeScript types.
-- `bin/index.js` — **rewrite** as product-subcommand CLI.
-- `bin/help.txt` — **rewrite** with real product usage.
-- `package.json` — fix `exports`/`type`/`files`, add `dependencies` + `tsd`; remove dead `index.js`.
-- `README.md` — **rewrite** documenting each product with one example apiece.
-- `test/unit.mjs`, `test/integration.mjs`, `test/cjs.js`, `test/index.test-d.ts` — see Tests.
-- delete `index.js` (placeholder).
+The result carries more than the return value — `console.log` calls are captured in `logging`, and `profiling` reports peak cpu/memory plus per-phase timings (`install`/`build`/`spawn`/`run`) so you can spot the bottleneck ([profiling](https://microlink.io/docs/guides/function/profiling-and-performance)):
 
-## Tests & evals (same commit)
+```js
+microlink.run('https://example.com', ({ page }) => {
+  console.log('visiting page')
+  return page.title()
+}).then(({ isFulfilled, value, logging, profiling }) => {
+  console.log(isFulfilled) // → true
+  console.log(value) // → 'Example Domain'
+  console.log(logging.log) // → [['visiting page']]
+  console.log(profiling.phases) // → { install: 0, build: 7.8, spawn: 68.5, run: 0.02, total: 73.7 }
+})
+```
 
-Two lanes, per the repo's AVA setup (`c8 ava`, `standard` lint).
+When the code throws, the promise still resolves: `isFulfilled` is `false` and `value` carries the error as `{ name, message }`. Resource limits surface the same way with plan-aware errors (`TimeoutError`, `MemoryError`, `CodeSizeError`, ...) — see [troubleshooting](https://microlink.io/docs/guides/function/troubleshooting). From the CLI, put the code in a file and pass extra scope variables as flags: `microlink function https://example.com --file ./fn.js --selector h1`.
 
-- **Gate tests (deterministic, free, fast)** — `test/unit.mjs`. Stub `@microlink/mql` (inject a fake
-  via a small seam, or assert on `mql.getApiUrl`) to verify each product sets the correct params and
-  unwraps the correct field: `markdown` → `data.markdown`, `screenshot` → `data.screenshot`,
-  `technologies` → `data.insights.technologies`, `logo` → `data.logo` (and `{ square: true }` →
-  `meta.logo.square`), `embed` → `data.iframe` with `iframe:true, meta:false` (and `{ maxWidth }` →
-  `iframe.maxWidth`), `links`/`images`/`videos`/`audios` → `data.<field>` with the right
-  `selectorAll`/`attr`/`type` rule, `extract` returns the full `data` object, factory threads `apiKey` into the call options, `function`/`run` alias identity. No
-  network. **Single-bag routing** is asserted explicitly: `screenshot(url, { fullPage: true, device: 'X' })`
-  must call mql with `screenshot:{ fullPage:true }` and top-level `device:'X'`;
-  `links(url, { selectorAll: 'nav a' })` overrides the default rule selector; `markdown(url, { headers:{...} })`
-  forwards `headers` to mql's **3rd arg** (HTTP layer), not the query string; instance `apiKey` is
-  overridable by a per-call key.
-- **Periodic evals (paid-ish, real free API)** — `test/integration.mjs`. Hit
-  `https://api.microlink.io` against a stable URL (e.g. `https://example.com`) and assert
-  shape/threshold: `markdown` returns a non-empty string, `screenshot` returns an object with a
-  `url` and positive `width`, `metadata` has a `title`, `links`/`images` return arrays of
-  absolute `http(s)` URLs (and `links` is deduped), and a **custom data rule** via `extract` works
-  end-to-end — the docs avatar example (`extract('https://github.com/microlinkhq', { avatar: { selector, attr:'src', type:'image' } })`)
-  returns `{ avatar: { url, size_pretty } }`. Mark with longer AVA timeout; allowed to be
-  non-deterministic but must pass shape thresholds.
-- CLI smoke: spawn `bin/index.js markdown https://example.com` and assert stdout is non-empty
-  string; `links ...` / `screenshot ...` emit JSON (array / object with a `url`).
-- **Type tests** — `test/index.test-d.ts` run with `tsd` (mirror `@microlink/mql`, which lints with
-  `standard && tsd`). Assert `require('microlink')()` and `import microlink` are callable, return a
-  client, and each method's return type is correct: `markdown(...)` is `Promise<string>`,
-  `links(...)` is `Promise<string[]>`, `screenshot(...)` resolves to the rich object, `search('q', { type: 'news' })`
-  narrows to `NewsPage`. Add `tsd` to devDependencies and to the `lint`/`test` script.
+## Authenticated requests
 
-## Verification (end to end)
+Secrets stay out of URLs: `apiKey` is sent as the `x-api-key` header, and `headers` travel as real request headers:
 
-1. `pnpm install` (adds the three `@microlink/*` deps).
-2. `pnpm test` — runs `standard` + `standard-markdown` lint, then `c8 ava` (unit + integration).
-3. Manual library check:
-   ```js
-   const microlink = require('.')()
-   console.log(await microlink.markdown('https://example.com'))      // string
-   console.log(await microlink.screenshot('https://example.com'))    // { url, type, ... }
-   console.log((await microlink.search('coffee', { limit: 3 })).results.length)
-   ```
-4. Manual CLI check:
-   ```bash
-   node bin/index.js markdown https://example.com
-   node bin/index.js screenshot https://example.com --fullPage
-   node bin/index.js search "coffee" --limit 3
-   ```
-5. Confirm ESM path: `node --input-type=module -e "import create from './src/main.mjs'; console.log(typeof create().markdown)"`.
+```js
+const microlink = require('microlink.io')({ apiKey: process.env.MICROLINK_API_KEY })
 
-## Open follow-ups (not blocking v1)
+microlink.markdown('https://x.com/some/article', {
+  headers: { 'x-api-header-cookie': 'auth_token=...' } // forwarded to the target as `cookie`
+}).then(console.log)
+```
 
-- Expose a `buffer`/`stream` escape hatch on `screenshot`/`pdf` if users ask for raw bytes
-  (`mql.buffer` already supports it).
-- Consider deprecating `@microlink/cli` in favor of this product CLI once parity is confirmed.
-- `search` can't forward `options.headers` to the HTTP layer: `@microlink/google` calls
-  `mql(url, opts)` with only two args (`google/src/index.js`), so there's no `gotOpts` seam. Auth
-  via `apiKey` works (query/`x-api-key`); secret target-site headers don't. Fine for v1 (search
-  rarely needs them); fix upstream by adding a 3rd-arg passthrough to `@microlink/google` if needed.
+## Error handling
+
+Any API error rejects with a `MicrolinkError` carrying `code`, `statusCode` and a human-readable `description`:
+
+```js
+const { MicrolinkError } = require('microlink.io')
+
+microlink.screenshot('https://example.com').catch(error => {
+  if (error instanceof MicrolinkError) console.error(error.code, error.description)
+})
+```
+
+## CLI
+
+The package ships a `microlink` binary where every product is a subcommand:
+
+```bash
+microlink markdown https://example.com
+microlink screenshot https://example.com --fullPage
+microlink logo https://github.com --square
+microlink links https://example.com
+microlink search "best coffee" --limit 10 --location es
+microlink extract https://microlink.io --data '{"image":{"selector":"meta[property=og:image]","attr":"content","type":"image"}}'
+microlink function https://example.com --file ./fn.js
+```
+
+Flags map to the same single options bag as the library. Use `--api-key` (or the `MICROLINK_API_KEY` environment variable) for authenticated calls and repeatable `--header 'Name: value'` flags for request headers. Strings print raw to stdout; objects pretty-print as JSON.
+
+## Related
+
+- [@microlink/mql](https://github.com/microlinkhq/mql) — the low-level Microlink Query Language client (raw envelopes, `buffer`/`stream` access).
+- [@microlink/google](https://github.com/microlinkhq/google) — structured Google data, powering `search`.
+- [@microlink/function](https://github.com/microlinkhq/function) — remote JavaScript functions, powering `function`/`run` ([guides](https://microlink.io/docs/guides/function)).
+
+## License
+
+**microlink.io** © [microlink.io](https://microlink.io), released under the [MIT](https://github.com/microlinkhq/microlink/blob/master/LICENSE.md) License.
+
+> [microlink.io](https://microlink.io) · GitHub [microlinkhq](https://github.com/microlinkhq) · X [@microlinkhq](https://x.com/microlinkhq)

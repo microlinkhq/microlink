@@ -1,0 +1,5 @@
+lockfile: false
+
+allowBuilds:
+  simple-git-hooks: true
+  spawn-sync: false
