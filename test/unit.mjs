@@ -7,7 +7,8 @@ const proxyquire = require('proxyquire')
 const DATA = {
   title: 'Example Domain',
   markdown: '# Example',
-  html: '<a href="mailto:hello@example.com">hello@example.com</a> <img src="logo@2x.png"> sales@example.com',
+  html: '<h1>Example</h1>',
+  emails: ['hello@example.com', 'sales@example.com'],
   text: 'Example',
   logo: { url: 'https://example.com/logo.png', type: 'png' },
   screenshot: { url: 'https://example.com/shot.png', width: 1280 },
@@ -176,14 +177,22 @@ test('video/audio detect the primary media and unwrap the field', async t => {
   t.deepEqual(calls[1].mqlOpts, { meta: false, audio: true })
 })
 
-test('emails extracts deduped addresses from the page html', async t => {
+test('emails uses the `email` type rule over the page html', async t => {
   const { create, calls } = setup()
   const emails = await create().emails(URL)
   t.deepEqual(emails, ['hello@example.com', 'sales@example.com'])
   t.deepEqual(calls[0].mqlOpts, {
     meta: false,
-    data: { html: { attr: 'html' } }
+    data: { emails: { selector: 'html', attr: 'html', type: 'email' } }
   })
+})
+
+test('collections resolve to an empty array when nothing matches', async t => {
+  // the API omits the field entirely when the rule matches nothing
+  const mqlStub = () => Promise.resolve({ status: 'success', data: {} })
+  const create = proxyquire('../src/index.js', { '@microlink/mql': mqlStub })
+  t.deepEqual(await create().emails(URL), [])
+  t.deepEqual(await create().links(URL), [])
 })
 
 test('collections set the right default rules', async t => {

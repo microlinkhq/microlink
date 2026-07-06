@@ -161,7 +161,7 @@ microlink.links('https://example.com', { selectorAll: 'nav a' }).then(links => {
 
 ### emails(url, options)
 
-Every email address present on the page — from `mailto:` links and plain text alike — deduped, with asset filenames that look like emails (`logo@2x.png`) filtered out:
+Every email address present on the page — from `mailto:` links and plain text alike. It's a preset over the API's `email` rule type, which extracts and validates addresses server-side:
 
 ```js
 microlink.emails('https://microlink.io').then(emails => {
