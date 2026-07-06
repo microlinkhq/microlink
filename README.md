@@ -252,19 +252,61 @@ Scoping/overrides flow through the same single bag, e.g. `links(url, { selectorA
 These are distinct from `metadata()`, which returns the single *primary* `video`/`audio` (the
 share-preview media); `videos`/`audios` return **every** media URL on the page.
 
-**Generic escape hatch — `extract(url, rules, options)`.** For anything without a named method,
-expose the raw data selector directly (returns the full `data` object of extracted fields):
+### Custom data rules — full MQL parity (`extract`)
+
+MQL's headline feature is defining **custom data rules** to scrape any field from any page
+([docs](https://microlink.io/docs/mql/getting-started/overview)). That capability is first-class
+here, not an afterthought: `extract(url, rules, options)` accepts the **exact same `data` rules
+object** as `mql`, so MQL knowledge transfers 1:1. In fact every named product above is just a
+preset over this engine (`markdown` is `data: { markdown: { attr: 'markdown' } }`, `links` is
+`data: { links: { selectorAll: 'a', attr: 'href' } }`, ...).
 
 ```js
 const microlink = require('microlink')()
-const { stars } = await microlink.extract('https://github.com/microlinkhq', {
-  stars: { selector: '[data-tab-item="stars"] .Counter', type: 'number' }
-})
-// extract → mql(url, { ...top, meta: false, data: rules }, got).then(r => r.data)
+
+const { data } = await mql(url, { data: { /* rules */ } })   // raw MQL
+const data = await microlink.extract(url, { /* same rules */ }) // same rules, result unwrapped
 ```
 
-This keeps the library complete: named products for the common cases, `extract` for the long tail,
-so users never have to drop back to raw `mql`.
+The full rule grammar is supported verbatim because the rules pass straight through to the API:
+
+- `selector` — first matching element; `selectorAll` — all matches as an array
+- `attr` — which attribute/content to read (`href`, `src`, `markdown`, `html`, `text`, ...)
+- `type` — cast/validate the value: `string`, `number`, `url`, `image`, `date`, `boolean`, `author`,
+  `logo`, `audio`, `video`, `object` (`image`/`logo`/etc. return rich objects with `size_pretty`, dimensions)
+- `evaluate` — custom JS evaluation when CSS isn't enough
+- **nested rules** — an `attr` (or rule) whose value is itself a rules object, for structured output
+
+Canonical example from the MQL docs — typed image extraction (returns a rich image object):
+
+```js
+const github = username =>
+  microlink.extract(`https://github.com/${username}`, {
+    avatar: { selector: 'a[itemprop="image"] img', attr: 'src', type: 'image' }
+  })
+
+const { avatar } = await github('microlinkhq')
+// avatar → { url, type, size, size_pretty, width, height, palette? }
+```
+
+Nested + array rules work the same (structured scrape):
+
+```js
+await microlink.extract('https://news.ycombinator.com', {
+  posts: {
+    selectorAll: '.athing',
+    attr: {                              // nested rules → array of objects
+      title: { selector: '.titleline a', attr: 'text' },
+      link: { selector: '.titleline a', attr: 'href', type: 'url' }
+    }
+  }
+})
+```
+
+Implementation: `extract(url, rules, options) → mql(url, { ...top, meta: false, data: rules }, got).then(r => r.data)`
+(`headers`/`apiKey`/etc. in `options` route through the same single bag). Returns the full `data`
+object of extracted fields. This keeps the library complete: named products for the common cases,
+`extract` for the full long tail of MQL data rules — users never have to drop back to raw `mql`.
 
 ### CLI
 
@@ -286,6 +328,7 @@ microlink technologies https://example.com
 microlink lighthouse https://example.com
 microlink search     "best coffee" --limit 10 --location es
 microlink function   https://example.com --file ./fn.js
+microlink extract    https://github.com/microlinkhq --data '{"avatar":{"selector":"a[itemprop=image] img","attr":"src","type":"image"}}'
 ```
 
 - Parse with `mri` (already a dep). First positional = product, second = url/query. All other flags
@@ -294,6 +337,8 @@ microlink function   https://example.com --file ./fn.js
   → `options: { fullPage: true, device: 'iPhone 11' }` → `fullPage` nests, `device` top-level.
 - Repeated `--header 'cookie: ...'` flags (mri collects to array) build `options.headers` (object),
   which `route()` sends to the HTTP layer — same as `@microlink/cli`.
+- `extract` takes the rules object as a JSON string via `--data '{...}'` (parsed with `JSON.parse`);
+  remaining flags route as options.
 - `apiKey` from `--api-key` or `MICROLINK_API_KEY` env (matches `@microlink/cli`).
 - Output: strings (`markdown`/`html`/`text`) printed raw to stdout; objects pretty-printed with
   `jsome`. Errors print `MicrolinkError` message and exit 1.
@@ -389,7 +434,9 @@ Two lanes, per the repo's AVA setup (`c8 ava`, `standard` lint).
   `https://api.microlink.io` against a stable URL (e.g. `https://example.com`) and assert
   shape/threshold: `markdown` returns a non-empty string, `screenshot` returns an object with a
   `url` and positive `width`, `metadata` has a `title`, `links`/`images` return arrays of
-  absolute `http(s)` URLs (and `links` is deduped). Mark with longer AVA timeout; allowed to be
+  absolute `http(s)` URLs (and `links` is deduped), and a **custom data rule** via `extract` works
+  end-to-end — the docs avatar example (`extract('https://github.com/microlinkhq', { avatar: { selector, attr:'src', type:'image' } })`)
+  returns `{ avatar: { url, size_pretty } }`. Mark with longer AVA timeout; allowed to be
   non-deterministic but must pass shape thresholds.
 - CLI smoke: spawn `bin/index.js markdown https://example.com` and assert stdout is non-empty
   string; `links ...` / `screenshot ...` emit JSON (array / object with a `url`).
