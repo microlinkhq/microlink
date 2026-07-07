@@ -52,12 +52,19 @@ const proxySchema = objectLikeSchema(
   z.union([z.string().min(1), z.object({}).catchall(z.unknown())])
 )
 
+// A CSS selector or an array of selectors (ordered fallbacks / unioned matches),
+// matching what the Microlink API and the microlink.io library accept.
+const selectorSchema = z.union([
+  z.string().min(1),
+  z.array(z.string().min(1)).min(1)
+])
+
 // A single data-extraction rule: CSS selector(s) + optional attr/type/evaluate/nested data.
 const dataSingleRuleSchema = objectLikeSchema(
   z
     .object({
-      selector: z.string().min(1).optional(),
-      selectorAll: z.string().min(1).optional(),
+      selector: selectorSchema.optional(),
+      selectorAll: selectorSchema.optional(),
       attr: z.string().min(1).optional(),
       type: z.string().min(1).optional(),
       evaluate: z.string().min(1).optional(),
@@ -306,8 +313,6 @@ export const metadataInputSchema = baseSchema
     meta: z.union([booleanSchema, metaConfigSchema]).optional()
   })
   .strict()
-
-const selectorSchema = z.union([z.string().min(1), z.array(z.string().min(1))])
 
 // Content tools (markdown/html/text) accept a selector to scope the extraction.
 const contentSchema = baseSchema

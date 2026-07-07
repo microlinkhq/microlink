@@ -180,6 +180,21 @@ test('data schema accepts an array of fallback rule objects', () => {
   assert.equal(result.success, true)
 })
 
+test('data schema accepts array selector/selectorAll (union of selectors)', () => {
+  const result = extractInputSchema.safeParse({
+    url: 'https://microlink.io',
+    data: {
+      media: {
+        selectorAll: ['video[src]', 'video source[src]'],
+        attr: 'src',
+        type: 'url'
+      }
+    }
+  })
+
+  assert.equal(result.success, true)
+})
+
 test('data schema rejects non-object rule values', () => {
   const result = extractInputSchema.safeParse({
     url: 'https://microlink.io',
