@@ -242,6 +242,60 @@ test('adds forced flag when option object is present but empty', async t => {
   })
 })
 
+test('forced flag wins over an explicit false toggle', async t => {
+  const originalFetch = globalThis.fetch
+
+  t.after(() => {
+    globalThis.fetch = originalFetch
+  })
+
+  globalThis.fetch = async (input, init) => {
+    const request = getRequestSnapshot(input, init)
+    const url = request.url
+
+    // `audio: false` on a dedicated audio tool must not disable its capability
+    assert.equal(url.searchParams.get('audio'), 'true')
+    assert.equal(url.searchParams.get('meta'), 'false')
+
+    return makeJsonResponse({ status: 'success', data: {} })
+  }
+
+  await callMicrolink({
+    params: {
+      url: 'https://example.com',
+      audio: false
+    },
+    forcedFlags: { audio: true, meta: false }
+  })
+})
+
+test('empty meta object is kept enabled despite forced meta=false', async t => {
+  const originalFetch = globalThis.fetch
+
+  t.after(() => {
+    globalThis.fetch = originalFetch
+  })
+
+  globalThis.fetch = async (input, init) => {
+    const request = getRequestSnapshot(input, init)
+    const url = request.url
+
+    // `meta: {}` means the caller wants metadata; forced `meta: false` must not drop it
+    assert.equal(url.searchParams.get('meta'), 'true')
+    assert.equal(url.searchParams.get('video'), 'true')
+
+    return makeJsonResponse({ status: 'success', data: {} })
+  }
+
+  await callMicrolink({
+    params: {
+      url: 'https://example.com',
+      meta: {}
+    },
+    forcedFlags: { video: true, meta: false }
+  })
+})
+
 test('normalizes empty object toggles to true without forced flags', async t => {
   const originalFetch = globalThis.fetch
 

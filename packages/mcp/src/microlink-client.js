@@ -18,7 +18,7 @@ const RESPONSE_HEADER_KEYS = [
 const FREE_ENDPOINT_ORIGIN = 'https://api.microlink.io'
 const FREE_QUOTA_EXCEEDED_HINT =
   'Free daily quota reached (50 requests/day). Extend your limit by getting an API key at https://microlink.io/#pricing.'
-const EMPTY_OBJECT_MEANS_TRUE_FLAGS = ['screenshot', 'pdf', 'insights']
+const EMPTY_OBJECT_MEANS_TRUE_FLAGS = ['screenshot', 'pdf', 'insights', 'meta']
 
 function isPlainObject (value) {
   return Object.prototype.toString.call(value) === '[object Object]'
@@ -97,7 +97,12 @@ function withForcedFlags (opts, forcedFlags = {}) {
   }
 
   for (const [flagName, flagValue] of Object.entries(forcedFlags)) {
-    if (!hasSerializableValue(nextOpts[flagName])) {
+    const currentValue = nextOpts[flagName]
+
+    // A bare `false` never carries configuration; forced flags win over it so
+    // a dedicated tool can't be disabled from its own input (e.g. `audio: false`
+    // on `microlink_audio`).
+    if (currentValue === false || !hasSerializableValue(currentValue)) {
       nextOpts[flagName] = flagValue
     }
   }
