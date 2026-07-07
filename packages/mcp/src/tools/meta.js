@@ -8,10 +8,13 @@ export function meta (server) {
     [
       'Extract normalized metadata from any public URL via Microlink.',
       'Returns: `title`, `description`, `lang`, `author`, `publisher`, `date`, `url`, `image` (with dimensions and file info), and `logo` (publisher favicon).',
-      'Pass `meta: false` to skip metadata extraction entirely — useful when you only need a screenshot or video and want a faster response.',
+      'Pass `meta: false` to skip metadata extraction entirely and get a faster response.',
       'Pass a config object to include or exclude specific fields: `{ logo: true, title: true }` returns only those fields; `{ image: false }` returns everything except image.'
     ].join(' '),
     metaInputSchema,
-    { meta: true }
+    // No forced flags: metadata is the API default, and the input schema
+    // advertises `meta: false` / field-selection objects, so tool input must
+    // flow through untouched (forcing `meta: true` would silently ignore it).
+    {}
   )
 }
