@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 
 import { meta } from '../src/tools/meta.js'
 import { audio } from '../src/tools/audio.js'
-import { palette } from '../src/tools/palette.js'
+import { logo } from '../src/tools/logo.js'
 
 // Capture the handler each tool registers so we can invoke it directly, then
 // stub `fetch` to inspect the request the handler builds against Microlink.
@@ -71,17 +71,26 @@ test('microlink_audio keeps its forced capability against `audio: false`', async
   })
 })
 
-// Same class as the meta tool: the palette tool advertises `meta: false` but
-// used to force `meta: true`. Its own capability stays forced; `meta` flows.
-test('microlink_palette keeps `palette` forced but lets `meta: false` through', async t => {
-  const handlers = captureTool(palette)
+// microlink_logo mirrors microlink.logo: metadata on by default, and `square`
+// scopes it to `meta.logo.square` (not a bare top-level `square` param).
+test('microlink_logo requests metadata by default', async t => {
+  const handlers = captureTool(logo)
 
   await withStubbedRequest(t, async getUrl => {
-    await handlers.microlink_palette(
-      { url: 'https://example.com', palette: false, meta: false },
+    await handlers.microlink_logo({ url: 'https://example.com' }, {})
+    assert.equal(getUrl().searchParams.get('meta'), 'true')
+  })
+})
+
+test('microlink_logo maps `square` to meta.logo.square', async t => {
+  const handlers = captureTool(logo)
+
+  await withStubbedRequest(t, async getUrl => {
+    await handlers.microlink_logo(
+      { url: 'https://example.com', square: true },
       {}
     )
-    assert.equal(getUrl().searchParams.get('palette'), 'true')
-    assert.equal(getUrl().searchParams.get('meta'), 'false')
+    assert.equal(getUrl().searchParams.get('meta.logo.square'), 'true')
+    assert.equal(getUrl().searchParams.get('square'), null)
   })
 })

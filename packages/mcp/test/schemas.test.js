@@ -7,7 +7,7 @@ import {
   insightsInputSchema,
   markdownInputSchema,
   metaInputSchema,
-  paletteInputSchema,
+  logoInputSchema,
   pdfInputSchema,
   screenshotInputSchema,
   textInputSchema,
@@ -249,36 +249,46 @@ test('meta schema rejects unknown fields in config object', () => {
   assert.equal(result.success, false)
 })
 
-test('palette schema accepts minimal valid payload', () => {
-  const result = paletteInputSchema.safeParse({
+test('logo schema accepts minimal valid payload', () => {
+  const result = logoInputSchema.safeParse({
     url: 'https://microlink.io'
   })
 
   assert.equal(result.success, true)
 })
 
-test('palette schema accepts palette: true', () => {
-  const result = paletteInputSchema.safeParse({
+test('logo schema accepts square: true', () => {
+  const result = logoInputSchema.safeParse({
     url: 'https://microlink.io',
-    palette: true
+    square: true
   })
 
   assert.equal(result.success, true)
 })
 
-test('palette schema rejects non-boolean palette value', () => {
-  const result = paletteInputSchema.safeParse({
+test('logo schema coerces string boolean square', () => {
+  const result = logoInputSchema.safeParse({
     url: 'https://microlink.io',
-    palette: 'yes'
+    square: 'true'
+  })
+
+  assert.equal(result.success, true)
+  assert.equal(result.data.square, true)
+})
+
+test('logo schema rejects non-boolean square value', () => {
+  const result = logoInputSchema.safeParse({
+    url: 'https://microlink.io',
+    square: 'yes'
   })
 
   assert.equal(result.success, false)
 })
 
-test('palette schema rejects unknown top-level keys', () => {
-  const result = paletteInputSchema.safeParse({
+test('logo schema rejects unknown top-level keys', () => {
+  const result = logoInputSchema.safeParse({
     url: 'https://microlink.io',
-    palette: true,
+    square: true,
     unknownParam: 'nope'
   })
 

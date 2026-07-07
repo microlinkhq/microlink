@@ -298,10 +298,9 @@ export const videoInputSchema = baseSchema
   })
   .strict()
 
-export const paletteInputSchema = baseSchema
+export const logoInputSchema = baseSchema
   .extend({
-    meta: z.union([booleanSchema, metaConfigSchema]).optional(),
-    palette: booleanSchema.optional()
+    square: booleanSchema.optional()
   })
   .strict()
 

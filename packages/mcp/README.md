@@ -148,14 +148,14 @@ Tools can also be invoked directly. Every tool takes a `url` and returns `struct
 - `microlink_audio`: playable audio source extraction.
 - `microlink_insights`: Lighthouse + technology detection.
 - `microlink_meta`: normalized metadata extraction with include/exclude config.
-- `microlink_palette`: image palette and contrast color extraction.
+- `microlink_logo`: brand logo extraction.
 - `microlink_markdown`: URL to Markdown conversion.
 - `microlink_text`: URL to plain text conversion.
 - Cross-cutting request capabilities: device/viewport emulation, click/scroll actions, JS/CSS injection, modules, wait conditions, cache controls (`ttl`, `staleTtl`, `force`), retries/timeouts, media mode, headers/proxy, and endpoint/auth routing.
 
 ### Response shape
 
-- All tools (`microlink_extract`, `microlink_screenshot`, `microlink_pdf`, `microlink_video`, `microlink_audio`, `microlink_insights`, `microlink_meta`, `microlink_palette`, `microlink_markdown`, `microlink_text`) return `structuredContent` with:
+- All tools (`microlink_extract`, `microlink_screenshot`, `microlink_pdf`, `microlink_video`, `microlink_audio`, `microlink_insights`, `microlink_meta`, `microlink_logo`, `microlink_markdown`, `microlink_text`) return `structuredContent` with:
   - `endpoint`, `requestUrl`, `finalUrl`, `statusCode`, `responseHeaders`, `microlink`
   - `microlink` preserves Microlink API JSend payload (`status`, `data`, and error fields like `code`, `id`, `message`, `more`, `report`).
   - `responseHeaders` includes key cache/rate headers (such as `x-cache-status`, `cf-cache-status`, `cache-control`, `x-rate-limit-*`) when present.
@@ -370,19 +370,18 @@ Extract normalized metadata from any public URL. Returns: `title`, `description`
 
 ---
 
-### `microlink_palette`
+### `microlink_logo`
 
-Extract a color palette from images detected on any public URL. For each image returns: `palette` (hex colors from most to least dominant), `background_color` (optimal WCAG-contrast background), `color` (best overlay color), and `alternative_color`.
+Extract the brand logo of any public URL. Returns the logo asset in `data.logo`: `url`, `type`, `width`, `height`, `size`, and `size_pretty`.
 
-Color data is nested under each image field (e.g. `data.image.palette`). Useful for generating design tokens, theming, or accessibility checks.
+Mirrors the `microlink.logo(url, { square })` library method. Useful for building link previews, favicons, or brand cards.
 
 **Key parameters:**
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `url` | `string` | The URL to analyze *(required)* |
-| `meta` | `boolean \| object` | Control metadata fields returned |
-| `palette` | `boolean` | Enable palette extraction (default: `true`) |
+| `square` | `boolean` | Prefer a square (icon-shaped) logo variant |
 
 ---
 

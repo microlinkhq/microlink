@@ -43,7 +43,14 @@ function getApiKeyFromRequestHeaders (headers) {
   return undefined
 }
 
-export function register (server, name, description, inputSchema, forcedFlags) {
+export function register (
+  server,
+  name,
+  description,
+  inputSchema,
+  forcedFlags,
+  mapParams
+) {
   server.registerTool(
     name,
     {
@@ -75,11 +82,12 @@ export function register (server, name, description, inputSchema, forcedFlags) {
         const headerApiKey = getApiKeyFromRequestHeaders(
           extra?.requestInfo?.headers
         )
+        const data = mapParams ? mapParams(parsedArgs.data) : parsedArgs.data
         const params =
-          parsedArgs.data.apiKey || !headerApiKey
-            ? parsedArgs.data
+          data.apiKey || !headerApiKey
+            ? data
             : {
-                ...parsedArgs.data,
+                ...data,
                 apiKey: headerApiKey
               }
 

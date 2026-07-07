@@ -1,9 +1,9 @@
 import { audio } from './audio.js'
 import { extract } from './extract.js'
 import { insights } from './insights.js'
+import { logo } from './logo.js'
 import { markdown } from './markdown.js'
 import { meta } from './meta.js'
-import { palette } from './palette.js'
 import { pdf } from './pdf.js'
 import { screenshot } from './screenshot.js'
 import { text } from './text.js'
@@ -17,7 +17,7 @@ export function tools (server) {
   audio(server)
   insights(server)
   meta(server)
-  palette(server)
+  logo(server)
   markdown(server)
   text(server)
 }
