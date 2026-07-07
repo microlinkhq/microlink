@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 
 import { meta } from '../src/tools/meta.js'
 import { audio } from '../src/tools/audio.js'
+import { palette } from '../src/tools/palette.js'
 
 // Capture the handler each tool registers so we can invoke it directly, then
 // stub `fetch` to inspect the request the handler builds against Microlink.
@@ -66,6 +67,21 @@ test('microlink_audio keeps its forced capability against `audio: false`', async
       {}
     )
     assert.equal(getUrl().searchParams.get('audio'), 'true')
+    assert.equal(getUrl().searchParams.get('meta'), 'false')
+  })
+})
+
+// Same class as the meta tool: the palette tool advertises `meta: false` but
+// used to force `meta: true`. Its own capability stays forced; `meta` flows.
+test('microlink_palette keeps `palette` forced but lets `meta: false` through', async t => {
+  const handlers = captureTool(palette)
+
+  await withStubbedRequest(t, async getUrl => {
+    await handlers.microlink_palette(
+      { url: 'https://example.com', palette: false, meta: false },
+      {}
+    )
+    assert.equal(getUrl().searchParams.get('palette'), 'true')
     assert.equal(getUrl().searchParams.get('meta'), 'false')
   })
 })

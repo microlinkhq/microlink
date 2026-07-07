@@ -12,6 +12,9 @@ export function palette (server) {
       'Useful for generating design tokens, theming, or accessibility checks from real page images.'
     ].join(' '),
     paletteInputSchema,
-    { palette: true, meta: true }
+    // Force only the tool's own capability. Metadata is the API default, and
+    // the schema/README advertise `meta: false` / field-selection objects, so
+    // forcing `meta: true` would silently ignore that documented input.
+    { palette: true }
   )
 }
