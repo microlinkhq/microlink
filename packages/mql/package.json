@@ -1,0 +1,105 @@
+{
+  "name": "@microlink/mql",
+  "description": "Microlink Query Language. The official HTTP client to interact with Microlink API for Node.js, browsers & Deno.",
+  "homepage": "https://microlink.io/mql",
+  "version": "0.16.1",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "require": "./src/index.js",
+    "import": "./src/main.mjs",
+    "default": "./src/main.mjs"
+  },
+  "author": {
+    "email": "josefrancisco.verdu@gmail.com",
+    "name": "Kiko Beats",
+    "url": "https://github.com/Kikobeats"
+  },
+  "contributors": [
+    {
+      "name": "Dani de la Cruz",
+      "email": "5173869+delacruz-dev@users.noreply.github.com"
+    },
+    {
+      "name": "ndom91",
+      "email": "yo@ndo.dev"
+    },
+    {
+      "name": "Askar Yusupov",
+      "email": "devex.soft@gmail.com"
+    },
+    {
+      "name": "Gabe O'Leary",
+      "email": "oleary.gabe@gmail.com"
+    }
+  ],
+  "repository": {
+    "directory": "packages/mql",
+    "type": "git",
+    "url": "git+https://github.com/microlinkhq/microlink.git"
+  },
+  "bugs": {
+    "url": "https://github.com/microlinkhq/microlink/issues"
+  },
+  "keywords": [
+    "api",
+    "language",
+    "microlink",
+    "mql",
+    "query"
+  ],
+  "dependencies": {
+    "flattie": "~1.1.1",
+    "ky": "~2.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "latest",
+    "@rollup/plugin-node-resolve": "latest",
+    "@rollup/plugin-replace": "latest",
+    "@rollup/plugin-terser": "latest",
+    "async-listen": "latest",
+    "ava": "7",
+    "rollup": "latest",
+    "rollup-plugin-filesize": "latest",
+    "tinyspawn": "latest",
+    "tsd": "latest"
+  },
+  "engines": {
+    "node": ">= 22"
+  },
+  "files": [
+    "dist",
+    "src/constants.js",
+    "src/index.js",
+    "src/main.mjs"
+  ],
+  "scripts": {
+    "build": "rollup -c rollup.config.js --bundleConfigAsCjs",
+    "clean:build": "rm -rf dist/index.js",
+    "dev": "pnpm run build -- -w",
+    "lint": "tsd",
+    "prebuild": "pnpm run clean:build",
+    "prepublishOnly": "pnpm run build",
+    "pretest": "pnpm run lint && pnpm run build",
+    "test": "ava --verbose"
+  },
+  "license": "MIT",
+  "ava": {
+    "files": [
+      "test/**/*",
+      "!test/clients.mjs"
+    ],
+    "timeout": "1m"
+  },
+  "tsd": {
+    "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+        "@microlink/mql": [
+          "./dist/index.d.ts"
+        ]
+      }
+    },
+    "directory": "test"
+  }
+}

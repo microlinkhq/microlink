@@ -1,0 +1,146 @@
+{
+  "results": [
+    {
+      "title": "Learn Node.js Streams in 25 minutes | NodeJS Tutorials for ...",
+      "channel": "Dipesh Malvia",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQjpuhWZ9Rk8IvRvNx0RTrG9BMPxhTHpxDlr-eY6Be27o0iWf4x6QO3w&s"
+      },
+      "date": "2024-08-22T12:00:00.000Z",
+      "url": "https://www.youtube.com/watch?v=EcznOgzOdxI",
+      "description": "In this video we will understand what are streams, types of streams and their uses in Node.js ? You will learn how to create Readable, ...",
+      "publisher": "YouTube",
+      "duration": 1502000,
+      "duration_pretty": "25m"
+    },
+    {
+      "title": "A Deep Dive into Node.js Streams | Masterclass",
+      "channel": "Platformatic",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTyiTytiwE98fnqJb1Brv8a8IbuckuN7k-1ScStstbA9ly6503r2o1rQ&s"
+      },
+      "date": "2024-04-22T12:00:00.000Z",
+      "url": "https://www.youtube.com/watch?v=edB964-YYpE",
+      "description": "Streams are the lifeblood of many Node.js applications, enabling efficient data processing and manipulation. But their evolution has been ...",
+      "publisher": "YouTube",
+      "duration": 4546000,
+      "duration_pretty": "1h"
+    },
+    {
+      "title": "Everything You Should Know about Node.js Streams ...",
+      "channel": "Erick Wendel",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZgLRtzNYcjtOBb0DzCBK3IW3PD79e-_Zo_3d7NBH2mDF9xkUTDFGdCw&s"
+      },
+      "date": "2022-05-24T12:00:00.000Z",
+      "url": "https://www.youtube.com/watch?v=BdePYKgrMh0",
+      "description": "Hello, my friend. I'm Erick Wendel and welcome to one of the most important videos on this channel. Today is the #NodejsStreams day, ...",
+      "publisher": "YouTube",
+      "duration": 2690000,
+      "duration_pretty": "45m"
+    },
+    {
+      "title": "10. Mastering Node.js Streams: The Ultimate Guide for High ...",
+      "channel": "Leela Web Dev",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdBOBzmtYXn0QqEajloiJ_G8kuZ0cEYwICMVUiFYKY58ImqUaHd553Yw&s"
+      },
+      "date": "2025-03-24T12:00:00.000Z",
+      "url": "https://www.youtube.com/watch?v=eTWWHB_iDjM",
+      "description": "Node.js Streams Explained Like Never Before! Streams are one of the most powerful and important concepts in Node.js, allowing you to ...",
+      "publisher": "YouTube",
+      "duration": 545000,
+      "duration_pretty": "9m"
+    },
+    {
+      "title": "Node.js Streams Tutorial - An Introduction to Node.js Streams",
+      "channel": "Fullstack Academy",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmWQX_fFDsmVgUcG01u0szcaPAY1z5LpMBkRw3bzgbpjyJXjMhFiVf9Q&s"
+      },
+      "video": {
+        "url": "https://encrypted-vtbn0.gstatic.com/video?q=tbn:ANd9GcTPLGiupHfwURRNB9wrN4MyMbisR4Q7To4T_w"
+      },
+      "date": "2017-01-27T12:00:00.000Z",
+      "url": "https://www.youtube.com/watch?v=YpVDaVufDVU",
+      "description": "Learn more advanced front-end and full-stack development at: https://www.fullstackacademy.com Streams are the basic I/O of node processes.",
+      "publisher": "YouTube",
+      "duration": 823000,
+      "duration_pretty": "14m"
+    },
+    {
+      "title": "Node JS Tutorial for Beginners #13 - Streams and Buffers",
+      "channel": "Net Ninja",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaKGJfxl3So_cXnNNp-B2SZyRE_CI_R-0T-35VZ_7N17ZJp8BAn8KEYQ&s"
+      },
+      "date": "2016-06-04T12:00:00.000Z",
+      "url": "https://www.youtube.com/watch?v=GlybFFMXXmQ",
+      "description": "Alright gang, in this node js tutorial I'll show you how streams and buffers work, so that we're fully prepared to use them within our node ...",
+      "publisher": "YouTube",
+      "duration": 276000,
+      "duration_pretty": "5m"
+    },
+    {
+      "title": "Node JS Tutorial for Beginners #14 - Readable Streams",
+      "channel": "Net Ninja",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShTc1LT2ABRkAl9RoEe3cgygjJ7g_lkdFFSeGtGi-v-soY2IC3os6USQ&s"
+      },
+      "video": {
+        "url": "https://encrypted-vtbn0.gstatic.com/video?q=tbn:ANd9GcR7N2Vj0ZpBXZG07pdGzgrPzNMcUhdymfSKiA"
+      },
+      "date": "2016-06-04T12:00:00.000Z",
+      "url": "https://www.youtube.com/watch?v=E3tTzx0Qoj0",
+      "description": "Hey gang, in this tutorial I'll show you how we can create a readable stream and use it to read data / files. Using a readable stream means ...",
+      "publisher": "YouTube",
+      "duration": 505000,
+      "duration_pretty": "8m"
+    },
+    {
+      "title": "Node.js Stream Tutorial - The Power and Simplicity of Node.js ...",
+      "channel": "Fullstack Academy",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRy295dFt5c7V9Vddt7xJkbZit-QZpfw-hrpyUwC79729XutRtXzlYAhg&s"
+      },
+      "video": {
+        "url": "https://encrypted-vtbn0.gstatic.com/video?q=tbn:ANd9GcQvARpjNY_W_L5F54fArL7dWlg87B9uWcVHmg"
+      },
+      "date": "2016-03-09T12:00:00.000Z",
+      "url": "https://www.youtube.com/watch?v=GpGTYp_G9VE",
+      "description": "Learn more advanced front-end and full-stack development at: https://www.fullstackacademy.com In this Node.js Stream Tutorial, ...",
+      "publisher": "YouTube",
+      "duration": 603000,
+      "duration_pretty": "10m"
+    },
+    {
+      "title": "Node.js Tutorial - 28 - Streams",
+      "channel": "Codevolution",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6eC71pF3VbCaJhaltNCf-h6SdHPKA-3OVS_axDdIzktS9dc-fnz8lYg&s"
+      },
+      "date": "2022-12-29T12:00:00.000Z",
+      "url": "https://www.youtube.com/watch?v=qnzC6vpBuxw",
+      "description": "Syncfusion components: https://syncf.co/3Emhvnv Courses - https://learn.codevolution.dev/ Support UPI ...",
+      "publisher": "YouTube",
+      "duration": 444000,
+      "duration_pretty": "7m"
+    },
+    {
+      "title": "Node JS Tutorial for Beginners #15 - Writable Streams",
+      "channel": "Net Ninja",
+      "image": {
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTg9BCWcS7vzj_2uKXnJhEKfgUyRkyr0MG2xC9iQ3u07zMOVI6nvr6biQ&s"
+      },
+      "video": {
+        "url": "https://encrypted-vtbn0.gstatic.com/video?q=tbn:ANd9GcTNspsoz-ct1zXvDu90sQeVwI04SObX_hnTEg"
+      },
+      "date": "2016-06-06T12:00:00.000Z",
+      "url": "https://www.youtube.com/watch?v=DvlCT0N7yQI",
+      "description": "Hey gang, in this node js tutorial I'll show you how we can write data from our read stream, into a writable stream. This is useful for ...",
+      "publisher": "YouTube",
+      "duration": 310000,
+      "duration_pretty": "5m"
+    }
+  ]
+}

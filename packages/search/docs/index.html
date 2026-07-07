@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Basic -->
+  <meta charset="utf-8" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+
+  <!-- Search Engine -->
+  <meta name="description" content="@microlink/google is a Google Search API for LLMs, AI agents, copilots, and developer tools. Query Search, News, Images, Videos, Places, Maps, Shopping, Scholar, Patents, and Autocomplete as structured data." />
+  <meta name="image" content="https://search.microlink.io/static/share.jpg" />
+  <meta name="theme-color" content="#f2efe8" />
+  <link rel="canonical" href="https://search.microlink.io" />
+  <title>@microlink/google — Google Search API for LLMs, agents, and copilots</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Schema.org JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://microlink.io/#organization",
+        "name": "Microlink",
+        "url": "https://microlink.io",
+        "logo": "https://cdn.microlink.io/logo/favicon.svg",
+        "sameAs": [
+          "https://github.com/microlinkhq",
+          "https://x.com/microlinkhq"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://search.microlink.io/#website",
+        "name": "@microlink/google",
+        "url": "https://search.microlink.io",
+        "description": "Consume Google as API for agents, copilots, and LLM-powered products.",
+        "inLanguage": "en",
+        "publisher": { "@id": "https://microlink.io/#organization" }
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://search.microlink.io/#webpage",
+        "url": "https://search.microlink.io",
+        "name": "@microlink/google — Google Search API for LLMs, agents, and copilots",
+        "description": "Turn Google results into structured, code-ready data.",
+        "isPartOf": { "@id": "https://search.microlink.io/#website" },
+        "about": { "@id": "https://search.microlink.io/#software" },
+        "primaryImageOfPage": "https://search.microlink.io/static/share.jpg",
+        "inLanguage": "en"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://search.microlink.io/#software",
+        "name": "@microlink/google",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Node.js",
+        "description": "Node.js package that turns Google products such as Search, News, Images, Videos, Places, Maps, Shopping, Scholar, Patents, and Autocomplete into structured API responses.",
+        "url": "https://search.microlink.io",
+        "downloadUrl": "https://www.npmjs.com/package/@microlink/google",
+        "codeRepository": "https://github.com/microlinkhq/google",
+        "creator": { "@id": "https://microlink.io/#organization" },
+        "softwareRequirements": "Microlink API key",
+        "featureList": [
+          "10 Google verticals in one API: Search, News, Images, Videos, Places, Maps, Shopping, Scholar, Patents, and Autocomplete.",
+          "Normalized fields such as title, url, description, price, rating, coordinates, and image metadata.",
+          "Lazy .html()/.markdown() page expansion and .next() pagination."
+        ],
+        "keywords": "google search api,llm tools,ai agents,google news api,google scholar api,google maps api,node.js"
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://search.microlink.io/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is this only for LLM apps?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. It works for any product that needs structured Google data. But it is especially useful for agent workflows, retrieval pipelines, and AI products that benefit from normalized output."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Why not scrape Google HTML directly?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "You can, but raw markup is harder to maintain, harder for LLM tools to consume, and usually requires much more custom parsing logic."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I use it in tool-calling systems?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. The interface is simple enough to wrap in tool definitions for agent frameworks, copilots, and orchestration systems."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I paginate and inspect sources deeply?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Use .next() for pagination and .html() or .markdown() on any result with a url when you need full page markup."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="@microlink/google" />
+  <meta name="twitter:description" content="@microlink/google is a Google Search API for LLMs, AI agents, copilots, and developer tools. Query Search, News, Images, Videos, Places, Maps, Shopping, Scholar, Patents, and Autocomplete as structured data." />
+  <meta name="twitter:image" content="https://search.microlink.io/static/share.jpg" />
+
+  <!-- Open Graph general (Facebook, Pinterest & Google+) -->
+  <meta property="og:title" content="@microlink/google" />
+  <meta property="og:description" content="@microlink/google is a Google Search API for LLMs, AI agents, copilots, and developer tools. Query Search, News, Images, Videos, Places, Maps, Shopping, Scholar, Patents, and Autocomplete as structured data." />
+  <meta property="og:image" content="https://search.microlink.io/static/share.jpg" />
+  <meta property="og:url" content="https://search.microlink.io" />
+  <meta property="og:site_name" content="google.microlink.io" />
+  <meta property="og:type" content="website" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="https://cdn.microlink.io/logo/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/svg+xml" href="https://cdn.microlink.io/logo/favicon.svg">
+  <link rel="shortcut icon" href="https://cdn.microlink.io/logo/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://cdn.microlink.io/logo/apple-touch-icon.png">
+
+  <!-- Stylesheet -->
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.min.css" />
+  <link
+      href="https://unpkg.com/automad-prism-themes/dist/prism-serendipity-morning.css"
+      rel="stylesheet"
+    />
+</head>
+
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <div id="app"></div>
+  <noscript>
+    <h1>@microlink/google</h1>
+    <p>Turn Google results into structured, code-ready data. Powered by <a href="https://microlink.io">Microlink</a>.</p>
+    <h2>Highlights</h2>
+    <ul>
+      <li><strong>10 Google verticals in one API</strong> — Search, News, Images, Videos, Places, Maps, Shopping, Scholar, Patents, and Autocomplete.</li>
+      <li><strong>Normalized data</strong> — Prices, ratings, coordinates, and images returned in consistent structures.</li>
+      <li><strong>Built for developers and LLMs</strong> — Lazy <code>.html()</code>/<code>.markdown()</code>, <code>.next()</code> pagination, parallelized requests (~1s latency).</li>
+    </ul>
+    <h2>Install</h2>
+    <pre><code>npm install @microlink/google</code></pre>
+    <p><a href="https://github.com/microlinkhq/google">View on GitHub</a></p>
+  </noscript>
+</body>
+<script src="/static/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
+
+</html>

@@ -1,0 +1,31 @@
+# @microlink/google
+
+> Google Search API for LLMs, AI agents, copilots, and developer tools.
+
+@microlink/google is a Node.js package that turns Google products such as Search, News, Images, Videos, Places, Maps, Shopping, Scholar, Patents, and Autocomplete into structured API responses.
+
+It is designed for:
+
+- tool-calling systems
+- retrieval and RAG pipelines
+- research copilots
+- news monitoring workflows
+- local and entity lookup
+- developer products that need fresh Google data without parsing raw SERP HTML
+
+Key capabilities:
+
+- structured Google Search results
+- Google News, Images, Videos, Shopping, Scholar, Maps, Places, Patents, and Autocomplete support
+- lazy `html()` and `markdown()` fetch for full-page markup
+- pagination with `next()`
+- type-aware fields such as title, url, description, ratings, coordinates, and image metadata
+
+Primary page:
+
+- Docs and landing page: https://search.microlink.io
+
+Source and package:
+
+- GitHub: https://github.com/microlinkhq/google
+- npm: https://www.npmjs.com/package/@microlink/google

@@ -1,0 +1,121 @@
+{
+  "results": [
+    {
+      "title": "Attention is all you need",
+      "year": 2017,
+      "id": "5Gohgn6QFikJ",
+      "pdf": {
+        "url": "https://proceedings.neurips.cc/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf"
+      },
+      "url": "https://proceedings.neurips.cc/paper/2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html",
+      "description": "… work we propose the Transformer, a model architecture eschewing recurrence and instead relying entirely on an attention … , we will describe the Transformer, motivate self-attention and …",
+      "publisher": "A Vaswani, N Shazeer, N Parmar… - Advances in neural …, 2017 - proceedings.neurips.cc",
+      "citations": 237401
+    },
+    {
+      "title": "Attention is all you need: An interpretable transformer-based asset allocation approach",
+      "year": 2023,
+      "id": "jNUTQ2zkN9AJ",
+      "url": "https://www.sciencedirect.com/science/article/pii/S1057521923003927",
+      "description": "… Chinese stock market, we propose a return-risk trade-off strategy via a new transformer model. The empirical findings show that these updates, such as the self-attention mechanism in …",
+      "publisher": "T Ma, W Wang, Y Chen - International Review of Financial Analysis, 2023 - Elsevier",
+      "citations": 50
+    },
+    {
+      "title": "Spectformer: Frequency and attention is what you need in a vision transformer",
+      "year": 2025,
+      "id": "GmB9gVn1UI8J",
+      "pdf": {
+        "url": "https://arxiv.org/pdf/2304.06446"
+      },
+      "url": "https://ieeexplore.ieee.org/abstract/document/10943595/",
+      "description": "… work, we aim to specifically analyse the transformer for the … They do use self-attention in deeper layers to capture longer … transformers, we developed SpectFormer, a new transformer …",
+      "publisher": "BN Patro, VP Namboodiri… - 2025 IEEE/CVF winter …, 2025 - ieeexplore.ieee.org",
+      "citations": 188
+    },
+    {
+      "title": "Cross-attention is all you need: Adapting pretrained transformers for machine translation",
+      "year": 2021,
+      "id": "UYb-m2T5pXAJ",
+      "pdf": {
+        "url": "https://aclanthology.org/2021.emnlp-main.132.pdf"
+      },
+      "url": "https://aclanthology.org/2021.emnlp-main.132/",
+      "description": "… We study the power of cross-attention in the Transformer architecture within the context of … the findings of studies into crossattention when training from scratch. We conduct a series of …",
+      "publisher": "M Gheini, X Ren, J May - Proceedings of the 2021 conference on …, 2021 - aclanthology.org",
+      "citations": 227
+    },
+    {
+      "title": "Attention is all you need in speech separation",
+      "year": 2021,
+      "id": "BwvwD2whQ64J",
+      "pdf": {
+        "url": "https://arxiv.org/pdf/2010.13154"
+      },
+      "url": "https://ieeexplore.ieee.org/abstract/document/9413901/",
+      "description": "… Transformers are emerging as a natural alternative to standard RNNs, replacing recurrent … attention mechanism. In this paper, we propose the SepFormer, a novel RNN-free Transformer…",
+      "publisher": "C Subakan, M Ravanelli, S Cornell… - ICASSP 2021-2021 …, 2021 - ieeexplore.ieee.org",
+      "citations": 996
+    },
+    {
+      "title": "Linear attention is (maybe) all you need (to understand transformer optimization)",
+      "year": 2023,
+      "id": "OO2zcvUpbcAJ",
+      "pdf": {
+        "url": "https://arxiv.org/pdf/2310.01082"
+      },
+      "url": "https://arxiv.org/abs/2310.01082",
+      "description": "… Transformer with twice many heads matches that of linear Transformers; in other words, we need two softmax attention … In Figure 7, we show that linear attention performs significantly …",
+      "publisher": "K Ahn, X Cheng, M Song, C Yun, A Jadbabaie… - arXiv preprint arXiv …, 2023 - arxiv.org",
+      "citations": 108
+    },
+    {
+      "title": "Cross attention is all you need: Relational remote sensing change detection with transformer",
+      "year": 2024,
+      "id": "TVjWgGIpG7sJ",
+      "pdf": {
+        "url": "https://www.tandfonline.com/doi/pdf/10.1080/15481603.2024.2380126"
+      },
+      "url": "https://www.tandfonline.com/doi/abs/10.1080/15481603.2024.2380126",
+      "description": "… To unify these three modules into a simple pipeline, we introduce relational change detection transformer (RCDT), a novel and simple framework for remote sensing change detection …",
+      "publisher": "K Lu, X Huang, R Xia, P Zhang… - GIScience & Remote …, 2024 - Taylor & Francis",
+      "citations": 30
+    },
+    {
+      "title": "Attention is all you need: utilizing attention in AI-enabled drug discovery",
+      "year": 2024,
+      "id": "4ZRunyZN6eIJ",
+      "pdf": {
+        "url": "https://academic.oup.com/bib/article-pdf/25/1/bbad467/55123365/bbad467.pdf"
+      },
+      "url": "https://academic.oup.com/bib/article-abstract/25/1/bbad467/7512647",
+      "description": "… Overall, this section underscores the transformative impact of attention mechanisms and the Transformer model in advancing predictive capabilities and understanding complex …",
+      "publisher": "Y Zhang, C Liu, M Liu, T Liu, H Lin… - Briefings in …, 2024 - academic.oup.com",
+      "citations": 152
+    },
+    {
+      "title": "Attention is not all you need anymore",
+      "year": 2308,
+      "id": "gWIVG-ZIvg0J",
+      "pdf": {
+        "url": "https://arxiv.org/pdf/2308.07661"
+      },
+      "url": "https://arxiv.org/abs/2308.07661",
+      "description": "… Transformer with the self-attention mechanism, we train all the models with the same hyperparameters, settings, and training data. By “the same training data”, we mean that not only all …",
+      "publisher": "Z Chen - arXiv preprint arXiv:2308.07661, 2023 - arxiv.org",
+      "citations": 7
+    },
+    {
+      "title": "Fastformer: Additive attention can be all you need",
+      "year": 2108,
+      "id": "9_kFeQ_sO-wJ",
+      "pdf": {
+        "url": "https://arxiv.org/pdf/2108.09084"
+      },
+      "url": "https://arxiv.org/abs/2108.09084",
+      "description": "… paper we propose Fastformer1, which is an efficient Transformer variant based on additive attention that … In Fastformer, we first use additive attention mechanism to summarize the input …",
+      "publisher": "C Wu, F Wu, T Qi, Y Huang, X Xie - arXiv preprint arXiv:2108.09084, 2021 - arxiv.org",
+      "citations": 244
+    }
+  ]
+}

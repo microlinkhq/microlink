@@ -1,0 +1,104 @@
+{
+  "results": [
+    {
+      "title": "Betahaus | Coworking Barcelona",
+      "address": "Carrer de Vilafranca, 7",
+      "latitude": 41.406982,
+      "longitude": 2.1567652,
+      "rating": 4.8,
+      "category": "Coworking space",
+      "cid": "15533147541347981884",
+      "ratingCount": 415
+    },
+    {
+      "title": "OneCoWork Plaça Catalunya | Coworking Barcelona",
+      "address": "Carrer d'Estruc, 9",
+      "latitude": 41.386887,
+      "longitude": 2.1725054,
+      "rating": 4.8,
+      "category": "Coworking space",
+      "cid": "17996530463156601469",
+      "ratingCount": 407
+    },
+    {
+      "title": "La Vaca Coworking Barcelona",
+      "address": "Carrer de la Creu dels Molers, 19",
+      "latitude": 41.37411,
+      "longitude": 2.161943,
+      "rating": 4.8,
+      "category": "Coworking space",
+      "cid": "4834554333533549252",
+      "ratingCount": 230
+    },
+    {
+      "title": "MOB Bailèn - Coworking and Office Space",
+      "address": "Carrer de Bailèn, 11",
+      "latitude": 41.39172,
+      "longitude": 2.1771004,
+      "rating": 4.6,
+      "category": "Coworking space",
+      "cid": "13299489476143730614",
+      "ratingCount": 223
+    },
+    {
+      "title": "Cowork Rambla Catalunya - Coworking Barcelona",
+      "address": "Carrer de Còrsega, 284, Principal",
+      "latitude": 41.394547,
+      "longitude": 2.1571114,
+      "rating": 4.9,
+      "category": "Coworking space",
+      "cid": "9129977521634770336",
+      "ratingCount": 77
+    },
+    {
+      "title": "OneCoWork Catedral | Coworking Barcelona",
+      "address": "Av. de la Catedral, 6",
+      "latitude": 41.38499,
+      "longitude": 2.1767638,
+      "rating": 4.8,
+      "category": "Coworking space",
+      "cid": "26994854670691987",
+      "ratingCount": 350
+    },
+    {
+      "title": "Meet BCN - Coworking Space in Barcelona",
+      "address": "Rambla de Catalunya, 125, 3º 2ª",
+      "latitude": 41.39486,
+      "longitude": 2.1580021,
+      "rating": 4.8,
+      "category": "Coworking space",
+      "cid": "9207037350412934511",
+      "ratingCount": 62
+    },
+    {
+      "title": "Aticco Bailén - Coworking Eixample Dreta",
+      "address": "Carrer de Bailèn, 105",
+      "latitude": 41.397224,
+      "longitude": 2.1700168,
+      "rating": 5,
+      "category": "Coworking space",
+      "cid": "10952575797319711624",
+      "ratingCount": 125
+    },
+    {
+      "title": "OneCoWork Portal de l'Àngel | Coworking Barcelona",
+      "address": "Av del Portal de l'Àngel, 40",
+      "latitude": 41.386753,
+      "longitude": 2.1720808,
+      "rating": 4.9,
+      "category": "Coworking space",
+      "cid": "16562339305811091112",
+      "ratingCount": 345
+    },
+    {
+      "title": "Coworking Sant Antoni Barcelona | Oficina Virtual & Day Pass",
+      "address": "Carrer de Floridablanca, 68",
+      "latitude": 41.378025,
+      "longitude": 2.1580195,
+      "rating": 4.9,
+      "category": "Coworking space",
+      "cid": "17007657023756567986",
+      "ratingCount": 88
+    }
+  ]
+}

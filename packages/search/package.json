@@ -1,0 +1,69 @@
+{
+  "name": "@microlink/google",
+  "description": "Structured Google data from 10 verticals through Microlink API",
+  "homepage": "https://github.com/microlinkhq/microlink",
+  "version": "1.0.3",
+  "exports": {
+    "types": "./src/index.d.ts",
+    "require": "./src/index.js",
+    "import": "./src/main.mjs",
+    "default": "./src/main.mjs"
+  },
+  "author": {
+    "email": "hello@microlink.io",
+    "name": "microlink.io",
+    "url": "https://microlink.io"
+  },
+  "contributors": [
+    {
+      "name": "Kiko Beats",
+      "email": "josefrancisco.verdu@gmail.com"
+    }
+  ],
+  "repository": {
+    "directory": "packages/search",
+    "type": "git",
+    "url": "git+https://github.com/microlinkhq/microlink.git"
+  },
+  "bugs": {
+    "url": "https://github.com/microlinkhq/microlink/issues"
+  },
+  "keywords": [
+    "google",
+    "integration",
+    "microlink",
+    "search",
+    "serp"
+  ],
+  "dependencies": {
+    "@microlink/mql": "workspace:*"
+  },
+  "devDependencies": {
+    "ava": "latest",
+    "browser-sync": "latest",
+    "cssnano": "latest",
+    "cssnano-preset-advanced": "latest",
+    "gulp": "latest",
+    "gulp-concat": "latest",
+    "gulp-postcss": "latest",
+    "gulp-uglify": "latest",
+    "postcss-focus": "latest",
+    "proxyquire": "latest",
+    "tinyrun": "latest",
+    "tinyspawn": "latest"
+  },
+  "engines": {
+    "node": ">= 24"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "build": "gulp build",
+    "dev": "tinyrun \"pnpm dev:src\" \"pnpm dev:server\"",
+    "dev:server": "browser-sync start --server docs --files \"docs/index.html, docs/README.md, docs/static/**/*.(css|js)\"",
+    "dev:src": "gulp",
+    "test": "exit 0"
+  },
+  "license": "MIT"
+}

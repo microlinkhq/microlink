@@ -1,0 +1,81 @@
+{
+  "name": "microlink.io",
+  "description": "The Microlink API organized into products, each returning a direct result",
+  "homepage": "https://github.com/microlinkhq/microlink",
+  "version": "0.0.0",
+  "types": "./src/index.d.ts",
+  "main": "./src/index.js",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "require": "./src/index.js",
+      "import": "./src/main.mjs",
+      "default": "./src/main.mjs"
+    }
+  },
+  "bin": {
+    "microlink": "bin/index.js"
+  },
+  "author": {
+    "email": "hello@microlink.io",
+    "name": "microlink.io",
+    "url": "https://microlink.io"
+  },
+  "repository": {
+    "directory": "packages/core",
+    "type": "git",
+    "url": "git+https://github.com/microlinkhq/microlink.git"
+  },
+  "bugs": {
+    "url": "https://github.com/microlinkhq/microlink/issues"
+  },
+  "keywords": [
+    "api",
+    "extract",
+    "lighthouse",
+    "markdown",
+    "metadata",
+    "microlink",
+    "mql",
+    "pdf",
+    "scraper",
+    "screenshot",
+    "seo"
+  ],
+  "dependencies": {
+    "@microlink/function": "workspace:*",
+    "@microlink/google": "workspace:*",
+    "@microlink/mql": "workspace:*",
+    "jsome": "~2.5.0",
+    "mri": "~1.2.0"
+  },
+  "devDependencies": {
+    "ava": "latest",
+    "proxyquire": "latest",
+    "tinyspawn": "latest",
+    "tsd": "latest"
+  },
+  "engines": {
+    "node": ">= 24"
+  },
+  "files": [
+    "bin",
+    "src"
+  ],
+  "scripts": {
+    "lint": "tsd",
+    "test": "ava"
+  },
+  "preferGlobal": true,
+  "license": "MIT",
+  "ava": {
+    "timeout": "2m"
+  },
+  "tsd": {
+    "compilerOptions": {
+      "module": "node16",
+      "moduleResolution": "node16"
+    },
+    "directory": "test"
+  }
+}
