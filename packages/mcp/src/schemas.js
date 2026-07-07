@@ -105,11 +105,14 @@ const screenshotOverlaySchema = objectLikeSchema(
 export const screenshotConfigSchema = objectLikeSchema(
   z
     .object({
+      animated: booleanSchema.optional(),
       codeScheme: z.string().min(1).optional(),
       element: z.string().min(1).optional(),
       fullPage: booleanSchema.optional(),
       omitBackground: booleanSchema.optional(),
+      optimizeForSpeed: booleanSchema.optional(),
       overlay: screenshotOverlaySchema.optional(),
+      palette: booleanSchema.optional(),
       type: z.enum(['jpeg', 'png']).optional()
     })
     .strict()
@@ -276,10 +279,6 @@ export const pdfInputSchema = baseSchema
   })
   .strict()
 
-export const technologiesInputSchema = baseSchema.strict()
-
-export const lighthouseInputSchema = baseSchema.strict()
-
 export const audioInputSchema = baseSchema
   .extend({
     proxy: proxySchema.optional(),
@@ -308,20 +307,87 @@ export const metadataInputSchema = baseSchema
   })
   .strict()
 
-export const markdownInputSchema = baseSchema.strict()
+const selectorSchema = z.union([z.string().min(1), z.array(z.string().min(1))])
 
-export const htmlInputSchema = baseSchema.strict()
+// Content tools (markdown/html/text) accept a selector to scope the extraction.
+const contentSchema = baseSchema
+  .extend({
+    selector: selectorSchema.optional(),
+    selectorAll: selectorSchema.optional(),
+    type: z.string().min(1).optional()
+  })
+  .strict()
 
-export const textInputSchema = baseSchema.strict()
+// Collection tools accept selector/attr/type overrides for the data rule.
+const collectionSchema = baseSchema
+  .extend({
+    selector: selectorSchema.optional(),
+    selectorAll: selectorSchema.optional(),
+    attr: z.string().min(1).optional(),
+    type: z.string().min(1).optional()
+  })
+  .strict()
 
-export const embedInputSchema = baseSchema.strict()
+export const markdownInputSchema = contentSchema
 
-export const linksInputSchema = baseSchema.strict()
+export const htmlInputSchema = contentSchema
 
-export const imagesInputSchema = baseSchema.strict()
+export const textInputSchema = contentSchema
 
-export const videosInputSchema = baseSchema.strict()
+export const embedInputSchema = baseSchema
+  .extend({
+    maxWidth: z.coerce.number().int().positive().optional(),
+    maxHeight: z.coerce.number().int().positive().optional()
+  })
+  .strict()
 
-export const audiosInputSchema = baseSchema.strict()
+export const linksInputSchema = collectionSchema
 
-export const emailsInputSchema = baseSchema.strict()
+export const imagesInputSchema = collectionSchema
+
+export const videosInputSchema = collectionSchema
+
+export const audiosInputSchema = collectionSchema
+
+export const emailsInputSchema = collectionSchema
+
+export const technologiesInputSchema = baseSchema.strict()
+
+export const lighthouseInputSchema = baseSchema
+  .extend({
+    onlyCategories: z.array(z.string().min(1)).optional(),
+    onlyAudits: z.array(z.string().min(1)).optional(),
+    skipAudits: z.array(z.string().min(1)).optional(),
+    output: z.union([z.string().min(1), z.array(z.string().min(1))]).optional()
+  })
+  .strict()
+
+export const searchInputSchema = z
+  .object({
+    query: z.string().min(1),
+    apiKey: z.string().min(1).optional(),
+    type: z
+      .enum([
+        'search',
+        'news',
+        'images',
+        'videos',
+        'places',
+        'maps',
+        'shopping',
+        'scholar',
+        'patents',
+        'autocomplete'
+      ])
+      .optional(),
+    limit: z.coerce.number().int().positive().optional(),
+    location: z.string().min(1).optional(),
+    period: z.enum(['hour', 'day', 'week', 'month', 'year']).optional()
+  })
+  .strict()
+
+export const functionInputSchema = baseSchema
+  .extend({
+    code: z.string().min(1)
+  })
+  .strict()

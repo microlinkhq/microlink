@@ -35,7 +35,7 @@ function createRegisteredHandler (inputSchema) {
     'microlink.extract',
     'Test tool',
     inputSchema,
-    {}
+    (client, { url, ...options }) => client.metadata(url, options)
   )
 
   return handler

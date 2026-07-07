@@ -1,4 +1,9 @@
-import { asToolResult, callMicrolink } from '../microlink-client.js'
+import {
+  asErrorResult,
+  asToolResult,
+  client,
+  resolveApiKey
+} from '../microlink-client.js'
 
 function getHeaderValueCaseInsensitive (headers, headerName) {
   if (!headers || typeof headers !== 'object') {
@@ -9,11 +14,7 @@ function getHeaderValueCaseInsensitive (headers, headerName) {
 
   for (const [key, value] of Object.entries(headers)) {
     if (key.toLowerCase() === lookup) {
-      if (Array.isArray(value)) {
-        return value[0]
-      }
-
-      return value
+      return Array.isArray(value) ? value[0] : value
     }
   }
 
@@ -26,40 +27,44 @@ function getApiKeyFromRequestHeaders (headers) {
   if (typeof authorization === 'string') {
     const match = /^Bearer\s+(.+)$/i.exec(authorization.trim())
     const bearerToken = match?.[1]?.trim()
-
-    if (bearerToken) {
-      return bearerToken
-    }
+    if (bearerToken) return bearerToken
   }
 
   const xApiKey = getHeaderValueCaseInsensitive(headers, 'x-api-key')
   if (typeof xApiKey === 'string') {
     const token = xApiKey.trim()
-    if (token) {
-      return token
-    }
+    if (token) return token
   }
 
   return undefined
 }
 
-export function register (
-  server,
-  name,
-  description,
-  inputSchema,
-  forcedFlags,
-  mapParams
-) {
+// Common shape: a tool that maps to `client.<method>(url, options)`.
+export function urlMethod (method) {
+  return (client, { url, ...options }) => client[method](url, options)
+}
+
+// Capability tools nest their config under a key (e.g. `screenshot: { ... }`)
+// to match the Microlink API surface; the library takes a flat options bag, so
+// flatten the config back out before calling it.
+export function capabilityMethod (method, key) {
+  return (client, { url, [key]: config, ...rest }) => {
+    const options =
+      config !== null && typeof config === 'object'
+        ? { ...config, ...rest }
+        : rest
+    return client[method](url, options)
+  }
+}
+
+export function register (server, name, description, inputSchema, invoke) {
   server.registerTool(
     name,
-    {
-      description,
-      inputSchema
-    },
+    { description, inputSchema },
     async (args, extra) => {
-      const parsedArgs = inputSchema.safeParse(args)
-      if (!parsedArgs.success) {
+      const parsed = inputSchema.safeParse(args)
+
+      if (!parsed.success) {
         return {
           isError: true,
           content: [
@@ -68,7 +73,7 @@ export function register (
               text: JSON.stringify(
                 {
                   message: 'Input validation failed.',
-                  issues: parsedArgs.error.issues
+                  issues: parsed.error.issues
                 },
                 null,
                 2
@@ -82,39 +87,13 @@ export function register (
         const headerApiKey = getApiKeyFromRequestHeaders(
           extra?.requestInfo?.headers
         )
-        const data = mapParams ? mapParams(parsedArgs.data) : parsedArgs.data
-        const params =
-          data.apiKey || !headerApiKey
-            ? data
-            : {
-                ...data,
-                apiKey: headerApiKey
-              }
+        const apiKey = resolveApiKey(parsed.data.apiKey, headerApiKey)
+        const params = apiKey ? { ...parsed.data, apiKey } : parsed.data
 
-        const result = await callMicrolink({
-          params,
-          forcedFlags
-        })
-
-        return asToolResult(result)
+        const value = await invoke(client, params)
+        return asToolResult(value)
       } catch (error) {
-        return {
-          isError: true,
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(
-                {
-                  message:
-                    'Microlink request failed before receiving an API response.',
-                  error: error instanceof Error ? error.message : String(error)
-                },
-                null,
-                2
-              )
-            }
-          ]
-        }
+        return asErrorResult(error)
       }
     }
   )

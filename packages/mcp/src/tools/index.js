@@ -3,6 +3,7 @@ import { audios } from './audios.js'
 import { emails } from './emails.js'
 import { embed } from './embed.js'
 import { extract } from './extract.js'
+import { fn } from './function.js'
 import { html } from './html.js'
 import { images } from './images.js'
 import { lighthouse } from './lighthouse.js'
@@ -12,6 +13,7 @@ import { markdown } from './markdown.js'
 import { metadata } from './metadata.js'
 import { pdf } from './pdf.js'
 import { screenshot } from './screenshot.js'
+import { search } from './search.js'
 import { technologies } from './technologies.js'
 import { text } from './text.js'
 import { video } from './video.js'
@@ -35,5 +37,7 @@ export function tools (server) {
   emails(server)
   technologies(server)
   lighthouse(server)
+  search(server)
+  fn(server)
   extract(server)
 }
