@@ -2,7 +2,7 @@
   "name": "microlink.io",
   "description": "The Microlink API organized into products, each returning a direct result",
   "homepage": "https://github.com/microlinkhq/microlink",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "types": "./src/index.d.ts",
   "main": "./src/index.js",
   "exports": {

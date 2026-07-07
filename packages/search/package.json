@@ -2,7 +2,7 @@
   "name": "@microlink/google",
   "description": "Structured Google data from 10 verticals through Microlink API",
   "homepage": "https://github.com/microlinkhq/microlink",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "exports": {
     "types": "./src/index.d.ts",
     "require": "./src/index.js",
