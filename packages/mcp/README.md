@@ -118,10 +118,10 @@ Once the server is configured, talk to your assistant in plain language. It pick
 
 - *"Take a full-page screenshot of https://example.com in dark mode."* → `microlink_screenshot`
 - *"Generate a Letter-size PDF of https://example.com."* → `microlink_pdf`
-- *"Get the title, description, and image for https://example.com."* → `microlink_meta`
+- *"Get the title, description, and image for https://example.com."* → `microlink_metadata`
 - *"Convert https://news.ycombinator.com to Markdown."* → `microlink_markdown`
 - *"Find the playable video in this YouTube link."* → `microlink_video`
-- *"Run a Lighthouse performance audit on https://example.com."* → `microlink_insights`
+- *"Run a Lighthouse performance audit on https://example.com."* → `microlink_lighthouse`
 - *"Scrape every article title from this page using the `.title` selector."* → `microlink_extract` with `data`
 
 Tools can also be invoked directly. Every tool takes a `url` and returns `structuredContent` (see [Response shape](#response-shape)):
@@ -141,21 +141,24 @@ Tools can also be invoked directly. Every tool takes a `url` and returns `struct
 
 ### Capabilities at a glance
 
-- `microlink_extract`: metadata extraction + custom scraping rules (`data`) + multi-capability composition in one call.
+Each tool maps 1:1 to a [`microlink.io`](https://github.com/microlinkhq/microlink/tree/master/packages/core) library method.
+
+- `microlink_metadata`: normalized metadata extraction with include/exclude config.
+- `microlink_logo`: brand logo extraction.
+- `microlink_markdown` / `microlink_html` / `microlink_text`: URL to Markdown / HTML / plain text.
 - `microlink_screenshot`: screenshot generation with element/full-page modes and browser controls.
 - `microlink_pdf`: PDF generation with page/layout controls.
-- `microlink_video`: playable video source extraction.
-- `microlink_audio`: playable audio source extraction.
-- `microlink_insights`: Lighthouse + technology detection.
-- `microlink_meta`: normalized metadata extraction with include/exclude config.
-- `microlink_logo`: brand logo extraction.
-- `microlink_markdown`: URL to Markdown conversion.
-- `microlink_text`: URL to plain text conversion.
+- `microlink_embed`: oEmbed-style embeddable iframe (`{ html, scripts }`).
+- `microlink_video` / `microlink_audio`: primary playable video / audio source.
+- `microlink_links` / `microlink_images` / `microlink_videos` / `microlink_audios` / `microlink_emails`: collect every link / image / video / audio / email on the page.
+- `microlink_technologies`: technology-stack detection (Wappalyzer).
+- `microlink_lighthouse`: Google Lighthouse audit.
+- `microlink_extract`: metadata extraction + custom scraping rules (`data`) + multi-capability composition in one call.
 - Cross-cutting request capabilities: device/viewport emulation, click/scroll actions, JS/CSS injection, modules, wait conditions, cache controls (`ttl`, `staleTtl`, `force`), retries/timeouts, media mode, headers/proxy, and endpoint/auth routing.
 
 ### Response shape
 
-- All tools (`microlink_extract`, `microlink_screenshot`, `microlink_pdf`, `microlink_video`, `microlink_audio`, `microlink_insights`, `microlink_meta`, `microlink_logo`, `microlink_markdown`, `microlink_text`) return `structuredContent` with:
+- All tools return `structuredContent` with:
   - `endpoint`, `requestUrl`, `finalUrl`, `statusCode`, `responseHeaders`, `microlink`
   - `microlink` preserves Microlink API JSend payload (`status`, `data`, and error fields like `code`, `id`, `message`, `more`, `report`).
   - `responseHeaders` includes key cache/rate headers (such as `x-cache-status`, `cf-cache-status`, `cache-control`, `x-rate-limit-*`) when present.
@@ -338,28 +341,41 @@ Supports SoundCloud, Spotify, Mixcloud, and other audio platforms.
 
 ---
 
-### `microlink_insights`
+### `microlink_technologies`
 
-Get web performance and technology-stack insights for any URL.
-Set `insights` to `true` for defaults, or pass `insights: { ... }` for options. `insights: {}` is treated as `true`.
+Detect the technology stack behind any URL (frameworks, CDNs, analytics, e-commerce, ...) via Wappalyzer. Returns an array under `data.insights.technologies`.
+
+Mirrors the `microlink.technologies(url)` library method.
 
 **Key parameters:**
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `url` | `string` | The URL to analyze *(required)* |
-| `insights` | `boolean \| object` | Enable default insights (`true`) or provide insights options (`{...}`); `{}` behaves as `true` |
-| `insights.lighthouse` | `boolean \| object` | Run a Lighthouse audit |
-| `insights.lighthouse.output` | `"json" \| "html" \| "csv"` | Report format (default: `"json"`) |
-| `insights.lighthouse.preset` | `string` | Audit preset: `"default"`, `"desktop"`, `"perf"`, `"experimental"`, `"full"`, `"lr-desktop"`, `"lr-mobile"` |
-| `insights.lighthouse.onlyCategories` | `string \| string[]` | Lighthouse category IDs (e.g. `["performance", "accessibility"]`) |
-| `insights.technologies` | `boolean` | Detect tech stack via Wappalyzer |
+| `apiKey` | `string` | Microlink API key *(optional)* |
 
 ---
 
-### `microlink_meta`
+### `microlink_lighthouse`
+
+Run a Google Lighthouse audit (performance, accessibility, best-practices, SEO) for any URL. Returns the report under `data.insights.lighthouse`.
+
+Mirrors the `microlink.lighthouse(url)` library method.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to analyze *(required)* |
+| `apiKey` | `string` | Microlink API key *(optional)* |
+
+---
+
+### `microlink_metadata`
 
 Extract normalized metadata from any public URL. Returns: `title`, `description`, `lang`, `author`, `publisher`, `date`, `url`, `image` (with dimensions and file info), and `logo` (publisher favicon).
+
+Mirrors the `microlink.metadata(url)` library method.
 
 **Key parameters:**
 
@@ -398,6 +414,21 @@ Convert any public URL to Markdown. Returns JSON output with Markdown content in
 
 ---
 
+### `microlink_html`
+
+Extract the HTML content of any public URL. Returns the HTML under `microlink.data.html`.
+
+Mirrors the `microlink.html(url)` library method.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to convert *(required)* |
+| `apiKey` | `string` | Microlink API key *(optional)* |
+
+---
+
 ### `microlink_text`
 
 Extract plain text from any public URL. Returns JSON output with plain text content in `microlink.data.text`.
@@ -407,6 +438,36 @@ Extract plain text from any public URL. Returns JSON output with plain text cont
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `url` | `string` | The URL to extract text from *(required)* |
+| `apiKey` | `string` | Microlink API key *(optional)* |
+
+---
+
+### `microlink_embed`
+
+Get the oEmbed-style embeddable iframe for any URL (YouTube, Tweet, CodePen, ...). Returns `{ html, scripts }` under `data.iframe`.
+
+Mirrors the `microlink.embed(url)` library method.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to embed *(required)* |
+| `apiKey` | `string` | Microlink API key *(optional)* |
+
+---
+
+### `microlink_links` / `microlink_images` / `microlink_videos` / `microlink_audios` / `microlink_emails`
+
+Collect every link, image, video source, audio source, or email address on a page. Each returns a clean, absolute, deduped array under `data.links` / `data.images` / `data.videos` / `data.audios` / `data.emails`.
+
+Mirror the `microlink.links(url)` / `.images(url)` / `.videos(url)` / `.audios(url)` / `.emails(url)` library methods. For the single primary playable media, use `microlink_video` / `microlink_audio`.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to scan *(required)* |
 | `apiKey` | `string` | Microlink API key *(optional)* |
 
 ---

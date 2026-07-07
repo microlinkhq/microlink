@@ -276,11 +276,9 @@ export const pdfInputSchema = baseSchema
   })
   .strict()
 
-export const insightsInputSchema = baseSchema
-  .extend({
-    insights: z.union([booleanSchema, insightsConfigSchema]).optional()
-  })
-  .strict()
+export const technologiesInputSchema = baseSchema.strict()
+
+export const lighthouseInputSchema = baseSchema.strict()
 
 export const audioInputSchema = baseSchema
   .extend({
@@ -304,7 +302,7 @@ export const logoInputSchema = baseSchema
   })
   .strict()
 
-export const metaInputSchema = baseSchema
+export const metadataInputSchema = baseSchema
   .extend({
     meta: z.union([booleanSchema, metaConfigSchema]).optional()
   })
@@ -312,4 +310,18 @@ export const metaInputSchema = baseSchema
 
 export const markdownInputSchema = baseSchema.strict()
 
+export const htmlInputSchema = baseSchema.strict()
+
 export const textInputSchema = baseSchema.strict()
+
+export const embedInputSchema = baseSchema.strict()
+
+export const linksInputSchema = baseSchema.strict()
+
+export const imagesInputSchema = baseSchema.strict()
+
+export const videosInputSchema = baseSchema.strict()
+
+export const audiosInputSchema = baseSchema.strict()
+
+export const emailsInputSchema = baseSchema.strict()

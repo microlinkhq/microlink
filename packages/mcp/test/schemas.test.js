@@ -4,9 +4,8 @@ import assert from 'node:assert/strict'
 import {
   audioInputSchema,
   extractInputSchema,
-  insightsInputSchema,
   markdownInputSchema,
-  metaInputSchema,
+  metadataInputSchema,
   logoInputSchema,
   pdfInputSchema,
   screenshotInputSchema,
@@ -192,16 +191,16 @@ test('data schema rejects non-object rule values', () => {
   assert.equal(result.success, false)
 })
 
-test('meta schema accepts minimal valid payload', () => {
-  const result = metaInputSchema.safeParse({
+test('metadata schema accepts minimal valid payload', () => {
+  const result = metadataInputSchema.safeParse({
     url: 'https://microlink.io'
   })
 
   assert.equal(result.success, true)
 })
 
-test('meta schema accepts meta: false to disable extraction', () => {
-  const result = metaInputSchema.safeParse({
+test('metadata schema accepts meta: false to disable extraction', () => {
+  const result = metadataInputSchema.safeParse({
     url: 'https://microlink.io',
     meta: false
   })
@@ -209,8 +208,8 @@ test('meta schema accepts meta: false to disable extraction', () => {
   assert.equal(result.success, true)
 })
 
-test('meta schema accepts config object with include/exclude fields', () => {
-  const result = metaInputSchema.safeParse({
+test('metadata schema accepts config object with include/exclude fields', () => {
+  const result = metadataInputSchema.safeParse({
     url: 'https://microlink.io',
     meta: { logo: true, title: true, image: false }
   })
@@ -218,8 +217,8 @@ test('meta schema accepts config object with include/exclude fields', () => {
   assert.equal(result.success, true)
 })
 
-test('meta schema coerces string booleans in config object', () => {
-  const result = metaInputSchema.safeParse({
+test('metadata schema coerces string booleans in config object', () => {
+  const result = metadataInputSchema.safeParse({
     url: 'https://microlink.io',
     meta: { logo: 'true', image: 'false' }
   })
@@ -229,8 +228,8 @@ test('meta schema coerces string booleans in config object', () => {
   assert.equal(result.data.meta.image, false)
 })
 
-test('meta schema parses stringified config object', () => {
-  const result = metaInputSchema.safeParse({
+test('metadata schema parses stringified config object', () => {
+  const result = metadataInputSchema.safeParse({
     url: 'https://microlink.io',
     meta: '{"title":"true","logo":"false"}'
   })
@@ -240,8 +239,8 @@ test('meta schema parses stringified config object', () => {
   assert.equal(result.data.meta.logo, false)
 })
 
-test('meta schema rejects unknown fields in config object', () => {
-  const result = metaInputSchema.safeParse({
+test('metadata schema rejects unknown fields in config object', () => {
+  const result = metadataInputSchema.safeParse({
     url: 'https://microlink.io',
     meta: { logo: true, unknownField: true }
   })
@@ -299,8 +298,8 @@ test('logo schema rejects unknown top-level keys', () => {
   )
 })
 
-test('insights schema accepts lighthouse config object', () => {
-  const result = insightsInputSchema.safeParse({
+test('extract schema (insights) accepts lighthouse config object', () => {
+  const result = extractInputSchema.safeParse({
     url: 'https://microlink.io',
     insights: {
       lighthouse: {
@@ -315,8 +314,8 @@ test('insights schema accepts lighthouse config object', () => {
   assert.equal(result.success, true)
 })
 
-test('insights schema accepts boolean toggle', () => {
-  const result = insightsInputSchema.safeParse({
+test('extract schema (insights) accepts boolean toggle', () => {
+  const result = extractInputSchema.safeParse({
     url: 'https://microlink.io',
     insights: true
   })
@@ -324,8 +323,8 @@ test('insights schema accepts boolean toggle', () => {
   assert.equal(result.success, true)
 })
 
-test('insights schema coerces string booleans in nested settings', () => {
-  const result = insightsInputSchema.safeParse({
+test('extract schema (insights) coerces string booleans in nested settings', () => {
+  const result = extractInputSchema.safeParse({
     url: 'https://microlink.io',
     insights: {
       lighthouse: 'true',
@@ -338,8 +337,8 @@ test('insights schema coerces string booleans in nested settings', () => {
   assert.equal(result.data.insights.technologies, false)
 })
 
-test('insights schema coerces string toggle value', () => {
-  const result = insightsInputSchema.safeParse({
+test('extract schema (insights) coerces string toggle value', () => {
+  const result = extractInputSchema.safeParse({
     url: 'https://microlink.io',
     insights: 'true'
   })
@@ -348,8 +347,8 @@ test('insights schema coerces string toggle value', () => {
   assert.equal(result.data.insights, true)
 })
 
-test('insights schema parses stringified object config', () => {
-  const result = insightsInputSchema.safeParse({
+test('extract schema (insights) parses stringified object config', () => {
+  const result = extractInputSchema.safeParse({
     url: 'https://microlink.io',
     insights: '{"lighthouse":{"output":"html"},"technologies":"false"}'
   })
