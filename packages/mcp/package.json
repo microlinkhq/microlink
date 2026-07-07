@@ -1,0 +1,69 @@
+{
+  "name": "@microlink/mcp",
+  "description": "MCP server for Microlink API",
+  "homepage": "https://github.com/microlinkhq/microlink",
+  "version": "1.0.0",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "bin": {
+    "microlink-mcp": "./bin/microlink-mcp.js"
+  },
+  "author": {
+    "email": "hello@microlink.io",
+    "name": "microlink.io",
+    "url": "https://microlink.io"
+  },
+  "contributors": [
+    {
+      "name": "Joseba",
+      "email": "josebalega@gmail.com"
+    },
+    {
+      "name": "Kiko Beats",
+      "email": "josefrancisco.verdu@gmail.com"
+    }
+  ],
+  "repository": {
+    "directory": "packages/mcp",
+    "type": "git",
+    "url": "git+https://github.com/microlinkhq/microlink.git"
+  },
+  "bugs": {
+    "url": "https://github.com/microlinkhq/microlink/issues"
+  },
+  "keywords": [
+    "api",
+    "mcp",
+    "microlink",
+    "model-context-protocol",
+    "scraping",
+    "screenshot",
+    "server"
+  ],
+  "dependencies": {
+    "@microlink/mql": "workspace:*",
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "microlink.io": "workspace:*",
+    "zod": "~4.4.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "bin",
+    "scripts",
+    "src"
+  ],
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js",
+    "start": "node src/index.js",
+    "test": "node --test test/*.test.js"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module"
+}

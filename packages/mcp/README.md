@@ -1,0 +1,529 @@
+# Microlink MCP
+
+<div align="center">
+  <img src="https://github.com/microlinkhq/cdn/raw/master/dist/logo/banner.png#gh-light-mode-only" alt="microlink logo">
+  <img src="https://github.com/microlinkhq/cdn/raw/master/dist/logo/banner-dark.png#gh-dark-mode-only" alt="microlink logo">
+</div>
+
+A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that exposes [Microlink API](https://microlink.io) capabilities to AI assistants. Runs over stdio transport, making it compatible with Claude Desktop, VS Code, Cursor, and any other MCP-capable client.
+
+It turns natural-language requests into Microlink calls: take screenshots, generate PDFs, extract metadata or readable text, detect video/audio sources, run Lighthouse audits, and scrape custom fields with CSS selectors, all without leaving the assistant.
+
+See the [MCP integration page](https://microlink.io/integration/mcp) for a guided walkthrough, or the [`@microlink/mcp`](https://www.npmjs.com/package/@microlink/mcp) npm package.
+
+## Table of contents
+
+- [Install](#install)
+- [MCP client configuration](#mcp-client-configuration)
+- [Usage](#usage)
+- [Tools](#tools)
+- [Authentication](#authentication)
+- [Development](#development)
+- [License](#license)
+
+## Install
+
+### Use the published package (recommended)
+
+No local installation is required. Run directly with `npx`:
+
+```bash
+npx -y @microlink/mcp
+```
+
+### Optional: install globally
+
+```bash
+npm install -g @microlink/mcp
+microlink-mcp
+```
+
+During installation, the package prints a console reminder about the free Microlink plan (`50 requests/day`) and where to get an API key for higher/unlimited usage at [microlink.io/#pricing](https://microlink.io/#pricing).
+
+## MCP client configuration
+
+### Claude Desktop
+
+Edit `~/Library/Application\ Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "microlink": {
+      "command": "npx",
+      "args": ["-y", "@microlink/mcp"],
+      "env": {
+        "MICROLINK_API_KEY": "YOUR_MICROLINK_API_KEY"
+      }
+    }
+  }
+}
+```
+
+### VS Code / Codex
+
+Published package:
+
+```json
+{
+  "mcpServers": {
+    "microlink": {
+      "command": "npx",
+      "args": ["-y", "@microlink/mcp"],
+      "env": {
+        "MICROLINK_API_KEY": "YOUR_MICROLINK_API_KEY"
+      }
+    }
+  }
+}
+```
+
+Local repository:
+
+```json
+{
+  "mcpServers": {
+    "microlink": {
+      "command": "node",
+      "args": ["/absolute/path/to/mcp/src/index.js"],
+      "env": {
+        "MICROLINK_API_KEY": "YOUR_MICROLINK_API_KEY"
+      }
+    }
+  }
+}
+```
+
+### Cursor
+
+Add to your Cursor MCP settings (`.cursor/mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "microlink": {
+      "command": "npx",
+      "args": ["-y", "@microlink/mcp"],
+      "env": {
+        "MICROLINK_API_KEY": "YOUR_MICROLINK_API_KEY"
+      }
+    }
+  }
+}
+```
+
+## Usage
+
+Once the server is configured, talk to your assistant in plain language. It picks the right tool and parameters for you:
+
+- *"Take a full-page screenshot of https://example.com in dark mode."* → `microlink_screenshot`
+- *"Generate a Letter-size PDF of https://example.com."* → `microlink_pdf`
+- *"Get the title, description, and image for https://example.com."* → `microlink_metadata`
+- *"Convert https://news.ycombinator.com to Markdown."* → `microlink_markdown`
+- *"Find the playable video in this YouTube link."* → `microlink_video`
+- *"Run a Lighthouse performance audit on https://example.com."* → `microlink_lighthouse`
+- *"Scrape every article title from this page using the `.title` selector."* → `microlink_extract` with `data`
+
+Tools can also be invoked directly. Every tool takes a `url` and returns `structuredContent` (see [Response shape](#response-shape)):
+
+```json
+{
+  "name": "microlink_screenshot",
+  "arguments": {
+    "url": "https://example.com",
+    "screenshot": { "fullPage": true, "type": "png" },
+    "colorScheme": "dark"
+  }
+}
+```
+
+## Tools
+
+### Capabilities at a glance
+
+Each tool is a thin wrapper over a [`microlink.io`](https://github.com/microlinkhq/microlink/tree/master/packages/core) library method — same inputs, same result, one source of truth.
+
+- `microlink_metadata`: normalized metadata extraction with include/exclude config.
+- `microlink_logo`: brand logo extraction.
+- `microlink_markdown` / `microlink_html` / `microlink_text`: URL to Markdown / HTML / plain text.
+- `microlink_screenshot`: screenshot generation with element/full-page/animated modes and browser controls.
+- `microlink_pdf`: PDF generation with page/layout controls.
+- `microlink_embed`: oEmbed-style embeddable iframe (`{ html, scripts }`).
+- `microlink_video` / `microlink_audio`: primary playable video / audio source.
+- `microlink_links` / `microlink_images` / `microlink_videos` / `microlink_audios` / `microlink_emails`: collect every link / image / video / audio / email on the page.
+- `microlink_technologies`: technology-stack detection (Wappalyzer).
+- `microlink_lighthouse`: Google Lighthouse audit.
+- `microlink_search`: Google as structured data (requires an API key).
+- `microlink_function`: run a JavaScript function in Microlink's server-side browser sandbox.
+- `microlink_extract`: custom scraping rules (`data`) + multi-capability composition in one call.
+- Cross-cutting request capabilities: device/viewport emulation, click/scroll actions, JS/CSS injection, modules, wait conditions, cache controls (`ttl`, `staleTtl`, `force`), retries/timeouts, media mode, headers/proxy, and endpoint/auth routing.
+
+### Response shape
+
+- Each tool returns the library's **direct result** under `structuredContent.data` (and the same value as pretty-printed JSON text). For example `microlink_markdown` → `{ data: "# Title\n..." }`, `microlink_screenshot` → `{ data: { url, type, width, height, size } }`, `microlink_links` → `{ data: ["https://...", ...] }`.
+- On failure the tool sets MCP `isError` and returns `{ error: { message, code?, status?, statusCode?, url?, more? } }`. A `429` also includes a free-quota `hint`.
+
+Parameters labeled `PRO` in the official Microlink docs require a paid plan.
+For compatibility with some MCP clients:
+- boolean parameters also accept the strings `"true"` and `"false"` and are normalized before validation.
+- parameters that accept objects also accept JSON stringified objects (for example, `screenshot: "{\"overlay\":{\"browser\":\"dark\"}}"`).
+
+### `microlink_extract`
+
+Extract structured metadata from any public URL. Returns normalized fields (`title`, `description`, `author`, `publisher`, `date`, `image`, `logo`, `lang`, `url`) plus any custom fields defined via CSS selectors.
+
+Supports combining multiple features in a single request: screenshot, PDF, video, audio, insights, and palette.
+For `screenshot`, `pdf`, and `insights`, use `true` for defaults or an object for options. Empty objects (`{}`) are treated as `true`.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to extract data from *(required)* |
+| `apiKey` | `string` | Microlink API key *(optional; see [Authentication](#authentication))* |
+| `data` | `object` | Custom CSS-selector extraction rules |
+| `meta` | `boolean \| object` | Include/exclude normalized metadata fields |
+| `embed` | `string` | Microlink embed mode |
+| `iframe` | `boolean \| object` | Include iframe payload options |
+| `function` | `string` | Custom Microlink function hook |
+| `ping` | `boolean \| object` | Enable ping checks |
+| `screenshot` | `boolean \| object` | Capture a screenshot |
+| `pdf` | `boolean \| object` | Generate a PDF |
+| `video` | `boolean` | Extract video source |
+| `audio` | `boolean` | Extract audio source |
+| `insights` | `boolean \| object` | Run Lighthouse / tech detection |
+| `palette` | `boolean` | Extract color palette |
+| `adblock` | `boolean` | Enable ad blocking |
+| `animations` | `boolean` | Enable/disable animations |
+| `device` | `string` | Emulate a device (e.g. `"iPhone 12"`) |
+| `colorScheme` | `"light" \| "dark" \| "no-preference"` | Preferred color scheme |
+| `viewport` | `object` | Custom viewport dimensions |
+| `click` | `string \| string[]` | CSS selector(s) to click before capture |
+| `scroll` | `string` | CSS selector to scroll to |
+| `javascript` | `boolean` | Toggle JavaScript execution |
+| `modules` | `string \| string[]` | Browser module(s) to inject |
+| `scripts` | `string \| string[]` | JavaScript to inject |
+| `styles` | `string \| string[]` | CSS to inject |
+| `mediaType` | `"screen" \| "print"` | CSS media mode |
+| `prerender` | `"auto" \| boolean` | Prerender strategy |
+| `proxy` | `string \| object` | Proxy configuration *(PRO)* |
+| `retry` | `number` | Retry count |
+| `ttl` | `string \| number` | Cache TTL |
+| `staleTtl` | `string \| number \| boolean` | Stale cache TTL policy *(PRO)* |
+| `force` | `boolean` | Bypass cache |
+| `timeout` | `string \| number` | Request timeout |
+| `headers` | `object` | Custom HTTP headers *(PRO)* |
+| `filename` | `string` | Preferred output filename *(PRO)* |
+| `filter` | `string` | Response filter |
+| `waitForSelector` | `string` | Wait for element before capture |
+| `waitForTimeout` | `string \| number` | Wait an additional timeout before capture |
+| `waitUntil` | `string \| string[]` | Navigation event(s): `auto`, `load`, `domcontentloaded`, `networkidle0`, `networkidle2` |
+
+---
+
+### `microlink_screenshot`
+
+Capture a screenshot of any public URL and return the screenshot asset object (`url`, `type`, `width`, `height`, `size`).
+Set `screenshot` to `true` for defaults, or pass `screenshot: { ... }` for options. `screenshot: {}` is treated as `true`.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to screenshot *(required)* |
+| `screenshot` | `boolean \| object` | Enable screenshot with defaults (`true`) or provide screenshot options (`{...}`); `{}` behaves as `true` |
+| `screenshot.fullPage` | `boolean` | Capture the full scrollable page |
+| `screenshot.element` | `string` | CSS selector to capture a specific element |
+| `screenshot.type` | `"jpeg" \| "png"` | Output format (default: `"png"`) |
+| `screenshot.omitBackground` | `boolean` | Transparent background |
+| `screenshot.overlay` | `object` | Browser chrome overlay (`browser`: `"light"\|"dark"`, `background`: CSS color) |
+| `screenshot.codeScheme` | `string` | Syntax-highlight theme for code pages (e.g. `"dracula"`) |
+| `colorScheme` | `"light" \| "dark" \| "no-preference"` | Preferred color scheme |
+| `device` | `string` | Device emulation |
+| `viewport` | `object` | Custom viewport |
+| `click` | `string \| string[]` | Click before capture |
+| `scroll` | `string` | Scroll to element |
+| `scripts` | `string \| string[]` | JavaScript to inject before capture |
+| `styles` | `string \| string[]` | CSS to inject before capture |
+| `modules` | `string \| string[]` | Browser module(s) to inject |
+| `proxy` | `string \| object` | Proxy configuration *(PRO)* |
+| `headers` | `object` | Custom HTTP headers *(PRO)* |
+| `force` | `boolean` | Bypass cache |
+| `ttl` | `string \| number` | Cache TTL |
+| `staleTtl` | `string \| number \| boolean` | Stale cache TTL policy *(PRO)* |
+| `retry` | `number` | Retry count |
+| `timeout` | `string \| number` | Request timeout |
+| `prerender` | `"auto" \| boolean` | Prerender strategy |
+| `adblock` | `boolean` | Enable ad blocking |
+| `animations` | `boolean` | Enable/disable animations |
+| `javascript` | `boolean` | Toggle JavaScript execution |
+| `mediaType` | `"screen" \| "print"` | CSS media mode |
+| `filename` | `string` | Preferred output filename *(PRO)* |
+| `filter` | `string` | Response filter |
+| `waitForSelector` | `string` | Wait for element |
+| `waitForTimeout` | `string \| number` | Wait an additional timeout before capture |
+| `waitUntil` | `string \| string[]` | Navigation event(s): `auto`, `load`, `domcontentloaded`, `networkidle0`, `networkidle2` |
+
+---
+
+### `microlink_pdf`
+
+Generate a PDF of any public URL and return the PDF asset object (`url`, `type`, `size`).
+Set `pdf` to `true` for defaults, or pass `pdf: { ... }` for options. `pdf: {}` is treated as `true`.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to convert *(required)* |
+| `pdf` | `boolean \| object` | Enable PDF with defaults (`true`) or provide PDF options (`{...}`); `{}` behaves as `true` |
+| `pdf.format` | `string` | Paper size: `"A4"` (default), `"Letter"`, `"Legal"`, `"Tabloid"`, `"Ledger"`, `"A0"`–`"A6"` |
+| `pdf.landscape` | `boolean` | Landscape orientation |
+| `pdf.margin` | `string \| object` | Page margins (e.g. `"0.35cm"` or `{top, bottom, left, right}`) |
+| `pdf.scale` | `number` | Page scale factor (0.1–2.0) |
+| `pdf.pageRanges` | `string` | Page range (e.g. `"1-5"`) |
+| `pdf.width` / `pdf.height` | `string` | Custom dimensions (overrides `format`) |
+| `scripts` | `string \| string[]` | JavaScript to inject before rendering |
+| `styles` | `string \| string[]` | CSS to inject before rendering |
+| `modules` | `string \| string[]` | Browser module(s) to inject |
+| `proxy` | `string \| object` | Proxy configuration *(PRO)* |
+| `headers` | `object` | Custom HTTP headers *(PRO)* |
+| `force` | `boolean` | Bypass cache |
+| `ttl` | `string \| number` | Cache TTL |
+| `staleTtl` | `string \| number \| boolean` | Stale cache TTL policy *(PRO)* |
+| `retry` | `number` | Retry count |
+| `timeout` | `string \| number` | Request timeout |
+| `prerender` | `"auto" \| boolean` | Prerender strategy |
+| `adblock` | `boolean` | Enable ad blocking |
+| `animations` | `boolean` | Enable/disable animations |
+| `javascript` | `boolean` | Toggle JavaScript execution |
+| `device` | `string` | Device emulation |
+| `viewport` | `object` | Custom viewport |
+| `filename` | `string` | Preferred output filename *(PRO)* |
+| `filter` | `string` | Response filter |
+| `mediaType` | `"screen" \| "print"` | CSS media type |
+| `waitForSelector` | `string` | Wait for element |
+| `waitForTimeout` | `string \| number` | Wait an additional timeout before rendering |
+| `waitUntil` | `string \| string[]` | Navigation event(s): `auto`, `load`, `domcontentloaded`, `networkidle0`, `networkidle2` |
+
+---
+
+### `microlink_video`
+
+Detect and extract a playable video source from any URL. Returns the video asset object: `url`, `type`, `duration`, `size`, `width`, `height`, `duration_pretty`, and `size_pretty`.
+
+Supports YouTube, Vimeo, Twitter/X, TikTok, Instagram, Dailymotion, and hundreds of other platforms.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL containing a video *(required)* |
+| `proxy` | `string \| object` | Proxy for restricted platforms *(PRO)* |
+| `meta` | `boolean \| object` | Include/suppress page metadata |
+
+---
+
+### `microlink_audio`
+
+Detect and extract a playable audio source from any URL. Returns the audio asset object: `url`, `type`, `duration`, `size`, `duration_pretty`, and `size_pretty`.
+
+Supports SoundCloud, Spotify, Mixcloud, and other audio platforms.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL containing audio *(required)* |
+| `proxy` | `string \| object` | Proxy for restricted platforms *(PRO)* |
+| `meta` | `boolean \| object` | Include/suppress page metadata |
+
+---
+
+### `microlink_technologies`
+
+Detect the technology stack behind any URL (frameworks, CDNs, analytics, e-commerce, ...) via Wappalyzer. Returns the array of detected technologies.
+
+Mirrors the `microlink.technologies(url)` library method.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to analyze *(required)* |
+| `apiKey` | `string` | Microlink API key *(optional)* |
+
+---
+
+### `microlink_lighthouse`
+
+Run a Google Lighthouse audit (performance, accessibility, best-practices, SEO) for any URL. Returns the Lighthouse report.
+
+Mirrors the `microlink.lighthouse(url)` library method.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to analyze *(required)* |
+| `apiKey` | `string` | Microlink API key *(optional)* |
+
+---
+
+### `microlink_metadata`
+
+Extract normalized metadata from any public URL. Returns: `title`, `description`, `lang`, `author`, `publisher`, `date`, `url`, `image` (with dimensions and file info), and `logo` (publisher favicon).
+
+Mirrors the `microlink.metadata(url)` library method.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to inspect *(required)* |
+| `meta` | `boolean \| object` | `false` to skip all metadata; object to include/exclude specific fields (e.g. `{ logo: true, title: true }`) |
+
+---
+
+### `microlink_logo`
+
+Extract the brand logo of any public URL. Returns the logo asset in `data.logo`: `url`, `type`, `width`, `height`, `size`, and `size_pretty`.
+
+Mirrors the `microlink.logo(url, { square })` library method. Useful for building link previews, favicons, or brand cards.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to analyze *(required)* |
+| `square` | `boolean` | Prefer a square (icon-shaped) logo variant |
+
+---
+
+### `microlink_markdown`
+
+Convert any public URL to Markdown. Returns the page content as a Markdown string, useful for extracting readable content from web pages, articles, and documentation.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to convert *(required)* |
+| `apiKey` | `string` | Microlink API key *(optional)* |
+
+---
+
+### `microlink_html`
+
+Extract the HTML content of any public URL. Returns the page HTML as a string.
+
+Mirrors the `microlink.html(url)` library method.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to convert *(required)* |
+| `apiKey` | `string` | Microlink API key *(optional)* |
+
+---
+
+### `microlink_text`
+
+Extract plain text from any public URL. Returns the readable page text as a string.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to extract text from *(required)* |
+| `apiKey` | `string` | Microlink API key *(optional)* |
+
+---
+
+### `microlink_embed`
+
+Get the oEmbed-style embeddable iframe for any URL (YouTube, Tweet, CodePen, ...). Returns `{ html, scripts }` — the markup plus the script URLs it needs.
+
+Mirrors the `microlink.embed(url)` library method.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to embed *(required)* |
+| `apiKey` | `string` | Microlink API key *(optional)* |
+
+---
+
+### `microlink_links` / `microlink_images` / `microlink_videos` / `microlink_audios` / `microlink_emails`
+
+Collect every link, image, video source, audio source, or email address on a page. Each returns a clean, absolute, deduped array under `data.links` / `data.images` / `data.videos` / `data.audios` / `data.emails`.
+
+Mirror the `microlink.links(url)` / `.images(url)` / `.videos(url)` / `.audios(url)` / `.emails(url)` library methods. For the single primary playable media, use `microlink_video` / `microlink_audio`.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to scan *(required)* |
+| `apiKey` | `string` | Microlink API key *(optional)* |
+
+---
+
+### `microlink_search`
+
+Search Google and get structured results (requires an API key). Returns `results` (title, url, description) plus `knowledgeGraph`, `peopleAlsoAsk`, and `relatedSearches` when Google surfaces them.
+
+Mirrors the `microlink.search(query)` library method. Google search operators (`site:`, `filetype:`, quotes, ...) work as-is.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `query` | `string` | The search query *(required)* |
+| `apiKey` | `string` | Microlink API key *(required for this tool)* |
+| `type` | `string` | Vertical: `search` (default), `news`, `images`, `videos`, `places`, `maps`, `shopping`, `scholar`, `patents`, `autocomplete` |
+| `limit` | `number` | Max results |
+| `location` | `string` | Two-letter country code (e.g. `es`) |
+| `period` | `string` | Recency filter: `hour`, `day`, `week`, `month`, `year` |
+
+---
+
+### `microlink_function`
+
+Run a JavaScript function against any public URL inside Microlink's server-side browser sandbox. The function receives `{ page, response, ...args }` and its return value comes back in `value` (plus `isFulfilled`, `profiling`, `logging`).
+
+Mirrors the `microlink.function(url, code)` library method.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to run against *(required)* |
+| `code` | `string` | Function source, e.g. `"async ({ page }) => page.title()"` *(required)* |
+| `apiKey` | `string` | Microlink API key *(optional)* |
+
+---
+
+## Authentication
+
+Every tool accepts an optional `apiKey` parameter. The key is resolved from these sources in order of priority:
+
+1. `apiKey` field in the tool input parameters
+2. `Authorization: Bearer <key>` header from the MCP request
+3. `x-api-key` header from the MCP request
+4. `MICROLINK_API_KEY` environment variable
+
+The `MICROLINK_API_KEY` environment variable is the recommended approach for most integrations. Get your key at [microlink.io](https://microlink.io).
+
+If an API key is present, requests are sent to `https://pro.microlink.io`; otherwise they go to `https://api.microlink.io` (free endpoint).
+
+When the free endpoint returns `429`, this MCP adds a clear hint in the tool error message: free daily quota reached (`50 requests/day`) and upgrade/API key guidance at [microlink.io/#pricing](https://microlink.io/#pricing).
+
+## License
+
+**microlink** © [Microlink](https://microlink.io), released under the [MIT](https://github.com/microlinkhq/mcp/blob/master/LICENSE.md) License.<br>
+Authored and maintained by [Kiko Beats](https://kikobeats.com) with help from [contributors](https://github.com/microlinkhq/mcp/contributors).
+
+> [microlink.io](https://microlink.io) · GitHub [microlinkhq](https://github.com/microlinkhq) · X [@microlinkhq](https://x.com/microlinkhq)

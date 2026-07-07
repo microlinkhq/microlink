@@ -1,5 +1,7 @@
 'use strict'
 
+import { listen } from 'async-listen'
+import http from 'http'
 import test from 'ava'
 
 import mql from '@microlink/mql'
@@ -43,6 +45,16 @@ test('EFATALCLIENT', async t => {
 })
 
 test("don't retry 429 status code", async t => {
+  const server = http.createServer((req, res) => {
+    res.statusCode = 429
+    res.end('429 Too Many Requests')
+  })
+  t.teardown(async () => {
+    await new Promise(resolve => server.close(resolve))
+  })
+
+  const endpoint = await listen(server)
+
   let count = 0
 
   const hooks = {
@@ -52,11 +64,7 @@ test("don't retry 429 status code", async t => {
   }
 
   const error = await t.throwsAsync(
-    mql(
-      'https://example.com',
-      { endpoint: 'https://httpbin.org/status/429' },
-      { hooks }
-    ),
+    mql('https://example.com', { endpoint }, { hooks }),
     { instanceOf: mql.MicrolinkError }
   )
 
