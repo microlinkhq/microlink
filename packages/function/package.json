@@ -2,7 +2,7 @@
   "name": "@microlink/function",
   "description": "Write JavaScript functions and run them remotely with Microlink — Puppeteer access, npm packages, and zero infrastructure.",
   "homepage": "https://function.microlink.io",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "types": "src/index.d.ts",
   "exports": {
     "types": "./src/index.d.ts",

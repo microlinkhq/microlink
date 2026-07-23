@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.7](https://github.com/microlinkhq/microlink/compare/%40microlink%2Ffunction%400.2.6...%40microlink%2Ffunction%400.2.7) (2026-07-23)
+
+### Bug Fixes
+
+* **function:** type memory as breakdown, not a single number ([#5](https://github.com/microlinkhq/microlink/issues/5)) ([38fdb12](https://github.com/microlinkhq/microlink/commit/38fdb12c6c3b0c21058b2a5e3c6f1623a85e71cf))
+
 ## 0.2.6 (2026-07-07)
 
 **Note:** Version bump only for package @microlink/function
