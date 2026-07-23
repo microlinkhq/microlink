@@ -238,7 +238,7 @@ console.log(result.profiling)
 // {
 //   phases: { install: 0, build: 120, spawn: 45, run: 890, total: 1055 },
 //   cpu: 234,
-//   memory: 8,
+//   memory: { total: 69996544, used: 2359296, heap: 4410880, external: 1742574 },
 //   size: 156
 // }
 ```
@@ -251,7 +251,10 @@ console.log(result.profiling)
 | `phases.run` | Time spent executing the function. |
 | `phases.total` | Wall-clock time from start to finish. |
 | `cpu` | Peak CPU time in milliseconds. |
-| `memory` | Peak memory usage in MB. |
+| `memory.total` | Resident memory of the sandbox, Node.js baseline included, in bytes. |
+| `memory.used` | Resident memory attributable to your function, in bytes. |
+| `memory.heap` | V8 heap in use, in bytes. The only field the memory limit bounds. |
+| `memory.external` | Off-heap `Buffer`/`ArrayBuffer` memory, in bytes. |
 | `size` | Bundled code size in bytes. |
 
 ### Plan limits

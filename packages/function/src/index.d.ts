@@ -10,7 +10,12 @@ export type FunctionProfiling = {
     total?: number
   }
   cpu?: number
-  memory?: number
+  memory?: {
+    total?: number
+    used?: number
+    heap?: number
+    external?: number
+  }
   size?: number
 }
 
