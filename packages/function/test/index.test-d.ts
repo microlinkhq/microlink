@@ -1,3 +1,4 @@
+import { expectType } from 'tsd'
 import microlinkFn from '@microlink/function'
 
 /** response shape */
@@ -9,6 +10,12 @@ import microlinkFn from '@microlink/function'
   console.log(data.isFulfilled)
   console.log(data.profiling)
   console.log(data.logging)
+
+  /** memory is a breakdown, not a single number */
+  expectType<number | undefined>(data.profiling.memory?.total)
+  expectType<number | undefined>(data.profiling.memory?.used)
+  expectType<number | undefined>(data.profiling.memory?.heap)
+  expectType<number | undefined>(data.profiling.memory?.external)
 }
 
 /** discriminated union */
