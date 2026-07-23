@@ -62,11 +62,10 @@
     "build": "rollup -c rollup.config.js --bundleConfigAsCjs",
     "clean:build": "rm -rf dist/index.js",
     "dev": "pnpm run build -- -w",
-    "lint": "tsd",
     "prebuild": "pnpm run clean:build",
     "prepublishOnly": "pnpm run build",
-    "pretest": "pnpm run lint && pnpm run build",
-    "test": "ava --verbose"
+    "pretest": "pnpm run build",
+    "test": "ava --verbose && tsd"
   },
   "license": "MIT",
   "ava": {
