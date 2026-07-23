@@ -124,7 +124,7 @@ jobs:
           git config --global user.name "${{ secrets.GIT_USERNAME }}"
           git pull origin master
       - name: Test
-        run: pnpm test
+        run: pnpm --recursive --sequential test
       - name: Release
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
