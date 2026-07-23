@@ -63,8 +63,7 @@
     "src"
   ],
   "scripts": {
-    "lint": "tsd",
-    "test": "ava"
+    "test": "ava && tsd"
   },
   "preferGlobal": true,
   "license": "MIT",
