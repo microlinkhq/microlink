@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.17.1](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmql%400.17.0...%40microlink%2Fmql%400.17.1) (2026-07-29)
+
+### Bug Fixes
+
+* **release:** stop tracking generated mql bundles ([80d13d0](https://github.com/microlinkhq/microlink/commit/80d13d02b048fbf0030d22e45ce2a7712e332912))
+
 ## 0.17.0 (2026-07-07)
 
 ### Features
