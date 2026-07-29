@@ -56,6 +56,7 @@
     "contributors:add": "pnpm --recursive --parallel exec -- finepack",
     "contributors:commit": "(git-authors-cli && finepack && git add package.json && git commit -m 'build: contributors' --no-verify) || true",
     "lint": "standard-markdown README.md && standard",
+    "prepublishOnly": "pnpm --recursive --if-present run prepublishOnly",
     "pretest": "pnpm run lint",
     "release": "lerna publish --yes --sort --conventional-commits --changelog-preset conventionalcommits --create-release github -m \"chore(release): publish\"",
     "test": "c8 pnpm --recursive --sequential test"
