@@ -42,7 +42,6 @@
     "c8": "latest",
     "finepack": "latest",
     "git-authors-cli": "latest",
-    "github-generate-release": "latest",
     "nano-staged": "latest",
     "simple-git-hooks": "latest",
     "standard": "latest",
@@ -57,9 +56,8 @@
     "contributors:add": "pnpm --recursive --parallel exec -- finepack",
     "contributors:commit": "(git-authors-cli && finepack && git add package.json && git commit -m 'build: contributors' --no-verify) || true",
     "lint": "standard-markdown README.md && standard",
-    "postrelease": "github-generate-release",
     "pretest": "pnpm run lint",
-    "release": "lerna publish --yes --sort --conventional-commits --changelog-preset conventionalcommits -m \"chore(release): %s\"",
+    "release": "lerna publish --yes --sort --conventional-commits --changelog-preset conventionalcommits --create-release github -m \"chore(release): publish\"",
     "test": "c8 pnpm --recursive --sequential test"
   },
   "private": true,
