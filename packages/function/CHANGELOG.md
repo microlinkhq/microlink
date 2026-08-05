@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Ffunction%400.2.8...%40microlink%2Ffunction%400.3.0) (2026-08-05)
+
+### ⚠ BREAKING CHANGES
+
+* @microlink/mql, @microlink/mcp and @microlink/function
+  now require Node >= 24.
+
+### Features
+
+* require Node >= 24 across all packages ([fa6d0a7](https://github.com/microlinkhq/microlink/commit/fa6d0a7e025d4a6b13e041be79bbdca04a125ceb))
+
 ## [0.2.8](https://github.com/microlinkhq/microlink/compare/%40microlink%2Ffunction%400.2.7...%40microlink%2Ffunction%400.2.8) (2026-07-29)
 
 **Note:** Version bump only for package @microlink/function
