@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.0.0...%40microlink%2Fmcp%402.0.1) (2026-08-05)
+
+### Bug Fixes
+
+* **mcp:** expose shared API query params on all URL tools ([#8](https://github.com/microlinkhq/microlink/issues/8)) ([7a7ccb0](https://github.com/microlinkhq/microlink/commit/7a7ccb064b63fcf6c6f7745544d90f4c5295d3bf))
+
 ## [2.0.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%401.1.3...%40microlink%2Fmcp%402.0.0) (2026-08-05)
 
 ### ⚠ BREAKING CHANGES
