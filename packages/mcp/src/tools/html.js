@@ -8,6 +8,7 @@ export function html (server) {
     [
       'Extract the HTML content of any public URL via Microlink.',
       'Returns the page HTML as a string. Pass `selector` to scope it to part of the page.',
+      'Combine with browser options such as `javascript`, `waitUntil`, `waitForSelector`, `headers`, and `proxy`.',
       'Mirrors the `microlink.html(url)` library method.'
     ].join(' '),
     htmlInputSchema,

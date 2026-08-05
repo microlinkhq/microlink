@@ -104,6 +104,27 @@ test('microlink_markdown scopes to `selector` and returns a string', async t => 
   )
 })
 
+test('microlink_markdown forwards waitUntil and javascript', async t => {
+  const handlers = captureTool(markdown)
+  await withStubbedRequest(
+    t,
+    async getUrl => {
+      await handlers.microlink_markdown(
+        {
+          url: 'https://example.com',
+          javascript: true,
+          waitUntil: 'networkidle0'
+        },
+        {}
+      )
+      const q = getUrl().searchParams
+      assert.equal(q.get('javascript'), 'true')
+      assert.equal(q.get('waitUntil'), 'networkidle0')
+    },
+    { data: { markdown: '# Hello' } }
+  )
+})
+
 test('microlink_screenshot nests config (animated) and keeps device top-level', async t => {
   const handlers = captureTool(screenshot)
   await withStubbedRequest(

@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import {
   audioInputSchema,
   extractInputSchema,
+  functionInputSchema,
   markdownInputSchema,
   metadataInputSchema,
   logoInputSchema,
@@ -64,6 +65,30 @@ test('screenshot schema accepts boolean toggle', () => {
   })
 
   assert.equal(result.success, true)
+})
+
+test('screenshot schema accepts jpeg quality', () => {
+  const result = screenshotInputSchema.safeParse({
+    url: 'https://microlink.io',
+    screenshot: {
+      type: 'jpeg',
+      quality: 50
+    }
+  })
+
+  assert.equal(result.success, true)
+  assert.equal(result.data.screenshot.quality, 50)
+})
+
+test('screenshot schema rejects quality outside 0-100', () => {
+  const result = screenshotInputSchema.safeParse({
+    url: 'https://microlink.io',
+    screenshot: {
+      quality: 101
+    }
+  })
+
+  assert.equal(result.success, false)
 })
 
 test('screenshot schema coerces string booleans for toggle and nested options', () => {
@@ -479,6 +504,20 @@ test('markdown schema accepts optional apiKey', () => {
   assert.equal(result.success, true)
 })
 
+test('markdown schema accepts shared browser query parameters', () => {
+  const result = markdownInputSchema.safeParse({
+    url: 'https://microlink.io',
+    javascript: true,
+    waitUntil: 'networkidle0',
+    waitForSelector: 'main',
+    cacheKey: 'docs-markdown'
+  })
+
+  assert.equal(result.success, true)
+  assert.equal(result.data.waitUntil, 'networkidle0')
+  assert.equal(result.data.cacheKey, 'docs-markdown')
+})
+
 test('markdown schema rejects unknown top-level keys', () => {
   const result = markdownInputSchema.safeParse({
     url: 'https://microlink.io',
@@ -490,6 +529,30 @@ test('markdown schema rejects unknown top-level keys', () => {
     result.error.issues[0].message,
     /Unrecognized key|unrecognized key/i
   )
+})
+
+test('function schema accepts code with shared browser options', () => {
+  const result = functionInputSchema.safeParse({
+    url: 'https://microlink.io',
+    code: 'async ({ page }) => page.title()',
+    waitUntil: 'domcontentloaded',
+    click: '#accept'
+  })
+
+  assert.equal(result.success, true)
+  assert.equal(result.data.waitUntil, 'domcontentloaded')
+  assert.equal(result.data.click, '#accept')
+})
+
+test('metadata schema accepts palette and waitUntil', () => {
+  const result = metadataInputSchema.safeParse({
+    url: 'https://microlink.io',
+    palette: true,
+    waitUntil: 'load'
+  })
+
+  assert.equal(result.success, true)
+  assert.equal(result.data.palette, true)
 })
 
 test('text schema accepts minimal valid payload', () => {
