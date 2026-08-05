@@ -120,6 +120,7 @@ export const screenshotConfigSchema = objectLikeSchema(
       optimizeForSpeed: booleanSchema.optional(),
       overlay: screenshotOverlaySchema.optional(),
       palette: booleanSchema.optional(),
+      quality: z.number().min(0).max(100).optional(),
       type: z.enum(['jpeg', 'png']).optional()
     })
     .strict()
@@ -227,12 +228,15 @@ const fullShape = {
   ping: toggledObjectSchema.optional()
 }
 
-const visualSchema = {
+// Shared Microlink API query parameters (see microlink.io/docs/api/parameters).
+// Product tools layer their own fields on top; these apply to any URL fetch.
+// `data` is separate: content/collection helpers overwrite it with their field rule.
+const browserSchema = {
   adblock: booleanSchema.optional(),
   animations: booleanSchema.optional(),
+  cacheKey: z.string().min(1).optional(),
   click: stringOrStringArraySchema.optional(),
   colorScheme: z.enum(['no-preference', 'light', 'dark']).optional(),
-  data: objectLikeSchema(z.record(z.string(), dataRuleSchema)).optional(),
   device: z.string().min(1).optional(),
   filename: z.string().min(1).optional(),
   filter: z.string().min(1).optional(),
@@ -258,6 +262,11 @@ const visualSchema = {
   waitUntil: z
     .union([waitUntilEventSchema, z.array(waitUntilEventSchema).min(1)])
     .optional()
+}
+
+const visualSchema = {
+  ...browserSchema,
+  data: objectLikeSchema(z.record(z.string(), dataRuleSchema)).optional()
 }
 
 export const extractInputSchema = baseSchema
@@ -287,35 +296,40 @@ export const pdfInputSchema = baseSchema
   .strict()
 
 export const audioInputSchema = baseSchema
+  .extend(visualSchema)
   .extend({
-    proxy: proxySchema.optional(),
     meta: z.union([booleanSchema, metaConfigSchema]).optional(),
     audio: booleanSchema.optional()
   })
   .strict()
 
 export const videoInputSchema = baseSchema
+  .extend(visualSchema)
   .extend({
-    proxy: proxySchema.optional(),
     meta: z.union([booleanSchema, metaConfigSchema]).optional(),
     video: booleanSchema.optional()
   })
   .strict()
 
 export const logoInputSchema = baseSchema
+  .extend(visualSchema)
   .extend({
-    square: booleanSchema.optional()
+    square: booleanSchema.optional(),
+    palette: booleanSchema.optional()
   })
   .strict()
 
 export const metadataInputSchema = baseSchema
+  .extend(visualSchema)
   .extend({
-    meta: z.union([booleanSchema, metaConfigSchema]).optional()
+    meta: z.union([booleanSchema, metaConfigSchema]).optional(),
+    palette: booleanSchema.optional()
   })
   .strict()
 
 // Content tools (markdown/html/text) accept a selector to scope the extraction.
 const contentSchema = baseSchema
+  .extend(browserSchema)
   .extend({
     selector: selectorSchema.optional(),
     selectorAll: selectorSchema.optional(),
@@ -325,6 +339,7 @@ const contentSchema = baseSchema
 
 // Collection tools accept selector/attr/type overrides for the data rule.
 const collectionSchema = baseSchema
+  .extend(browserSchema)
   .extend({
     selector: selectorSchema.optional(),
     selectorAll: selectorSchema.optional(),
@@ -340,6 +355,7 @@ export const htmlInputSchema = contentSchema
 export const textInputSchema = contentSchema
 
 export const embedInputSchema = baseSchema
+  .extend(visualSchema)
   .extend({
     maxWidth: z.coerce.number().int().positive().optional(),
     maxHeight: z.coerce.number().int().positive().optional()
@@ -356,9 +372,10 @@ export const audiosInputSchema = collectionSchema
 
 export const emailsInputSchema = collectionSchema
 
-export const technologiesInputSchema = baseSchema.strict()
+export const technologiesInputSchema = baseSchema.extend(visualSchema).strict()
 
 export const lighthouseInputSchema = baseSchema
+  .extend(visualSchema)
   .extend({
     onlyCategories: z.array(z.string().min(1)).optional(),
     onlyAudits: z.array(z.string().min(1)).optional(),
@@ -392,6 +409,7 @@ export const searchInputSchema = z
   .strict()
 
 export const functionInputSchema = baseSchema
+  .extend(visualSchema)
   .extend({
     code: z.string().min(1)
   })

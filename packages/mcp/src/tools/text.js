@@ -8,6 +8,7 @@ export function text (server) {
     [
       'Extract the plain text of any public URL via Microlink.',
       'Returns the readable page text as a string. Pass `selector` to scope it to part of the page.',
+      'Combine with browser options such as `javascript`, `waitUntil`, `waitForSelector`, `headers`, and `proxy`.',
       'Mirrors the `microlink.text(url)` library method.'
     ].join(' '),
     textInputSchema,

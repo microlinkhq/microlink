@@ -104,6 +104,27 @@ test('microlink_markdown scopes to `selector` and returns a string', async t => 
   )
 })
 
+test('microlink_markdown forwards waitUntil and javascript', async t => {
+  const handlers = captureTool(markdown)
+  await withStubbedRequest(
+    t,
+    async getUrl => {
+      await handlers.microlink_markdown(
+        {
+          url: 'https://example.com',
+          javascript: true,
+          waitUntil: 'networkidle0'
+        },
+        {}
+      )
+      const q = getUrl().searchParams
+      assert.equal(q.get('javascript'), 'true')
+      assert.equal(q.get('waitUntil'), 'networkidle0')
+    },
+    { data: { markdown: '# Hello' } }
+  )
+})
+
 test('microlink_screenshot nests config (animated) and keeps device top-level', async t => {
   const handlers = captureTool(screenshot)
   await withStubbedRequest(
@@ -125,6 +146,27 @@ test('microlink_screenshot nests config (animated) and keeps device top-level', 
       assert.equal(res.structuredContent.data.url, 'https://cdn/x.png')
     },
     { data: { screenshot: { url: 'https://cdn/x.png', type: 'png' } } }
+  )
+})
+
+test('microlink_screenshot nests quality under screenshot', async t => {
+  const handlers = captureTool(screenshot)
+  await withStubbedRequest(
+    t,
+    async getUrl => {
+      await handlers.microlink_screenshot(
+        {
+          url: 'https://example.com',
+          screenshot: { type: 'jpeg', quality: 50 }
+        },
+        {}
+      )
+      const q = getUrl().searchParams
+      assert.equal(q.get('screenshot.type'), 'jpeg')
+      assert.equal(q.get('screenshot.quality'), '50')
+      assert.equal(q.get('quality'), null)
+    },
+    { data: { screenshot: { url: 'https://cdn/x.jpg', type: 'jpeg' } } }
   )
 })
 
