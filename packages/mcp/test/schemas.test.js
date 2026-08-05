@@ -518,6 +518,19 @@ test('markdown schema accepts shared browser query parameters', () => {
   assert.equal(result.data.cacheKey, 'docs-markdown')
 })
 
+test('markdown schema rejects top-level data (content helpers overwrite it)', () => {
+  const result = markdownInputSchema.safeParse({
+    url: 'https://microlink.io',
+    data: { custom: { selector: 'h1' } }
+  })
+
+  assert.equal(result.success, false)
+  assert.match(
+    result.error.issues[0].message,
+    /Unrecognized key|unrecognized key/i
+  )
+})
+
 test('markdown schema rejects unknown top-level keys', () => {
   const result = markdownInputSchema.safeParse({
     url: 'https://microlink.io',

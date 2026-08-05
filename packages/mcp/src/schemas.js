@@ -230,13 +230,13 @@ const fullShape = {
 
 // Shared Microlink API query parameters (see microlink.io/docs/api/parameters).
 // Product tools layer their own fields on top; these apply to any URL fetch.
-const visualSchema = {
+// `data` is separate: content/collection helpers overwrite it with their field rule.
+const browserSchema = {
   adblock: booleanSchema.optional(),
   animations: booleanSchema.optional(),
   cacheKey: z.string().min(1).optional(),
   click: stringOrStringArraySchema.optional(),
   colorScheme: z.enum(['no-preference', 'light', 'dark']).optional(),
-  data: objectLikeSchema(z.record(z.string(), dataRuleSchema)).optional(),
   device: z.string().min(1).optional(),
   filename: z.string().min(1).optional(),
   filter: z.string().min(1).optional(),
@@ -262,6 +262,11 @@ const visualSchema = {
   waitUntil: z
     .union([waitUntilEventSchema, z.array(waitUntilEventSchema).min(1)])
     .optional()
+}
+
+const visualSchema = {
+  ...browserSchema,
+  data: objectLikeSchema(z.record(z.string(), dataRuleSchema)).optional()
 }
 
 export const extractInputSchema = baseSchema
@@ -324,7 +329,7 @@ export const metadataInputSchema = baseSchema
 
 // Content tools (markdown/html/text) accept a selector to scope the extraction.
 const contentSchema = baseSchema
-  .extend(visualSchema)
+  .extend(browserSchema)
   .extend({
     selector: selectorSchema.optional(),
     selectorAll: selectorSchema.optional(),
@@ -334,7 +339,7 @@ const contentSchema = baseSchema
 
 // Collection tools accept selector/attr/type overrides for the data rule.
 const collectionSchema = baseSchema
-  .extend(visualSchema)
+  .extend(browserSchema)
   .extend({
     selector: selectorSchema.optional(),
     selectorAll: selectorSchema.optional(),

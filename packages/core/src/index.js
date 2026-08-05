@@ -17,7 +17,8 @@ const SCREENSHOT_KEYS = [
   'optimizeForSpeed',
   'codeScheme',
   'animated',
-  'palette'
+  'palette',
+  'quality'
 ]
 
 const PDF_KEYS = [

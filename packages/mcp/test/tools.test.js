@@ -149,6 +149,27 @@ test('microlink_screenshot nests config (animated) and keeps device top-level', 
   )
 })
 
+test('microlink_screenshot nests quality under screenshot', async t => {
+  const handlers = captureTool(screenshot)
+  await withStubbedRequest(
+    t,
+    async getUrl => {
+      await handlers.microlink_screenshot(
+        {
+          url: 'https://example.com',
+          screenshot: { type: 'jpeg', quality: 50 }
+        },
+        {}
+      )
+      const q = getUrl().searchParams
+      assert.equal(q.get('screenshot.type'), 'jpeg')
+      assert.equal(q.get('screenshot.quality'), '50')
+      assert.equal(q.get('quality'), null)
+    },
+    { data: { screenshot: { url: 'https://cdn/x.jpg', type: 'jpeg' } } }
+  )
+})
+
 test('microlink_pdf nests config', async t => {
   const handlers = captureTool(pdf)
   await withStubbedRequest(t, async getUrl => {
