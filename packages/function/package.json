@@ -53,7 +53,7 @@
     "tsd": "latest"
   },
   "engines": {
-    "node": ">= 18"
+    "node": ">= 24"
   },
   "files": [
     "src"
