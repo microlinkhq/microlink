@@ -1,6 +1,6 @@
 {
   "name": "@microlink/google",
-  "description": "Structured Google data from 10 verticals through Microlink API",
+  "description": "Structured Google SERP data across verticals through the Microlink API.",
   "homepage": "https://github.com/microlinkhq/microlink",
   "version": "1.0.6",
   "exports": {
@@ -29,11 +29,16 @@
     "url": "https://github.com/microlinkhq/microlink/issues"
   },
   "keywords": [
+    "api",
     "google",
     "integration",
     "microlink",
+    "organic",
+    "results",
+    "scrape",
     "search",
-    "serp"
+    "serp",
+    "verticals"
   ],
   "dependencies": {
     "@microlink/mql": "workspace:*"
