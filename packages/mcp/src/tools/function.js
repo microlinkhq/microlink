@@ -8,7 +8,8 @@ export function fn (server) {
     [
       'Run a JavaScript function against any public URL inside Microlink’s server-side browser sandbox.',
       'Pass `code` as the function source (e.g. "async ({ page }) => page.title()"); it receives `{ page, response, ...args }` and its return value comes back in `value`.',
-      'Combine with browser options such as `javascript`, `waitUntil`, `waitForSelector`, `click`, `scroll`, `headers`, and `proxy`.',
+      'Prefer `actions` for ordered interactions before the function runs; legacy `waitForSelector`, `click`, and `scroll` still work.',
+      'Also combine with `javascript`, `waitUntil`, `headers`, and `proxy`.',
       'Also returns `isFulfilled`, `profiling`, and `logging`. Mirrors the `microlink.function(url, code)` library method.'
     ].join(' '),
     functionInputSchema,
