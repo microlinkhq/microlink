@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict'
 
-const { inspect, styleText } = require('node:util')
+const { styleText } = require('node:util')
 const { readFileSync } = require('fs')
 const path = require('path')
 const mri = require('mri')
@@ -14,6 +14,7 @@ const CLEAR_LINE = '\r\u001b[K'
 const FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
 
 const gray = str => styleText('gray', str)
+const white = str => styleText('white', str)
 const green = str => styleText('green', str)
 const label = (text, color) =>
   styleText(['inverse', 'bold', color], ` ${text.toUpperCase()} `)
@@ -55,10 +56,34 @@ const toPlainHeaders = headers => {
 
 const humanizeApiKey = apiKey => `${String(apiKey).slice(0, 5)}…`
 
+const quote = str =>
+  gray('"') + white(JSON.stringify(str).slice(1, -1)) + gray('"')
+
+const printPretty = (value, indent = 0) => {
+  if (value === null) return white('null')
+  if (typeof value === 'string') return quote(value)
+  if (typeof value !== 'object') return white(String(value))
+
+  const isArray = Array.isArray(value)
+  const keys = isArray ? value : Object.keys(value)
+  if (keys.length === 0) return gray(isArray ? '[]' : '{}')
+
+  const pad = '  '.repeat(indent)
+  const inner = '  '.repeat(indent + 1)
+  const open = gray(isArray ? '[' : '{')
+  const close = gray(isArray ? ']' : '}')
+  const lines = keys.map(key => {
+    if (isArray) return inner + printPretty(key, indent + 1)
+    const name = /^[A-Za-z_$][\w$]*$/.test(key) ? white(key) : quote(key)
+    return inner + name + gray(':') + ' ' + printPretty(value[key], indent + 1)
+  })
+  return open + '\n' + lines.join(gray(',') + '\n') + '\n' + pad + close
+}
+
 const printJson = payload => {
   console.log(
     process.stdout.hasColors?.()
-      ? inspect(payload, { colors: true, depth: Infinity, compact: false })
+      ? printPretty(payload)
       : JSON.stringify(payload, null, 2)
   )
 }
