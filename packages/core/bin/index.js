@@ -165,7 +165,7 @@ const printFooter = ({ duration, response }) => {
   const uri = response?.url
 
   console.error(
-    label('success', 'green'),
+    label('success', 'white'),
     gray(`${prettyBytes(size)} in ${time}`)
   )
   console.error()
