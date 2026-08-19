@@ -30,6 +30,10 @@ const setup = () => {
     calls.push({ url, mqlOpts, gotOpts })
     return Promise.resolve({ status: 'success', data: DATA })
   }
+  mqlStub.getApiUrl = (url, opts, gotOpts = {}) => [
+    `https://api.microlink.io/?url=${url}`,
+    { responseType: 'json', headers: gotOpts.headers ?? {} }
+  ]
   mqlStub.MicrolinkError = class MicrolinkError extends Error {}
 
   const fnCalls = []

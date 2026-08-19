@@ -2,22 +2,49 @@
 'use strict'
 
 const { styleText } = require('node:util')
-const { createSpinner } = require('nanospinner')
-const restoreCursor = require('restore-cursor')
-const prettyBytes = require('pretty-bytes')
 const { readFileSync } = require('fs')
-const prettyMs = require('pretty-ms')
 const path = require('path')
 const jsome = require('jsome')
 const mri = require('mri')
 
 const create = require('../src')
 
+const SHOW_CURSOR = '\u001b[?25h'
+const HIDE_CURSOR = '\u001b[?25l'
+const CLEAR_LINE = '\r\u001b[K'
+const FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
+
 const gray = str => styleText('gray', str)
 const green = str => styleText('green', str)
 const label = (text, color) =>
   styleText(['inverse', 'bold', color], ` ${text.toUpperCase()} `)
 const keyValue = (key, value) => key + ' ' + gray(value)
+
+const prettyMs = ms => {
+  if (!Number.isFinite(ms)) return 'unknown'
+  const sign = ms < 0 ? '-' : ''
+  let n = Math.abs(ms)
+  if (n < 1000) return `${sign}${Math.round(n)}ms`
+  n /= 1000
+  if (n < 60) return `${sign}${n.toFixed(1).replace(/\.0$/, '')}s`
+  const hours = Math.floor(n / 3600)
+  n %= 3600
+  const mins = Math.floor(n / 60)
+  const secs = (n % 60).toFixed(1).replace(/\.0$/, '')
+  if (hours) return `${sign}${hours}h ${mins}m ${secs}s`
+  return secs === '0' ? `${sign}${mins}m` : `${sign}${mins}m ${secs}s`
+}
+
+const prettyBytes = n => {
+  if (!Number.isFinite(n) || n < 1000) return `${Math.round(n || 0)} B`
+  if (n < 1e6) {
+    const val = n / 1000
+    return `${
+      val >= 100 ? Math.round(val) : val.toFixed(1).replace(/\.0$/, '')
+    } kB`
+  }
+  return `${(n / 1e6).toFixed(1).replace(/\.0$/, '')} MB`
+}
 
 const toPlainHeaders = headers => {
   if (!headers) return {}
@@ -55,17 +82,6 @@ const tracePayload = ({
   }
 }
 
-const bodySize = body => {
-  if (body == null) return 0
-  if (typeof body === 'string' || Buffer.isBuffer(body)) {
-    return Buffer.byteLength(body)
-  }
-  if (body instanceof ArrayBuffer) return body.byteLength
-  return Buffer.byteLength(JSON.stringify(body))
-}
-
-const TICK_INTERVAL = 50
-
 const shouldSpin = () =>
   !process.env.NO_COLOR &&
   process.env.FORCE_COLOR !== '0' &&
@@ -73,36 +89,36 @@ const shouldSpin = () =>
 
 const spinner = () => {
   const now = Date.now()
-  const elapsedTime = () => prettyMs(Date.now() - now)
-  const spin = createSpinner(elapsedTime(), { color: 'white' })
+  let i = 0
   let timer
-
-  const start = () => {
-    console.error()
-    spin.start({ text: elapsedTime() })
-    process.on('SIGINT', () => {
-      restoreCursor()
-      process.exit(130)
-    })
-    timer = setInterval(
-      () => spin.update({ text: elapsedTime() }),
-      TICK_INTERVAL
+  const draw = () => {
+    process.stderr.write(
+      `${CLEAR_LINE}${FRAMES[i++ % FRAMES.length]} ${prettyMs(
+        Date.now() - now
+      )}`
     )
   }
-
-  const stop = () => {
-    clearInterval(timer)
-    spin.clear()
-    restoreCursor()
+  return {
+    start () {
+      process.stderr.write(HIDE_CURSOR)
+      draw()
+      process.on('SIGINT', () => {
+        process.stderr.write(CLEAR_LINE + SHOW_CURSOR)
+        process.exit(130)
+      })
+      timer = setInterval(draw, 50)
+    },
+    stop () {
+      clearInterval(timer)
+      process.stderr.write(CLEAR_LINE + SHOW_CURSOR)
+    }
   }
-
-  return { start, stop }
 }
 
 const printFooter = ({ duration, response }) => {
   const headers = toPlainHeaders(response?.headers)
-  const time = Number.isFinite(duration) ? prettyMs(duration) : 'unknown'
-  const size = Number(headers['content-length'] || bodySize(response?.body))
+  const time = prettyMs(duration)
+  const size = Number(headers['content-length']) || 0
   const serverTiming = headers['server-timing']
   const id = headers['x-request-id']
   const edgeCacheStatus = headers['cf-cache-status']

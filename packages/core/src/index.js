@@ -43,11 +43,9 @@ const isEmpty = obj => Object.keys(obj).length === 0
 const create = (ctx = {}) => {
   const last = {}
   const request = (...args) => {
-    if (typeof mql.getApiUrl === 'function') {
-      const [requestUrl, requestOptions] = mql.getApiUrl(...args)
-      last.requestUrl = requestUrl
-      last.requestOptions = requestOptions
-    }
+    const [requestUrl, requestOptions] = mql.getApiUrl(...args)
+    last.requestUrl = requestUrl
+    last.requestOptions = requestOptions
     return mql(...args).then(result => {
       last.response = result.response
       return result
