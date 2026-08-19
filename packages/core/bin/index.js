@@ -164,6 +164,7 @@ const printFooter = ({ duration, response }) => {
   const fetchTime = fetchMode && `(${headers['x-fetch-time']})`
   const uri = response?.url
 
+  if (process.stdout.isTTY) console.error()
   console.error(
     label('success', 'white'),
     gray(`${prettyBytes(size)} in ${time}`)
