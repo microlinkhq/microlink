@@ -1,8 +1,9 @@
 Usage
+  $ microlink <url> [options]
   $ microlink <product> <url|query> [options]
 
 Products
-  metadata      Unified metadata (title, description, image, ...)
+  metadata      Unified metadata (title, description, image, ...); default
   logo          Brand logo of the site (--square prefers the square variant)
   markdown      Page content as Markdown
   html          Page content as HTML
@@ -31,12 +32,17 @@ Options
   --header, -H  Extra request header as 'Name: value' (repeatable)
   --data        JSON data rules for the extract command
   --file        Path to the code file for the function command
+  --trace       Print request & response payload (API key masked)
+  --trace-full  Same as --trace, including the full API key
   --help        Show this help
 
 Any other flag is passed as an option to the product, e.g. --fullPage,
 --device 'iPhone 11', --waitUntil networkidle0, --selector article.
 
 Examples
+  $ microlink https://example.com
+  $ microlink https://example.com --trace
+  $ microlink https://example.com --trace-full
   $ microlink markdown https://example.com
   $ microlink screenshot https://example.com --fullPage
   $ microlink logo https://github.com --square

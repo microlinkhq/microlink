@@ -47,7 +47,11 @@
     "@microlink/google": "workspace:*",
     "@microlink/mql": "workspace:*",
     "jsome": "~2.5.0",
-    "mri": "~1.2.0"
+    "mri": "~1.2.0",
+    "nanospinner": "~1.2.2",
+    "pretty-bytes": "~5.6.0",
+    "pretty-ms": "~7.0.1",
+    "restore-cursor": "~3.1.0"
   },
   "devDependencies": {
     "ava": "latest",

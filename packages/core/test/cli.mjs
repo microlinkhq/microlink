@@ -19,6 +19,33 @@ test('fails on unknown commands', async t => {
   t.true(error.stderr.includes('Unknown command'))
 })
 
+test('url without a product runs metadata', async t => {
+  const { stdout, stderr } = await $('node', [bin, 'https://example.com'])
+  t.true(stdout.includes('status'))
+  t.true(stdout.includes('success'))
+  t.true(stdout.includes('title'))
+  t.true(stdout.includes('url'))
+  t.false(stdout.includes('SUCCESS'))
+  t.true(stderr.includes('SUCCESS'))
+})
+
+test('trace prints request and response payload', async t => {
+  const { stdout, stderr } = await $('node', [bin, 'https://example.com', '--trace'])
+  const payload = JSON.parse(stdout)
+  t.truthy(payload.request.url)
+  t.truthy(payload.request.headers)
+  t.truthy(payload.response)
+  t.false(stderr.includes('SUCCESS'))
+})
+
+test('trace-full prints request and response payload', async t => {
+  const { stdout, stderr } = await $('node', [bin, 'https://example.com', '--trace-full'])
+  const payload = JSON.parse(stdout)
+  t.truthy(payload.request.url)
+  t.truthy(payload.response)
+  t.false(stderr.includes('SUCCESS'))
+})
+
 test('markdown prints the raw string', async t => {
   const { stdout } = await $('node', [bin, 'markdown', 'https://example.com'])
   t.true(stdout.length > 0)
@@ -26,6 +53,6 @@ test('markdown prints the raw string', async t => {
 
 test('links prints an array', async t => {
   const { stdout } = await $('node', [bin, 'links', 'https://microlink.io'])
-  t.true(stdout.trim().startsWith('['))
+  t.true(stdout.includes('success'))
   t.true(stdout.includes('http'))
 })
