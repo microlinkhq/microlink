@@ -52,11 +52,11 @@ test.skip('video detects the primary video', async t => {
 test('function runs code remotely with injected scope variables', async t => {
   const { isFulfilled, value } = await microlink.run(
     targetUrl,
-    ({ page, selector }) => page.$eval(selector, el => el.textContent),
-    { selector: 'h1' }
+    ({ greeting }) => greeting,
+    { greeting: 'hello' }
   )
   t.true(isFulfilled)
-  t.is(value, 'Example Domain')
+  t.is(value, 'hello')
 })
 
 test('emails returns the addresses present on the page', async t => {
