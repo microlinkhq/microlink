@@ -46,7 +46,6 @@
     "@microlink/function": "workspace:*",
     "@microlink/google": "workspace:*",
     "@microlink/mql": "workspace:*",
-    "jsome": "~2.5.0",
     "mri": "~1.2.0"
   },
   "devDependencies": {

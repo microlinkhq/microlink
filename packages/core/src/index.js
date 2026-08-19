@@ -41,6 +41,17 @@ const LIGHTHOUSE_KEYS = ['onlyCategories', 'onlyAudits', 'skipAudits', 'output']
 const isEmpty = obj => Object.keys(obj).length === 0
 
 const create = (ctx = {}) => {
+  const last = {}
+  const request = (...args) => {
+    const [requestUrl, requestOptions] = mql.getApiUrl(...args)
+    last.requestUrl = requestUrl
+    last.requestOptions = requestOptions
+    return mql(...args).then(result => {
+      last.response = result.response
+      return result
+    })
+  }
+
   /**
    * Split the single options bag into the three destinations mql has:
    * `got.headers` (HTTP layer, 3rd arg), `sub` (capability nested keys)
@@ -61,7 +72,7 @@ const create = (ctx = {}) => {
 
   const content = field => (url, options) => {
     const { top, sub, got } = route(options, CONTENT_KEYS)
-    return mql(
+    return request(
       url,
       { ...top, meta: false, data: { [field]: { attr: field, ...sub } } },
       got
@@ -70,7 +81,7 @@ const create = (ctx = {}) => {
 
   const collection = (field, rule) => (url, options) => {
     const { top, sub, got } = route(options, COLLECTION_KEYS)
-    return mql(
+    return request(
       url,
       { ...top, meta: false, data: { [field]: { ...rule, ...sub } } },
       got
@@ -79,7 +90,7 @@ const create = (ctx = {}) => {
 
   const capability = (field, nested) => (url, options) => {
     const { top, sub, got } = route(options, nested)
-    return mql(
+    return request(
       url,
       { ...top, meta: false, [field]: isEmpty(sub) ? true : sub },
       got
@@ -89,7 +100,7 @@ const create = (ctx = {}) => {
   /* Primary media detection (`data.video` / `data.audio`). */
   const media = field => (url, options) => {
     const { top, got } = route(options)
-    return mql(url, { ...top, meta: false, [field]: true }, got).then(
+    return request(url, { ...top, meta: false, [field]: true }, got).then(
       ({ data }) => data[field]
     )
   }
@@ -101,14 +112,14 @@ const create = (ctx = {}) => {
     return fn(code, top, got)(url)
   }
 
-  return {
+  const client = {
     metadata: (url, options) => {
       const { top, got } = route(options)
-      return mql(url, top, got).then(({ data }) => data)
+      return request(url, top, got).then(({ data }) => data)
     },
     logo: (url, options) => {
       const { top, sub, got } = route(options, LOGO_KEYS)
-      return mql(
+      return request(
         url,
         { ...top, meta: isEmpty(sub) ? true : { logo: sub } },
         got
@@ -142,7 +153,7 @@ const create = (ctx = {}) => {
     }),
     extract: (url, rules, options) => {
       const { top, got } = route(options)
-      return mql(url, { ...top, meta: false, data: rules }, got).then(
+      return request(url, { ...top, meta: false, data: rules }, got).then(
         ({ data }) => data
       )
     },
@@ -150,7 +161,7 @@ const create = (ctx = {}) => {
     pdf: capability('pdf', PDF_KEYS),
     embed: (url, options) => {
       const { top, sub, got } = route(options, EMBED_KEYS)
-      return mql(
+      return request(
         url,
         { ...top, meta: false, iframe: isEmpty(sub) ? true : sub },
         got
@@ -158,7 +169,7 @@ const create = (ctx = {}) => {
     },
     technologies: (url, options) => {
       const { top, got } = route(options)
-      return mql(
+      return request(
         url,
         {
           ...top,
@@ -170,7 +181,7 @@ const create = (ctx = {}) => {
     },
     lighthouse: (url, options) => {
       const { top, sub, got } = route(options, LIGHTHOUSE_KEYS)
-      return mql(
+      return request(
         url,
         {
           ...top,
@@ -190,6 +201,9 @@ const create = (ctx = {}) => {
     function: run,
     run
   }
+
+  Object.defineProperty(client, 'last', { value: last })
+  return client
 }
 
 module.exports = create
