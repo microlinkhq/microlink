@@ -15,7 +15,6 @@ const FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '
 
 const gray = str => styleText('gray', str)
 const white = str => styleText('white', str)
-const green = str => styleText('green', str)
 const label = (text, color) =>
   styleText(['inverse', 'bold', color], ` ${text.toUpperCase()} `)
 const keyValue = (key, value) => key + ' ' + gray(value)
@@ -172,22 +171,22 @@ const printFooter = ({ duration, response }) => {
   console.error()
 
   if (serverTiming) {
-    console.error('  ', keyValue(green('timing'), serverTiming))
+    console.error('  ', keyValue(white('timing'), serverTiming))
   }
   if (cacheStatus) {
     console.error(
       '   ',
-      keyValue(green('cache'), `${cacheStatus} ${gray(expiredAt)}`.trim())
+      keyValue(white('cache'), `${cacheStatus} ${gray(expiredAt)}`.trim())
     )
   }
   if (fetchMode) {
     console.error(
       '    ',
-      keyValue(green('mode'), `${fetchMode} ${gray(fetchTime)}`.trim())
+      keyValue(white('mode'), `${fetchMode} ${gray(fetchTime)}`.trim())
     )
   }
-  if (uri) console.error('     ', keyValue(green('uri'), uri))
-  if (id) console.error('      ', keyValue(green('id'), id))
+  if (uri) console.error('     ', keyValue(white('uri'), uri))
+  if (id) console.error('      ', keyValue(white('id'), id))
 }
 
 const showHelp = () => {
