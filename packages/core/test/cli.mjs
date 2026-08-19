@@ -21,10 +21,10 @@ test('fails on unknown commands', async t => {
 
 test('url without a product runs metadata', async t => {
   const { stdout, stderr } = await $('node', [bin, 'https://example.com'])
-  t.true(stdout.includes('status'))
-  t.true(stdout.includes('success'))
-  t.true(stdout.includes('title'))
-  t.true(stdout.includes('url'))
+  const payload = JSON.parse(stdout)
+  t.is(payload.status, 'success')
+  t.truthy(payload.data.title)
+  t.truthy(payload.data.url)
   t.false(stdout.includes('SUCCESS'))
   t.true(stderr.includes('SUCCESS'))
 })
@@ -44,6 +44,13 @@ test('trace-full prints request and response payload', async t => {
   t.truthy(payload.request.url)
   t.truthy(payload.response)
   t.false(stderr.includes('SUCCESS'))
+})
+
+test('trace rejects search and function', async t => {
+  const search = await t.throwsAsync(() => $('node', [bin, 'search', 'coffee', '--trace']))
+  t.true(search.stderr.includes('not supported'))
+  const run = await t.throwsAsync(() => $('node', [bin, 'function', 'https://example.com', '--trace']))
+  t.true(run.stderr.includes('not supported'))
 })
 
 test('markdown prints the raw string', async t => {

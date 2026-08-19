@@ -245,6 +245,14 @@ if (typeof client[command] !== 'function') {
   }
 }
 
+if (
+  isTrace &&
+  (command === 'search' || command === 'function' || command === 'run')
+) {
+  console.error(`\`--trace\` is not supported for \`${command}\`.`)
+  process.exit(1)
+}
+
 const options = { ...flags }
 const headers = parseHeaders(header)
 if (Object.keys(headers).length > 0) options.headers = headers
