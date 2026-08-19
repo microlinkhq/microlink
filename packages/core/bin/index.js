@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 'use strict'
 
-const { styleText } = require('node:util')
+const { inspect, styleText } = require('node:util')
 const { readFileSync } = require('fs')
 const path = require('path')
-const jsome = require('jsome')
 const mri = require('mri')
 
 const create = require('../src')
@@ -57,8 +56,11 @@ const toPlainHeaders = headers => {
 const humanizeApiKey = apiKey => `${String(apiKey).slice(0, 5)}…`
 
 const printJson = payload => {
-  if (process.stdout.hasColors?.()) jsome(payload)
-  else console.log(JSON.stringify(payload, null, 2))
+  console.log(
+    process.stdout.hasColors?.()
+      ? inspect(payload, { colors: true, depth: Infinity, compact: false })
+      : JSON.stringify(payload, null, 2)
+  )
 }
 
 const tracePayload = ({
@@ -161,19 +163,6 @@ const printFooter = ({ duration, response }) => {
   }
   if (uri) console.error('     ', keyValue(green('uri'), uri))
   if (id) console.error('      ', keyValue(green('id'), id))
-}
-
-jsome.colors = {
-  num: 'cyan',
-  str: 'green',
-  bool: 'red',
-  regex: 'blue',
-  undef: 'grey',
-  null: 'grey',
-  attr: 'reset',
-  quot: 'gray',
-  punc: 'gray',
-  brack: 'gray'
 }
 
 const showHelp = () => {
