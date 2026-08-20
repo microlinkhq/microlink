@@ -40,6 +40,7 @@
     "@lerna-lite/cli": "latest",
     "@lerna-lite/publish": "latest",
     "c8": "latest",
+    "conventional-changelog-conventionalcommits": "latest",
     "finepack": "latest",
     "git-authors-cli": "latest",
     "nano-staged": "latest",
