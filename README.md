@@ -4,7 +4,7 @@
 
 Turning a page into markdown, taking a screenshot, or getting every link on a page shouldn't require hand-writing query parameters. This package organizes the Microlink API into products — from Node or the CLI:
 
-```js
+```mjs
 import createClient from 'microlink.io'
 
 const microlink = createClient()
@@ -29,7 +29,7 @@ That also installs the `microlink` binary. Use it via `npx`, or install globally
 
 The export is a single factory. Call it once to get a client; the optional argument carries `apiKey` and any other client-wide defaults:
 
-```js
+```mjs
 import createClient from 'microlink.io'
 
 const microlink = createClient() // free client
@@ -46,7 +46,7 @@ Every product method takes a single options object: `product(url, options)`. The
 - Well-known capability keys nest under the product (for example `fullPage` for `screenshot`, `format` for `pdf`, `selector` for `markdown`).
 - Everything else goes as a top-level API query parameter (`device`, `waitUntil`, `prerender`, `ttl`, `proxy`, ...).
 
-```js
+```mjs
 await microlink.screenshot('https://example.com', {
   fullPage: true, // nests under `screenshot`
   device: 'iPhone 11' // top-level query param
@@ -78,7 +78,7 @@ Plus library extras: `links` / `images` / `videos` / `audios` / `emails` collect
 
 The unified metadata object (title, description, image, publisher, ...):
 
-```js
+```mjs
 const { title, description } = await microlink.metadata('https://vercel.com')
 console.log(title, description)
 ```
@@ -87,7 +87,7 @@ console.log(title, description)
 
 The page content as Markdown, HTML or plain text. Use `selector` to scope it:
 
-```js
+```mjs
 const markdown = await microlink.markdown('https://example.com', { selector: 'article' })
 console.log(markdown)
 ```
@@ -96,7 +96,7 @@ console.log(markdown)
 
 Takes a screenshot and returns the asset object (`url`, `type`, `width`, `height`, `size`, ...):
 
-```js
+```mjs
 const { url } = await microlink.screenshot('https://example.com', { fullPage: true })
 console.log(url)
 ```
@@ -105,7 +105,7 @@ console.log(url)
 
 Generates a PDF and returns the asset object:
 
-```js
+```mjs
 const { url } = await microlink.pdf('https://example.com', { format: 'A4' })
 console.log(url)
 ```
@@ -114,7 +114,7 @@ console.log(url)
 
 The brand logo of the site. Pass `square: true` to prefer the square variant:
 
-```js
+```mjs
 const { url } = await microlink.logo('https://github.com', { square: true })
 console.log(url)
 ```
@@ -123,7 +123,7 @@ console.log(url)
 
 The oEmbed-style embeddable iframe (`{ html, scripts }`), e.g. for a YouTube video or a Tweet. Constrain with `maxWidth`/`maxHeight`:
 
-```js
+```mjs
 const { html } = await microlink.embed('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
 console.log(html)
 ```
@@ -132,7 +132,7 @@ console.log(html)
 
 The primary video or audio of the page (e.g. the video of a Vimeo page or a Tweet), detected by the API and returned as the asset object:
 
-```js
+```mjs
 const { url } = await microlink.video('https://vimeo.com/76979871')
 console.log(url) // → direct .mp4 URL
 ```
@@ -141,7 +141,7 @@ console.log(url) // → direct .mp4 URL
 
 Every media URL on the page as a clean `string[]` — absolute, junk-filtered and deduped. Scope with `selectorAll`:
 
-```js
+```mjs
 const links = await microlink.links('https://example.com', { selectorAll: 'nav a' })
 console.log(links) // → ['https://example.com/docs', ...]
 ```
@@ -150,7 +150,7 @@ console.log(links) // → ['https://example.com/docs', ...]
 
 Every email address present on the page — from `mailto:` links and plain text alike. It's a preset over the API's `email` rule type, which extracts and validates addresses server-side:
 
-```js
+```mjs
 const emails = await microlink.emails('https://microlink.io')
 console.log(emails) // → ['hello@microlink.io']
 ```
@@ -159,7 +159,7 @@ console.log(emails) // → ['hello@microlink.io']
 
 Custom data rules with full [MQL rule grammar](https://microlink.io/docs/mql/getting-started/overview) parity — the same `data` rules object you'd write for raw MQL, with the result unwrapped:
 
-```js
+```mjs
 const { image } = await microlink.extract('https://microlink.io', {
   image: { selector: 'meta[property="og:image"]', attr: 'content', type: 'image' }
 })
@@ -172,7 +172,7 @@ Nested and array rules work the same way — every named product above is just a
 
 The tech stack behind a site, or a full Lighthouse report:
 
-```js
+```mjs
 const technologies = await microlink.technologies('https://microlink.io')
 console.log(technologies) // → [{ name: 'Cloudflare', ... }]
 ```
@@ -181,7 +181,7 @@ console.log(technologies) // → [{ name: 'Cloudflare', ... }]
 
 Google as structured data (via [@microlink/google](https://github.com/microlinkhq/google)) — built for agents, RAG pipelines, and anything that needs fresh Google results without parsing SERP HTML. Requires an `apiKey`. [Google search operators](https://ahrefs.com/blog/google-advanced-search-operators/) (`site:`, `filetype:`, quotes, ...) work as-is:
 
-```js
+```mjs
 const page = await microlink.search('Lotus Elise S2')
 console.log(page.results)
 // → [{ title: 'Lotus Elise - Wikipedia', url, description }, ...]
@@ -204,7 +204,7 @@ console.log(page.relatedSearches) // query expansion ideas
 | `patents` | filings with ISO 8601 dates |
 | `autocomplete` | query suggestions |
 
-```js
+```mjs
 const news = await microlink.search('open source llm', { type: 'news', period: 'week' })
 console.log(news.results[0])
 // → { title: 'DeepSeek open sources DSpark...', publisher: 'VentureBeat', date: '2026-06-30T...' }
@@ -218,13 +218,13 @@ console.log(autocomplete.results.map(r => r.value)) // → ['how to fine tune ll
 
 `location` (ISO 3166-1 country code) localizes ranking and language; `period` (`hour`/`day`/`week`/`month`/`year`) constrains freshness; `limit` caps results per page:
 
-```js
+```mjs
 await microlink.search('recetas de pasta', { location: 'es', limit: 10 })
 ```
 
 Results compose in depth: every result with a `url` exposes lazy `.html()` and `.markdown()` for fetching the full page content only when needed — the source-expansion pattern for RAG:
 
-```js
+```mjs
 const page = await microlink.search('site:openai.com function calling guide')
 await Promise.all(
   page.results.slice(0, 3).map(async result => ({
@@ -237,7 +237,7 @@ await Promise.all(
 
 The page itself serializes too: `page.html()` and `page.markdown()` return the whole Google results page as HTML or Markdown — useful for feeding a SERP straight to an LLM or building your own parser on top:
 
-```js
+```mjs
 const page = await microlink.search('Lotus Elise S2')
 const markdown = await page.markdown() // the SERP as Markdown
 const html = await page.html() // the SERP as HTML
@@ -245,7 +245,7 @@ const html = await page.html() // the SERP as HTML
 
 Pages chain with `.next()`:
 
-```js
+```mjs
 let page = await microlink.search('node.js frameworks')
 while (page) {
   for (const result of page.results) console.log(result.title)
@@ -257,14 +257,14 @@ while (page) {
 
 Run any JavaScript remotely in a sandboxed runtime — no Lambda bundle, no browser fleet, no server ([guide](https://microlink.io/docs/guides/function)). Also exposed as `function`, matching the API parameter name. You write a plain function; the library handles serialization, compression and the API call for you. When the code doesn't reference `page`, no browser is started, making execution faster and cheaper:
 
-```js
+```mjs
 const { value } = await microlink.run('https://example.com', () => 40 + 2)
 console.log(value) // → 42
 ```
 
 When it references `page`, Microlink starts a headless browser and navigates to the URL first, handing your code the full [puppeteer `page`](https://pptr.dev/api/puppeteer.page) for clicks, waits, evaluation and navigation ([browser interaction](https://microlink.io/docs/guides/function/browser-interaction)):
 
-```js
+```mjs
 const { value } = await microlink.run('https://example.com', async ({ page }) => {
   await page.waitForSelector('h1')
   return page.$eval('h1', el => el.textContent)
@@ -274,7 +274,7 @@ console.log(value) // → 'Example Domain'
 
 Any extra option you pass is forwarded into the function scope — the simplest way to make one function reusable across requests ([custom parameters](https://microlink.io/docs/guides/function/writing-functions)):
 
-```js
+```mjs
 const { value } = await microlink.run(
   'https://example.com',
   ({ page, selector }) => page.$eval(selector, el => el.textContent),
@@ -285,7 +285,7 @@ console.log(value)
 
 You can `require()` any npm package inside the function — dependencies are detected, installed on the fly into the sandbox, and cached for subsequent runs. Pin a version with `require('cheerio@1.0.0')`:
 
-```js
+```mjs
 const { value } = await microlink.run('https://news.ycombinator.com', async ({ page }) => {
   const cheerio = require('cheerio')
   const $ = cheerio.load(await page.content())
@@ -296,7 +296,7 @@ console.log(value) // → ['Top HN story', ...]
 
 The result carries more than the return value — `console.log` calls are captured in `logging`, and `profiling` reports peak cpu/memory plus per-phase timings (`install`/`build`/`spawn`/`run`) so you can spot the bottleneck ([profiling](https://microlink.io/docs/guides/function/profiling-and-performance)):
 
-```js
+```mjs
 const { isFulfilled, value, logging, profiling } = await microlink.run('https://example.com', ({ page }) => {
   console.log('visiting page')
   return page.title()
@@ -313,7 +313,7 @@ When the code throws, the promise still resolves: `isFulfilled` is `false` and `
 
 Secrets stay out of URLs: `apiKey` is sent as the `x-api-key` header, and `headers` travel as real request headers:
 
-```js
+```mjs
 import createClient from 'microlink.io'
 
 const microlink = createClient({ apiKey: process.env.MICROLINK_API_KEY })
@@ -327,7 +327,7 @@ console.log(await microlink.markdown('https://x.com/some/article', {
 
 Any API error rejects with a `MicrolinkError` carrying `code`, `statusCode` and a human-readable `description`:
 
-```js
+```mjs
 import createClient, { MicrolinkError } from 'microlink.io'
 
 const microlink = createClient()
