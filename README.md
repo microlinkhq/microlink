@@ -307,7 +307,7 @@ console.log(logging.log) // → [['visiting page']]
 console.log(profiling.phases) // → { install: 0, build: 7.8, spawn: 68.5, run: 0.02, total: 73.7 }
 ```
 
-When the code throws, the promise still resolves: `isFulfilled` is `false` and `value` carries the error as `{ name, message }`. Resource limits surface the same way with plan-aware errors (`TimeoutError`, `MemoryError`, `CodeSizeError`, ...) — see [troubleshooting](https://microlink.io/docs/guides/function/troubleshooting). From the CLI, put the code in a file and pass extra scope variables as flags: `microlink function https://example.com --file ./fn.js --selector h1`.
+When the code throws, the promise still resolves: `isFulfilled` is `false` and `value` carries the error as `{ name, message }`. Resource limits surface the same way with plan-aware errors (`TimeoutError`, `MemoryError`, `CodeSizeError`, ...) — see [troubleshooting](https://microlink.io/docs/guides/function/troubleshooting). From the CLI, put the code in a file and pass extra scope variables as flags: `npx microlink function https://example.com --file ./fn.js --selector h1`.
 
 ## Authenticated requests
 
@@ -345,13 +345,12 @@ Every product is a `microlink` subcommand — `npx microlink` works without a gl
 
 ```bash
 npx microlink markdown https://example.com
-microlink markdown https://example.com
-microlink screenshot https://example.com --fullPage
-microlink logo https://github.com --square
-microlink links https://example.com
-microlink search "best coffee" --limit 10 --location es
-microlink extract https://microlink.io --data '{"image":{"selector":"meta[property=og:image]","attr":"content","type":"image"}}'
-microlink function https://example.com --file ./fn.js
+npx microlink screenshot https://example.com --fullPage
+npx microlink logo https://github.com --square
+npx microlink links https://example.com
+npx microlink search "best coffee" --limit 10 --location es
+npx microlink extract https://microlink.io --data '{"image":{"selector":"meta[property=og:image]","attr":"content","type":"image"}}'
+npx microlink function https://example.com --file ./fn.js
 ```
 
 Flags map to the same single options bag as the library. Use `--api-key` (or the `MICROLINK_API_KEY` environment variable) for authenticated calls and repeatable `--header 'Name: value'` flags for request headers. Strings print raw to stdout; objects pretty-print as JSON.
