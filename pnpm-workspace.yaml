@@ -3,6 +3,11 @@ lockfile: false
 packages:
   - 'packages/*'
 
+# 10.4+ injects a Handlebars helper that throws when lerna-lite's
+# changelog fallback compiles the preset. Pin until that shim is gone.
+overrides:
+  conventional-changelog-conventionalcommits: 10.3.0
+
 allowBuilds:
   simple-git-hooks: true
   spawn-sync: false
