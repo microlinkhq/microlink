@@ -19,6 +19,13 @@ test('fails on unknown commands', async t => {
   t.true(error.stderr.includes('Unknown command'))
 })
 
+test('fail footer prints FAIL on stderr', async t => {
+  const error = await t.throwsAsync(() =>
+    $('node', [bin, 'extract', 'https://example.com', '--data', '{'])
+  )
+  t.true(error.stderr.includes('FAIL'))
+})
+
 test('url without a product runs metadata', async t => {
   const { stdout, stderr } = await $('node', [bin, 'https://example.com'])
   const payload = JSON.parse(stdout)
