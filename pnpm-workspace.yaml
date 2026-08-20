@@ -3,6 +3,10 @@ lockfile: false
 packages:
   - 'packages/*'
 
+# Drop when lerna-lite stops compiling the preset through Handlebars.
+overrides:
+  conventional-changelog-conventionalcommits: 10.3.0
+
 allowBuilds:
   simple-git-hooks: true
   spawn-sync: false
