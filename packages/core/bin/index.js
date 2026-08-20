@@ -15,6 +15,8 @@ const FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '
 
 const gray = str => styleText('gray', str)
 const white = str => styleText('white', str)
+const green = str => styleText('green', str)
+const red = str => styleText('red', str)
 const label = (text, color) =>
   styleText(['inverse', 'bold', color], ` ${text.toUpperCase()} `)
 const keyValue = (key, value) => key + ' ' + gray(value)
@@ -166,28 +168,50 @@ const printFooter = ({ duration, response }) => {
 
   if (process.stdout.isTTY) console.error()
   console.error(
-    label('success', 'white'),
+    label('success', 'green'),
     gray(`${prettyBytes(size)} in ${time}`)
   )
   console.error()
 
   if (serverTiming) {
-    console.error('  ', keyValue(white('timing'), serverTiming))
+    console.error('  ', keyValue(green('timing'), serverTiming))
   }
   if (cacheStatus) {
     console.error(
       '   ',
-      keyValue(white('cache'), `${cacheStatus} ${gray(expiredAt)}`.trim())
+      keyValue(green('cache'), `${cacheStatus} ${gray(expiredAt)}`.trim())
     )
   }
   if (fetchMode) {
     console.error(
       '    ',
-      keyValue(white('mode'), `${fetchMode} ${gray(fetchTime)}`.trim())
+      keyValue(green('mode'), `${fetchMode} ${gray(fetchTime)}`.trim())
     )
   }
-  if (uri) console.error('     ', keyValue(white('uri'), uri))
-  if (id) console.error('      ', keyValue(white('id'), id))
+  if (uri) console.error('     ', keyValue(green('uri'), uri))
+  if (id) console.error('      ', keyValue(green('id'), id))
+}
+
+const printFail = error => {
+  if (process.stdout.isTTY) console.error()
+  console.error(
+    label(error.status || 'fail', 'red'),
+    gray(String(error.message).replace(`${error.code}, `, ''))
+  )
+  console.error()
+  const id = error.headers?.['x-request-id']
+  if (id) console.error('    ', keyValue(red('id'), id))
+  if (error.url) console.error('   ', keyValue(red('uri'), error.url))
+  if (error.code) {
+    console.error(
+      '  ',
+      keyValue(
+        red('code'),
+        `${error.code}${error.statusCode ? ` (${error.statusCode})` : ''}`
+      )
+    )
+  }
+  if (error.more) console.error('  ', keyValue(red('more'), error.more))
 }
 
 const showHelp = () => {
@@ -284,7 +308,7 @@ const spin = !isTrace && shouldSpin() ? spinner() : null
     process.exit(0)
   } catch (error) {
     spin?.stop()
-    console.error(error.message)
+    printFail(error)
     process.exit(1)
   }
 })()
