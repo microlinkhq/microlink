@@ -2,6 +2,39 @@ import createGoogleClient from '@microlink/google'
 
 type GoogleClient = ReturnType<typeof createGoogleClient>
 
+/** Mirrors `@microlink/mql` ActionLocator / Action (kept local to avoid ESM/CJS type import issues). */
+type ActionLocator =
+  | { selector: string }
+  | { role: string; name?: string }
+  | { text: string }
+  | { label: string }
+  | { placeholder: string }
+  | { testId: string }
+  | { alt: string }
+
+export type Action =
+  | { type: 'inject'; styles?: string[]; scripts?: string[]; modules?: string[] }
+  | ({ type: 'click' } & ActionLocator)
+  | ({
+      type: 'wait'
+      timeout?: string | number
+      text?: string
+      request?: string
+      visible?: boolean
+      hidden?: boolean
+    } & Partial<ActionLocator>)
+  | ({ type: 'scroll'; x?: number; y?: number } & Partial<ActionLocator>)
+  | ({ type: 'fill'; value: string } & ActionLocator)
+  | { type: 'evaluate'; expression: string }
+  | ({ type: 'screenshot'; fullPage?: boolean } & Partial<ActionLocator>)
+  | {
+      type: 'pdf'
+      format?: string
+      scale?: number
+      margin?: string | Record<string, string | number>
+      printBackground?: boolean
+    }
+
 /**
  * Transport & top-level API query params. Unknown keys fall through
  * to the API query string, so an index signature is provided.
@@ -10,6 +43,7 @@ interface Options {
   apiKey?: string
   endpoint?: string
   headers?: Record<string, string>
+  actions?: Action[]
   adblock?: boolean
   animations?: boolean
   audio?: boolean

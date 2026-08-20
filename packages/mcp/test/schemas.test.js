@@ -557,6 +557,48 @@ test('function schema accepts code with shared browser options', () => {
   assert.equal(result.data.click, '#accept')
 })
 
+test('screenshot schema accepts actions with semantic locators', () => {
+  const result = screenshotInputSchema.safeParse({
+    url: 'https://app.example.com/login',
+    screenshot: true,
+    actions: [
+      { type: 'fill', label: 'Email', value: 'user@example.com' },
+      { type: 'click', role: 'button', name: 'Sign in' },
+      { type: 'wait', text: 'Dashboard' },
+      { type: 'screenshot', fullPage: true }
+    ]
+  })
+
+  assert.equal(result.success, true)
+  assert.equal(result.data.actions.length, 4)
+  assert.equal(result.data.actions[0].type, 'fill')
+  assert.equal(result.data.actions[1].role, 'button')
+})
+
+test('screenshot schema rejects actions with unknown type', () => {
+  const result = screenshotInputSchema.safeParse({
+    url: 'https://microlink.io',
+    actions: [{ type: 'drag', selector: '#box' }]
+  })
+
+  assert.equal(result.success, false)
+})
+
+test('pdf schema accepts actions with inject and wait', () => {
+  const result = pdfInputSchema.safeParse({
+    url: 'https://microlink.io',
+    pdf: true,
+    actions: [
+      { type: 'inject', styles: ['.banner { display: none }'] },
+      { type: 'wait', timeout: '1s' },
+      { type: 'pdf', format: 'A4' }
+    ]
+  })
+
+  assert.equal(result.success, true)
+  assert.equal(result.data.actions[0].type, 'inject')
+})
+
 test('metadata schema accepts palette and waitUntil', () => {
   const result = metadataInputSchema.safeParse({
     url: 'https://microlink.io',
