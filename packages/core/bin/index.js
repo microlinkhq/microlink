@@ -98,8 +98,10 @@ const tracePayload = ({
   const rest = { ...requestOptions }
   delete rest.responseType
   const headers = { ...rest.headers }
-  if (!full && headers['x-api-key']) {
-    headers['x-api-key'] = humanizeApiKey(headers['x-api-key'])
+  if (!full) {
+    for (const key of ['x-api-key', 'authorization', 'cookie']) {
+      if (headers[key]) headers[key] = humanizeApiKey(headers[key])
+    }
   }
   return {
     request: { url: requestUrl, ...rest, headers },
@@ -237,8 +239,12 @@ const takeHttpHeaders = flags => {
   const headers = {}
   for (const key of Object.keys(flags)) {
     if (!key.startsWith(HTTP_HEADER)) continue
-    headers[key.slice(HTTP_HEADER.length).toLowerCase()] = flags[key]
+    let value = flags[key]
     delete flags[key]
+    if (Array.isArray(value)) value = value.at(-1)
+    if (typeof value !== 'string' && typeof value !== 'number') continue
+    const name = key.slice(HTTP_HEADER.length).toLowerCase()
+    if (name) headers[name] = String(value)
   }
   return headers
 }

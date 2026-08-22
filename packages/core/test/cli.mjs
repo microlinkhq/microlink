@@ -55,8 +55,15 @@ test('http.header flags go to the HTTP layer', async t => {
     'Bearer test'
   ])
   const payload = JSON.parse(stdout)
-  t.is(payload.request.headers.authorization, 'Bearer test')
+  t.is(payload.request.headers.authorization, 'Beare…')
   t.false(payload.request.url.includes('authorization'))
+})
+
+test('endpoint is used for the request', async t => {
+  const error = await t.throwsAsync(() =>
+    $('node', [bin, 'https://example.com', '--endpoint', 'https://127.0.0.1:1'])
+  )
+  t.true(error.stderr.includes('127.0.0.1:1'))
 })
 
 test('trace-full prints request and response payload', async t => {
