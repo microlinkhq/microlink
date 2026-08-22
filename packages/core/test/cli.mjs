@@ -12,6 +12,7 @@ test('prints help with no arguments', async t => {
   const { stdout } = await $('node', [bin])
   t.true(stdout.includes('Usage'))
   t.true(stdout.includes('markdown'))
+  t.true(stdout.includes('--endpoint'))
 })
 
 test('fails on unknown commands', async t => {
@@ -43,6 +44,26 @@ test('trace prints request and response payload', async t => {
   t.truthy(payload.request.headers)
   t.truthy(payload.response)
   t.false(stderr.includes('SUCCESS'))
+})
+
+test('http.header flags go to the HTTP layer', async t => {
+  const { stdout } = await $('node', [
+    bin,
+    'https://example.com',
+    '--trace',
+    '--http.header.authorization',
+    'Bearer test'
+  ])
+  const payload = JSON.parse(stdout)
+  t.is(payload.request.headers.authorization, 'Beare…')
+  t.false(payload.request.url.includes('authorization'))
+})
+
+test('endpoint is used for the request', async t => {
+  const error = await t.throwsAsync(() =>
+    $('node', [bin, 'https://example.com', '--endpoint', 'https://127.0.0.1:1'])
+  )
+  t.true(error.stderr.includes('127.0.0.1:1'))
 })
 
 test('trace-full prints request and response payload', async t => {

@@ -98,8 +98,10 @@ const tracePayload = ({
   const rest = { ...requestOptions }
   delete rest.responseType
   const headers = { ...rest.headers }
-  if (!full && headers['x-api-key']) {
-    headers['x-api-key'] = humanizeApiKey(headers['x-api-key'])
+  if (!full) {
+    for (const key of ['x-api-key', 'authorization', 'cookie']) {
+      if (headers[key]) headers[key] = humanizeApiKey(headers[key])
+    }
   }
   return {
     request: { url: requestUrl, ...rest, headers },
@@ -219,6 +221,8 @@ const showHelp = () => {
   process.exit(0)
 }
 
+const HTTP_HEADER = 'http.header.'
+
 const parseHeaders = input => {
   const headers = {}
   for (const item of [].concat(input ?? [])) {
@@ -231,10 +235,24 @@ const parseHeaders = input => {
   return headers
 }
 
+const takeHttpHeaders = flags => {
+  const headers = {}
+  for (const key of Object.keys(flags)) {
+    if (!key.startsWith(HTTP_HEADER)) continue
+    let value = flags[key]
+    delete flags[key]
+    if (Array.isArray(value)) value = value.at(-1)
+    if (typeof value !== 'string' && typeof value !== 'number') continue
+    const name = key.slice(HTTP_HEADER.length).toLowerCase()
+    if (name) headers[name] = String(value)
+  }
+  return headers
+}
+
 const argv = mri(process.argv.slice(2), {
   alias: { H: 'header' },
   boolean: ['trace', 'trace-full'],
-  string: ['header', 'api-key', 'data', 'file']
+  string: ['header', 'api-key', 'data', 'file', 'endpoint']
 })
 
 let {
@@ -245,6 +263,7 @@ let {
   file,
   'api-key': apiKeyFlag,
   apiKey: apiKeyCamel,
+  endpoint: endpointFlag,
   trace,
   'trace-full': traceFull,
   ...flags
@@ -255,7 +274,11 @@ const isTrace = trace || traceFull
 if (help || !command) showHelp()
 
 const apiKey = apiKeyFlag || apiKeyCamel || process.env.MICROLINK_API_KEY
-const client = create(apiKey ? { apiKey } : {})
+const endpoint = endpointFlag
+const client = create({
+  ...(apiKey && { apiKey }),
+  ...(endpoint && { endpoint })
+})
 
 if (typeof client[command] !== 'function') {
   if (!target && URL.canParse(command)) {
@@ -278,7 +301,7 @@ if (
 }
 
 const options = { ...flags }
-const headers = parseHeaders(header)
+const headers = { ...takeHttpHeaders(options), ...parseHeaders(header) }
 if (Object.keys(headers).length > 0) options.headers = headers
 
 const invoke = () => {

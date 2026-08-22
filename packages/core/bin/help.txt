@@ -29,7 +29,9 @@ Products
 
 Options
   --api-key     Microlink API key (defaults to MICROLINK_API_KEY env)
-  --header, -H  Extra request header as 'Name: value' (repeatable)
+  --endpoint    Microlink API endpoint
+  --header, -H           Extra request header as 'Name: value' (repeatable)
+  --http.header.<name>   HTTP request header (e.g. --http.header.authorization)
   --data        JSON data rules for the extract command
   --file        Path to the code file for the function command
   --trace       Print request & response payload (API key masked)
