@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 'use strict'
 
-const { styleText } = require('node:util')
 const { readFileSync } = require('fs')
 const path = require('path')
 const mri = require('mri')
+const helpText = require('./help')
+const { gray, white, green, red, styleText } = require('./style')
 
 const create = require('../src')
 
@@ -13,10 +14,6 @@ const HIDE_CURSOR = '\u001b[?25l'
 const CLEAR_LINE = '\r\u001b[K'
 const FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
 
-const gray = str => styleText('gray', str)
-const white = str => styleText('white', str)
-const green = str => styleText('green', str)
-const red = str => styleText('red', str)
 const label = (text, color) =>
   styleText(['inverse', 'bold', color], ` ${text.toUpperCase()} `)
 const keyValue = (key, value) => key + ' ' + gray(value)
@@ -98,8 +95,10 @@ const tracePayload = ({
   const rest = { ...requestOptions }
   delete rest.responseType
   const headers = { ...rest.headers }
-  if (!full && headers['x-api-key']) {
-    headers['x-api-key'] = humanizeApiKey(headers['x-api-key'])
+  if (!full) {
+    for (const key of ['x-api-key', 'authorization', 'cookie']) {
+      if (headers[key]) headers[key] = humanizeApiKey(headers[key])
+    }
   }
   return {
     request: { url: requestUrl, ...rest, headers },
@@ -214,10 +213,12 @@ const printFail = error => {
   if (error.more) console.error('  ', keyValue(red('more'), error.more))
 }
 
-const showHelp = () => {
-  console.log(readFileSync(path.join(__dirname, 'help.txt'), 'utf8'))
+const showHelp = command => {
+  console.log(helpText(command).trimEnd())
   process.exit(0)
 }
+
+const HTTP_HEADER = 'http.header.'
 
 const parseHeaders = input => {
   const headers = {}
@@ -231,10 +232,24 @@ const parseHeaders = input => {
   return headers
 }
 
+const takeHttpHeaders = flags => {
+  const headers = {}
+  for (const key of Object.keys(flags)) {
+    if (!key.startsWith(HTTP_HEADER)) continue
+    let value = flags[key]
+    delete flags[key]
+    if (Array.isArray(value)) value = value.at(-1)
+    if (typeof value !== 'string' && typeof value !== 'number') continue
+    const name = key.slice(HTTP_HEADER.length).toLowerCase()
+    if (name) headers[name] = String(value)
+  }
+  return headers
+}
+
 const argv = mri(process.argv.slice(2), {
   alias: { H: 'header' },
-  boolean: ['trace', 'trace-full'],
-  string: ['header', 'api-key', 'data', 'file']
+  boolean: ['trace', 'trace-full', 'help'],
+  string: ['header', 'api-key', 'data', 'file', 'endpoint']
 })
 
 let {
@@ -245,6 +260,7 @@ let {
   file,
   'api-key': apiKeyFlag,
   apiKey: apiKeyCamel,
+  endpoint: endpointFlag,
   trace,
   'trace-full': traceFull,
   ...flags
@@ -252,15 +268,21 @@ let {
 
 const isTrace = trace || traceFull
 
-if (help || !command) showHelp()
+if (!command) showHelp()
 
 const apiKey = apiKeyFlag || apiKeyCamel || process.env.MICROLINK_API_KEY
-const client = create(apiKey ? { apiKey } : {})
+const endpoint = endpointFlag
+const client = create({
+  ...(apiKey && { apiKey }),
+  ...(endpoint && { endpoint })
+})
 
 if (typeof client[command] !== 'function') {
   if (!target && URL.canParse(command)) {
     target = command
     command = 'metadata'
+  } else if (help) {
+    showHelp()
   } else {
     console.error(
       `Unknown command \`${command}\`. Run \`microlink --help\` to see the available commands.`
@@ -268,6 +290,8 @@ if (typeof client[command] !== 'function') {
     process.exit(1)
   }
 }
+
+if (help || !target) showHelp(command)
 
 if (
   isTrace &&
@@ -278,7 +302,7 @@ if (
 }
 
 const options = { ...flags }
-const headers = parseHeaders(header)
+const headers = { ...takeHttpHeaders(options), ...parseHeaders(header) }
 if (Object.keys(headers).length > 0) options.headers = headers
 
 const invoke = () => {
