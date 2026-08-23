@@ -261,7 +261,7 @@ console.log(result.profiling)
 
 | | Free | Pro |
 | --- | --- | --- |
-| Timeout | 5 seconds | Up to 28 seconds |
+| Timeout | 5 seconds | Up to 60 seconds |
 | Memory | 16 MB | 32 MB |
 | Code size | 1024 bytes | Unlimited |
 | Concurrency | 1 per IP | Unlimited |
