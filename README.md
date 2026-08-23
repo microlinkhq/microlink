@@ -353,8 +353,6 @@ npx microlink extract https://microlink.io --data '{"image":{"selector":"meta[pr
 npx microlink function https://example.com --file ./fn.js
 ```
 
-Flags map to the same single options bag as the library. Use `--api-key` (or the `MICROLINK_API_KEY` environment variable) for authenticated calls and repeatable `--header 'Name: value'` flags for request headers. Strings print raw to stdout; objects pretty-print as JSON.
-
 ## Related
 
 - [@microlink/mql](https://github.com/microlinkhq/mql) — the low-level Microlink Query Language client (raw envelopes, `buffer`/`stream` access).
