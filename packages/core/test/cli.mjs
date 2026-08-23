@@ -128,3 +128,32 @@ test('network failures report the underlying cause', async t => {
   t.true(error.stderr.includes('other side closed'))
   t.false(error.stderr.includes('Request failed due to a network error'))
 })
+
+test('4xx errors report the reason and the code from the API', async t => {
+  const server = http.createServer((req, res) => {
+    res.statusCode = 403
+    res.setHeader('content-type', 'application/json')
+    res.end(
+      JSON.stringify({
+        status: 'fail',
+        data: { url: 'The URL uses antibot protection. Upgrade to a PRO plan.' },
+        code: 'EPROXYNEEDED',
+        more: 'https://microlink.io/eproxyneeded',
+        message:
+          'The request has been not processed. See the errors above to know why.'
+      })
+    )
+  })
+  t.teardown(() => new Promise(resolve => server.close(resolve)))
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
+  const endpoint = `http://127.0.0.1:${server.address().port}`
+
+  const error = await t.throwsAsync(() =>
+    $('node', [bin, 'https://example.com', '--endpoint', endpoint])
+  )
+
+  t.true(error.stderr.includes('uses antibot protection'))
+  t.false(error.stderr.includes('See the errors above'))
+  t.true(error.stderr.includes('EPROXYNEEDED (403)'))
+  t.true(error.stderr.includes('https://microlink.io/eproxyneeded'))
+})
