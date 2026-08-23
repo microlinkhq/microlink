@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.1.1...microlink.io%400.2.0) (2026-08-23)
+
+### Features
+
+* **cli:** add --endpoint and HTTP headers ([#16](https://github.com/microlinkhq/microlink/issues/16)) ([8a28bea](https://github.com/microlinkhq/microlink/commit/8a28bea3b92ffb06d5f97d2bf0100ba1e1844de3))
+
 ## [0.1.1](https://github.com/microlinkhq/microlink/compare/microlink.io%400.1.0...microlink.io%400.1.1) (2026-08-20)
 
 **Note:** Version bump only for package microlink.io
