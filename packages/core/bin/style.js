@@ -1,6 +1,7 @@
 'use strict'
 
 const { styleText } = require('node:util')
+const { default: terminalLink } = require('terminal-link')
 
 const gray = str => styleText('gray', str)
 const white = str => styleText('white', str)
@@ -15,4 +16,7 @@ const orange = str =>
     ? `${ORANGE_256}${str}${DEFAULT_FOREGROUND}`
     : String(str)
 
-module.exports = { gray, white, green, red, orange, styleText }
+const link = (url, text = url) =>
+  terminalLink.stderr(text, url, { fallback: () => url })
+
+module.exports = { gray, white, green, red, orange, link, styleText }

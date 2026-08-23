@@ -5,7 +5,7 @@ const { readFileSync } = require('fs')
 const path = require('path')
 const mri = require('mri')
 const helpText = require('./help')
-const { gray, white, green, red, orange, styleText } = require('./style')
+const { gray, white, green, red, orange, link, styleText } = require('./style')
 
 const create = require('../src')
 
@@ -187,7 +187,7 @@ const printFooter = ({ duration, response }) => {
       keyValue(green('mode'), `${fetchMode} ${gray(fetchTime)}`.trim())
     )
   }
-  if (uri) console.error('     ', keyValue(green('uri'), uri))
+  if (uri) console.error('     ', keyValue(green('uri'), link(uri)))
   if (id) console.error('      ', keyValue(green('id'), id))
 }
 
@@ -215,7 +215,7 @@ const printFail = error => {
   console.error()
   const id = error.headers?.['x-request-id']
   if (id) console.error('    ', keyValue(color('id'), id))
-  if (error.url) console.error('   ', keyValue(color('uri'), error.url))
+  if (error.url) console.error('   ', keyValue(color('uri'), link(error.url)))
   if (error.code) {
     console.error(
       '  ',
@@ -225,7 +225,9 @@ const printFail = error => {
       )
     )
   }
-  if (error.more) console.error('  ', keyValue(color('more'), error.more))
+  if (error.more) {
+    console.error('  ', keyValue(color('more'), link(error.more, 'Read more')))
+  }
 }
 
 const showHelp = command => {

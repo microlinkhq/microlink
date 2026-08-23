@@ -47,7 +47,8 @@
     "@microlink/function": "workspace:*",
     "@microlink/google": "workspace:*",
     "@microlink/mql": "workspace:*",
-    "mri": "~1.2.0"
+    "mri": "~1.2.0",
+    "terminal-link": "~5.0.0"
   },
   "devDependencies": {
     "ava": "latest",

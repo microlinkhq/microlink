@@ -129,7 +129,7 @@ test('network failures report the underlying cause', async t => {
   t.false(error.stderr.includes('Request failed due to a network error'))
 })
 
-test('4xx errors report the reason and the code from the API', async t => {
+const listenProxyNeeded = async t => {
   const server = http.createServer((req, res) => {
     res.statusCode = 403
     res.setHeader('content-type', 'application/json')
@@ -146,7 +146,11 @@ test('4xx errors report the reason and the code from the API', async t => {
   })
   t.teardown(() => new Promise(resolve => server.close(resolve)))
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
-  const endpoint = `http://127.0.0.1:${server.address().port}`
+  return `http://127.0.0.1:${server.address().port}`
+}
+
+test('4xx errors report the reason and the code from the API', async t => {
+  const endpoint = await listenProxyNeeded(t)
 
   const error = await t.throwsAsync(() =>
     $('node', [bin, 'https://example.com', '--endpoint', endpoint])
@@ -156,4 +160,21 @@ test('4xx errors report the reason and the code from the API', async t => {
   t.false(error.stderr.includes('See the errors above'))
   t.true(error.stderr.includes('EPROXYNEEDED (403)'))
   t.true(error.stderr.includes('https://microlink.io/eproxyneeded'))
+  t.false(error.stderr.includes('Read more'))
+})
+
+test('a terminal with hyperlinks gets `Read more` pointing to the docs', async t => {
+  const endpoint = await listenProxyNeeded(t)
+
+  const error = await t.throwsAsync(() =>
+    $('node', [bin, 'https://example.com', '--endpoint', endpoint], {
+      env: { ...process.env, FORCE_HYPERLINK: '1' }
+    })
+  )
+
+  t.true(
+    error.stderr.includes(
+      '\u001b]8;;https://microlink.io/eproxyneeded\u0007Read more\u001b]8;;\u0007'
+    )
+  )
 })
