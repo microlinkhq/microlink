@@ -227,9 +227,7 @@ const printFail = error => {
       )
     )
   }
-  if (error.more) {
-    console.error('  ', keyValue(color('more'), link(error.more, 'Read more')))
-  }
+  if (error.more) console.error('  ', keyValue(color('more'), link(error.more)))
 }
 
 const showHelp = command => {

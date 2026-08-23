@@ -28,13 +28,9 @@ test('orange uses the 256 color palette when the terminal has colors', t => {
   t.is(orange('FAIL'), '\u001b[38;5;208mFAIL\u001b[39m')
 })
 
-test('link falls back to the url when the terminal has no hyperlinks', t => {
+test('link is the bare url when the terminal has no hyperlinks', t => {
   t.is(
-    link('https://microlink.io/eproxyneeded', 'Read more'),
+    link('https://microlink.io/eproxyneeded'),
     'https://microlink.io/eproxyneeded'
   )
-})
-
-test('link is the url itself when there is no text to show', t => {
-  t.is(link('https://microlink.io/eproxyneeded'), 'https://microlink.io/eproxyneeded')
 })

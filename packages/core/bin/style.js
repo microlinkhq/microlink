@@ -16,7 +16,6 @@ const orange = str =>
     ? `${ORANGE_256}${str}${DEFAULT_FOREGROUND}`
     : String(str)
 
-const link = (url, text = url) =>
-  terminalLink.stderr(text, url, { fallback: () => url })
+const link = url => terminalLink.stderr(url, url, { fallback: false })
 
 module.exports = { gray, white, green, red, orange, link, styleText }

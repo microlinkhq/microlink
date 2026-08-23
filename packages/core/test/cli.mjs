@@ -160,10 +160,9 @@ test('4xx errors report the reason and the code from the API', async t => {
   t.false(error.stderr.includes('See the errors above'))
   t.true(error.stderr.includes('EPROXYNEEDED (403)'))
   t.true(error.stderr.includes('https://microlink.io/eproxyneeded'))
-  t.false(error.stderr.includes('Read more'))
 })
 
-test('a terminal with hyperlinks gets `Read more` pointing to the docs', async t => {
+test('a terminal with hyperlinks gets the docs url as a link', async t => {
   const endpoint = await listenProxyNeeded(t)
 
   const error = await t.throwsAsync(() =>
@@ -174,7 +173,7 @@ test('a terminal with hyperlinks gets `Read more` pointing to the docs', async t
 
   t.true(
     error.stderr.includes(
-      '\u001b]8;;https://microlink.io/eproxyneeded\u0007Read more\u001b]8;;\u0007'
+      '\u001b]8;;https://microlink.io/eproxyneeded\u0007https://microlink.io/eproxyneeded\u001b]8;;\u0007'
     )
   )
 })
