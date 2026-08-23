@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.2](https://github.com/microlinkhq/microlink/compare/microlink.io%400.2.1...microlink.io%400.2.2) (2026-08-23)
+
+### Bug Fixes
+
+* **core:** make npx microlink.io run the cli ([#20](https://github.com/microlinkhq/microlink/issues/20)) ([0cff8ec](https://github.com/microlinkhq/microlink/commit/0cff8ecb1639452930f5817fdc13fd2f05f153a3))
+
 ## [0.2.1](https://github.com/microlinkhq/microlink/compare/microlink.io%400.2.0...microlink.io%400.2.1) (2026-08-23)
 
 **Note:** Version bump only for package microlink.io
