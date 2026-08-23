@@ -14,7 +14,8 @@
     }
   },
   "bin": {
-    "microlink": "bin/index.js"
+    "microlink": "bin/index.js",
+    "microlink.io": "bin/index.js"
   },
   "author": {
     "email": "hello@microlink.io",

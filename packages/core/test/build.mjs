@@ -1,5 +1,14 @@
+import { readFile, access, constants } from 'fs/promises'
+import { fileURLToPath } from 'url'
 import $ from 'tinyspawn'
 import test from 'ava'
+import path from 'path'
+
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
+
+const pkg = JSON.parse(
+  await readFile(path.join(root, 'package.json'), 'utf8')
+)
 
 const evalScript = (code, flags = []) =>
   $('node', ['--eval', code, ...flags]).then(({ stdout }) => stdout)
@@ -58,4 +67,26 @@ test('esm entry exposes the same client', async t => {
     )
   )
   t.deepEqual(methods, PRODUCTS)
+})
+
+test('every bin entry is an executable file with a node shebang', async t => {
+  const { bin } = pkg
+  for (const target of new Set(Object.values(bin))) {
+    const file = path.join(root, target)
+    await t.notThrowsAsync(() => access(file, constants.X_OK))
+    const source = await readFile(file, 'utf8')
+    t.true(source.startsWith('#!/usr/bin/env node'))
+  }
+})
+
+test('npx <package name> resolves to the cli', t => {
+  t.is(pkg.bin[pkg.name], pkg.bin.microlink)
+})
+
+test('published files include every bin entry', t => {
+  t.true(
+    Object.values(pkg.bin).every(target =>
+      pkg.files.some(entry => target.startsWith(entry))
+    )
+  )
 })
