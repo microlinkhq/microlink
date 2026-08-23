@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'url'
+import { spawn } from 'child_process'
 import http from 'http'
 import path from 'path'
 import $ from 'tinyspawn'
@@ -129,6 +130,14 @@ test('network failures report the underlying cause', async t => {
   t.false(error.stderr.includes('Request failed due to a network error'))
 })
 
+const runRaw = (args, env) =>
+  new Promise(resolve => {
+    const child = spawn('node', args, { env: { ...process.env, ...env } })
+    let stderr = ''
+    child.stderr.on('data', chunk => (stderr += chunk))
+    child.on('close', () => resolve(stderr))
+  })
+
 const listenProxyNeeded = async t => {
   const server = http.createServer((req, res) => {
     res.statusCode = 403
@@ -153,13 +162,16 @@ test('4xx errors report the reason and the code from the API', async t => {
   const endpoint = await listenProxyNeeded(t)
 
   const error = await t.throwsAsync(() =>
-    $('node', [bin, 'https://example.com', '--endpoint', endpoint])
+    $('node', [bin, 'https://example.com', '--endpoint', endpoint], {
+      env: { ...process.env, FORCE_HYPERLINK: '0' }
+    })
   )
 
   t.true(error.stderr.includes('uses antibot protection'))
   t.false(error.stderr.includes('See the errors above'))
   t.true(error.stderr.includes('EPROXYNEEDED (403)'))
-  t.true(error.stderr.includes('https://microlink.io/eproxyneeded'))
+  t.true(error.stderr.includes('   more https://microlink.io/eproxyneeded'))
+  t.false(error.stderr.includes('\u001b]8;;'))
 })
 
 test('a terminal with hyperlinks gets the docs url as a link', async t => {
@@ -171,10 +183,9 @@ test('a terminal with hyperlinks gets the docs url as a link', async t => {
     })
   )
 
+  const url = 'https://microlink.io/eproxyneeded'
   t.true(
-    error.stderr.includes(
-      '\u001b]8;;https://microlink.io/eproxyneeded\u0007https://microlink.io/eproxyneeded\u001b]8;;\u0007'
-    )
+    error.stderr.includes(`\u001b]8;;${url}\u0007${url}\u001b]8;;\u0007`)
   )
 })
 
@@ -198,12 +209,14 @@ test('every reason reported by the API is printed, aligned', async t => {
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
   const endpoint = `http://127.0.0.1:${server.address().port}`
 
-  const error = await t.throwsAsync(() =>
-    $('node', [bin, 'https://example.com', '--endpoint', endpoint])
-  )
+  const stderr = await runRaw([
+    bin,
+    'https://example.com',
+    '--endpoint',
+    endpoint
+  ])
 
-  t.true(error.stderr.startsWith('FAIL  The url is not valid.\n'))
-  t.true(
-    error.stderr.includes('\n       The screenshot is not available.\n')
-  )
+  const [first, second] = stderr.split('\n')
+  t.is(first, ' FAIL  The url is not valid.')
+  t.is(second, '       The screenshot is not available.')
 })
