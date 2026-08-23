@@ -125,6 +125,26 @@ mql('https://example.com', {
   }
 })
 
+/** actions */
+
+mql('https://example.com', {
+  meta: false,
+  screenshot: true,
+  actions: [
+    { type: 'inject', styles: ['.banner { display: none }'] },
+    { type: 'fill', label: 'Email', value: 'user@example.com' },
+    { type: 'fill', label: 'Password', value: 'secret' },
+    { type: 'click', role: 'button', name: 'Sign in' },
+    { type: 'wait', text: 'Dashboard' },
+    { type: 'wait', timeout: '3s' },
+    { type: 'wait', request: '*api.example.com/user*' },
+    { type: 'scroll', selector: '#pricing' },
+    { type: 'screenshot', fullPage: true },
+    { type: 'pdf', format: 'A4' },
+    { type: 'evaluate', expression: 'window.ready === true' }
+  ]
+})
+
 /** others */
 
 mql('https://example.com', { click: ['div'] })
