@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'url'
+import http from 'http'
 import path from 'path'
 import $ from 'tinyspawn'
 import test from 'ava'
@@ -111,4 +112,19 @@ test('links prints an array', async t => {
   const { stdout } = await $('node', [bin, 'links', 'https://microlink.io'])
   t.true(stdout.includes('success'))
   t.true(stdout.includes('http'))
+})
+
+test('network failures report the underlying cause', async t => {
+  const server = http.createServer((req, res) => res.socket.destroy())
+  t.teardown(() => new Promise(resolve => server.close(resolve)))
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
+  const endpoint = `http://127.0.0.1:${server.address().port}`
+
+  const error = await t.throwsAsync(() =>
+    $('node', [bin, 'https://example.com', '--endpoint', endpoint])
+  )
+
+  t.true(error.stderr.includes('ERROR'))
+  t.true(error.stderr.includes('other side closed'))
+  t.false(error.stderr.includes('Request failed due to a network error'))
 })

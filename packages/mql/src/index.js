@@ -31,11 +31,17 @@ const isBuffer = input =>
   typeof input?.constructor?.isBuffer === 'function' &&
   input.constructor.isBuffer(input)
 
+const rootCause = error => {
+  let cause = error
+  while (cause?.cause instanceof Error) cause = cause.cause
+  return cause
+}
+
 const parseBody = (input, error, url) => {
   try {
     return JSON.parse(input)
   } catch (_) {
-    const message = input || error.message
+    const message = input || rootCause(error).message
 
     return {
       status: 'error',
@@ -58,8 +64,8 @@ const isURL = url => {
 }
 
 class MicrolinkError extends Error {
-  constructor (props) {
-    super()
+  constructor ({ cause, ...props }) {
+    super(undefined, cause ? { cause } : undefined)
     this.name = 'MicrolinkError'
     Object.assign(this, props)
     this.description = this.message
@@ -146,7 +152,8 @@ const fetchFromApi = async (apiUrl, opts = {}) => {
       ...body,
       url: uri,
       statusCode,
-      headers
+      headers,
+      cause: error
     })
   }
 }
