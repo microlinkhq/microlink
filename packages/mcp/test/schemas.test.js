@@ -575,6 +575,42 @@ test('screenshot schema accepts actions with semantic locators', () => {
   assert.equal(result.data.actions[1].role, 'button')
 })
 
+test('screenshot schema rejects click without a locator', () => {
+  const result = screenshotInputSchema.safeParse({
+    url: 'https://microlink.io',
+    actions: [{ type: 'click' }]
+  })
+
+  assert.equal(result.success, false)
+})
+
+test('screenshot schema rejects fill without a locator', () => {
+  const result = screenshotInputSchema.safeParse({
+    url: 'https://microlink.io',
+    actions: [{ type: 'fill', value: 'user@example.com' }]
+  })
+
+  assert.equal(result.success, false)
+})
+
+test('screenshot schema rejects click with conflicting locators', () => {
+  const result = screenshotInputSchema.safeParse({
+    url: 'https://microlink.io',
+    actions: [{ type: 'click', selector: '#submit', text: 'Submit' }]
+  })
+
+  assert.equal(result.success, false)
+})
+
+test('screenshot schema rejects fill with name and no role', () => {
+  const result = screenshotInputSchema.safeParse({
+    url: 'https://microlink.io',
+    actions: [{ type: 'fill', name: 'Email', value: 'user@example.com' }]
+  })
+
+  assert.equal(result.success, false)
+})
+
 test('screenshot schema rejects actions with unknown type', () => {
   const result = screenshotInputSchema.safeParse({
     url: 'https://microlink.io',

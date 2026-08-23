@@ -228,8 +228,6 @@ const fullShape = {
   ping: toggledObjectSchema.optional()
 }
 
-// Shared locator fields for interaction actions (exactly one strategy preferred;
-// the API enforces mutual exclusivity — agents may omit and use CSS `selector`).
 const locatorFields = {
   selector: z.string().min(1).optional(),
   role: z.string().min(1).optional(),
@@ -241,6 +239,26 @@ const locatorFields = {
   alt: z.string().min(1).optional()
 }
 
+const LOCATOR_STRATEGY_KEYS = [
+  'selector',
+  'role',
+  'text',
+  'label',
+  'placeholder',
+  'testId',
+  'alt'
+]
+
+const hasExactlyOneLocator = value => {
+  if (value.name && !value.role) return false
+  return LOCATOR_STRATEGY_KEYS.filter(key => value[key] != null).length === 1
+}
+
+const requireLocator = schema =>
+  schema.refine(hasExactlyOneLocator, {
+    message: 'Exactly one locator strategy is required (role may include name)'
+  })
+
 const actionSchema = z.discriminatedUnion('type', [
   z
     .object({
@@ -250,12 +268,14 @@ const actionSchema = z.discriminatedUnion('type', [
       modules: stringOrStringArraySchema.optional()
     })
     .strict(),
-  z
-    .object({
-      type: z.literal('click'),
-      ...locatorFields
-    })
-    .strict(),
+  requireLocator(
+    z
+      .object({
+        type: z.literal('click'),
+        ...locatorFields
+      })
+      .strict()
+  ),
   z
     .object({
       type: z.literal('wait'),
@@ -274,13 +294,15 @@ const actionSchema = z.discriminatedUnion('type', [
       ...locatorFields
     })
     .strict(),
-  z
-    .object({
-      type: z.literal('fill'),
-      value: z.string(),
-      ...locatorFields
-    })
-    .strict(),
+  requireLocator(
+    z
+      .object({
+        type: z.literal('fill'),
+        value: z.string(),
+        ...locatorFields
+      })
+      .strict()
+  ),
   z
     .object({
       type: z.literal('evaluate'),
