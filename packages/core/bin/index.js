@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 'use strict'
 
-const { styleText } = require('node:util')
 const { readFileSync } = require('fs')
 const path = require('path')
 const mri = require('mri')
+const helpText = require('./help')
+const { gray, white, green, red, styleText } = require('./style')
 
 const create = require('../src')
 
@@ -13,10 +14,6 @@ const HIDE_CURSOR = '\u001b[?25l'
 const CLEAR_LINE = '\r\u001b[K'
 const FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
 
-const gray = str => styleText('gray', str)
-const white = str => styleText('white', str)
-const green = str => styleText('green', str)
-const red = str => styleText('red', str)
 const label = (text, color) =>
   styleText(['inverse', 'bold', color], ` ${text.toUpperCase()} `)
 const keyValue = (key, value) => key + ' ' + gray(value)
@@ -216,8 +213,8 @@ const printFail = error => {
   if (error.more) console.error('  ', keyValue(red('more'), error.more))
 }
 
-const showHelp = () => {
-  console.log(readFileSync(path.join(__dirname, 'help.txt'), 'utf8'))
+const showHelp = command => {
+  console.log(helpText(command))
   process.exit(0)
 }
 
@@ -271,7 +268,7 @@ let {
 
 const isTrace = trace || traceFull
 
-if (help || !command) showHelp()
+if (!command) showHelp()
 
 const apiKey = apiKeyFlag || apiKeyCamel || process.env.MICROLINK_API_KEY
 const endpoint = endpointFlag
@@ -284,6 +281,8 @@ if (typeof client[command] !== 'function') {
   if (!target && URL.canParse(command)) {
     target = command
     command = 'metadata'
+  } else if (help) {
+    showHelp()
   } else {
     console.error(
       `Unknown command \`${command}\`. Run \`microlink --help\` to see the available commands.`
@@ -291,6 +290,8 @@ if (typeof client[command] !== 'function') {
     process.exit(1)
   }
 }
+
+if (help || !target) showHelp(command)
 
 if (
   isTrace &&

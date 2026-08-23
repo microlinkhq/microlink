@@ -15,6 +15,20 @@ test('prints help with no arguments', async t => {
   t.true(stdout.includes('--endpoint'))
 })
 
+test('prints command help for a product with no url', async t => {
+  const { stdout } = await $('node', [bin, 'metadata'])
+  t.true(stdout.includes('metadata <url>'))
+  t.true(stdout.includes('--palette'))
+  t.true(stdout.includes('--waitUntil'))
+})
+
+test('prints command help for product --help', async t => {
+  const { stdout } = await $('node', [bin, 'screenshot', '--help'])
+  t.true(stdout.includes('screenshot <url>'))
+  t.true(stdout.includes('--fullPage'))
+  t.false(stdout.includes('Products'))
+})
+
 test('fails on unknown commands', async t => {
   const error = await t.throwsAsync(() => $('node', [bin, 'nope', 'https://example.com']))
   t.true(error.stderr.includes('Unknown command'))
