@@ -214,7 +214,7 @@ const printFail = error => {
 }
 
 const showHelp = command => {
-  console.log(helpText(command))
+  console.log(helpText(command).trimEnd())
   process.exit(0)
 }
 
