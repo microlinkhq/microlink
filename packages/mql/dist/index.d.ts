@@ -40,38 +40,6 @@ type ScreenshotOptions = {
   type?: 'jpeg' | 'png'
 }
 
-export type ActionLocator =
-  | { selector: string }
-  | { role: string; name?: string }
-  | { text: string }
-  | { label: string }
-  | { placeholder: string }
-  | { testId: string }
-  | { alt: string }
-
-export type Action =
-  | { type: 'inject'; styles?: string[]; scripts?: string[]; modules?: string[] }
-  | ({ type: 'click' } & ActionLocator)
-  | ({
-      type: 'wait'
-      timeout?: string | number
-      text?: string
-      request?: string
-      visible?: boolean
-      hidden?: boolean
-    } & Partial<ActionLocator>)
-  | ({ type: 'scroll'; x?: number; y?: number } & Partial<ActionLocator>)
-  | ({ type: 'fill'; value: string } & ActionLocator)
-  | { type: 'evaluate'; expression: string }
-  | ({ type: 'screenshot'; fullPage?: boolean } & Partial<ActionLocator>)
-  | {
-      type: 'pdf'
-      format?: string
-      scale?: number
-      margin?: string | PdfMargin
-      printBackground?: boolean
-    }
-
 type MqlClientOptions = {
   apiKey?: string
   endpoint?: string
@@ -110,7 +78,6 @@ type MqlQueryOptions = {
 }
 
 export type MicrolinkApiOptions = {
-  actions?: Action[]
   adblock?: boolean
   animations?: boolean
   audio?: boolean

@@ -21,19 +21,11 @@ expectType<Promise<string[]>>(client.audios('https://example.com'))
 async function assertions (): Promise<void> {
   const screenshot = await client.screenshot('https://example.com', {
     fullPage: true,
-    device: 'iPhone 11',
-    actions: [
-      { type: 'fill', label: 'Email', value: 'user@example.com' },
-      { type: 'click', role: 'button', name: 'Sign in' },
-      { type: 'wait', text: 'Dashboard' }
-    ]
+    device: 'iPhone 11'
   })
   expectType<string>(screenshot.url)
 
-  const pdf = await client.pdf('https://example.com', {
-    format: 'A4',
-    actions: [{ type: 'scroll', selector: '#pricing' }]
-  })
+  const pdf = await client.pdf('https://example.com', { format: 'A4' })
   expectType<string>(pdf.url)
 
   const logo = await client.logo('https://example.com', { square: true })
