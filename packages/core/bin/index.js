@@ -248,7 +248,7 @@ const takeHttpHeaders = flags => {
 
 const argv = mri(process.argv.slice(2), {
   alias: { H: 'header' },
-  boolean: ['trace', 'trace-full'],
+  boolean: ['trace', 'trace-full', 'help'],
   string: ['header', 'api-key', 'data', 'file', 'endpoint']
 })
 

@@ -29,6 +29,13 @@ test('prints command help for product --help', async t => {
   t.false(stdout.includes('Products'))
 })
 
+test('prints command help for --help before the product', async t => {
+  const { stdout } = await $('node', [bin, '--help', 'screenshot'])
+  t.true(stdout.includes('screenshot <url>'))
+  t.true(stdout.includes('--fullPage'))
+  t.false(stdout.includes('Products'))
+})
+
 test('fails on unknown commands', async t => {
   const error = await t.throwsAsync(() => $('node', [bin, 'nope', 'https://example.com']))
   t.true(error.stderr.includes('Unknown command'))
