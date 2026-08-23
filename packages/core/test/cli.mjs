@@ -178,3 +178,33 @@ test('a terminal with hyperlinks gets `Read more` pointing to the docs', async t
     )
   )
 })
+
+test('every reason reported by the API is printed, aligned', async t => {
+  const server = http.createServer((req, res) => {
+    res.statusCode = 422
+    res.setHeader('content-type', 'application/json')
+    res.end(
+      JSON.stringify({
+        status: 'fail',
+        data: {
+          url: 'The url is not valid.',
+          screenshot: 'The screenshot is not available.'
+        },
+        code: 'EINVALPARAM',
+        message: 'The request has been not processed.'
+      })
+    )
+  })
+  t.teardown(() => new Promise(resolve => server.close(resolve)))
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
+  const endpoint = `http://127.0.0.1:${server.address().port}`
+
+  const error = await t.throwsAsync(() =>
+    $('node', [bin, 'https://example.com', '--endpoint', endpoint])
+  )
+
+  t.true(error.stderr.startsWith('FAIL  The url is not valid.\n'))
+  t.true(
+    error.stderr.includes('\n       The screenshot is not available.\n')
+  )
+})

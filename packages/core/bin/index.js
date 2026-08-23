@@ -208,10 +208,12 @@ const reasons = error => {
 
 const printFail = error => {
   const color = isClientError(error.statusCode) ? orange : red
+  const status = error.status || 'fail'
   const [reason, ...rest] = reasons(error)
+  const indent = ' '.repeat(status.length + 2)
   if (process.stdout.isTTY) console.error()
-  console.error(label(error.status || 'fail', color), gray(reason))
-  for (const extra of rest) console.error(' '.repeat(8), gray(extra))
+  console.error(label(status, color), gray(reason))
+  for (const extra of rest) console.error(indent, gray(extra))
   console.error()
   const id = error.headers?.['x-request-id']
   if (id) console.error('    ', keyValue(color('id'), id))
