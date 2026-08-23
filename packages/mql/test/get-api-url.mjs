@@ -50,3 +50,19 @@ test('undefined', t => {
     })
   )
 })
+
+test('actions flatten to dotted keys', t => {
+  t.snapshot(
+    mql.getApiUrl('https://app.example.com/login', {
+      meta: false,
+      screenshot: true,
+      actions: [
+        { type: 'fill', label: 'Email', value: 'user@example.com' },
+        { type: 'fill', label: 'Password', value: 'secret' },
+        { type: 'click', role: 'button', name: 'Sign in' },
+        { type: 'wait', text: 'Dashboard' },
+        { type: 'screenshot', fullPage: true }
+      ]
+    })
+  )
+})
