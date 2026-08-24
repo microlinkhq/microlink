@@ -71,3 +71,25 @@ test("don't retry 429 status code", async t => {
   t.is(count, 0)
   t.is(error.statusCode, 429)
 })
+
+test('EFATALCLIENT reports the underlying network cause', async t => {
+  const server = http.createServer((req, res) => res.socket.destroy())
+  t.teardown(() => new Promise(resolve => server.close(resolve)))
+
+  const endpoint = await listen(server)
+
+  const error = await t.throwsAsync(
+    mql('https://example.com', { endpoint }, { retry: 0 }),
+    { instanceOf: mql.MicrolinkError }
+  )
+
+  t.is(error.code, 'EFATALCLIENT')
+  t.is(error.status, 'error')
+  t.false(error.description.startsWith('Request failed due to a network error'))
+  t.is(error.data.url, error.description)
+  t.is(error.cause.name, 'NetworkError')
+
+  let cause = error
+  while (cause.cause) cause = cause.cause
+  t.is(cause.message, error.description)
+})

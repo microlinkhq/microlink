@@ -5,7 +5,7 @@ const { readFileSync } = require('fs')
 const path = require('path')
 const mri = require('mri')
 const helpText = require('./help')
-const { gray, white, green, red, styleText } = require('./style')
+const { gray, white, green, red, orange, link, styleText } = require('./style')
 
 const create = require('../src')
 
@@ -15,7 +15,7 @@ const CLEAR_LINE = '\r\u001b[K'
 const FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
 
 const label = (text, color) =>
-  styleText(['inverse', 'bold', color], ` ${text.toUpperCase()} `)
+  styleText(['inverse', 'bold'], color(` ${text.toUpperCase()} `))
 const keyValue = (key, value) => key + ' ' + gray(value)
 
 const prettyMs = ms => {
@@ -167,7 +167,7 @@ const printFooter = ({ duration, response }) => {
 
   if (process.stdout.isTTY) console.error()
   console.error(
-    label('success', 'green'),
+    label('success', green),
     gray(`${prettyBytes(size)} in ${time}`)
   )
   console.error()
@@ -187,30 +187,47 @@ const printFooter = ({ duration, response }) => {
       keyValue(green('mode'), `${fetchMode} ${gray(fetchTime)}`.trim())
     )
   }
-  if (uri) console.error('     ', keyValue(green('uri'), uri))
+  if (uri) console.error('     ', keyValue(green('uri'), link(uri)))
   if (id) console.error('      ', keyValue(green('id'), id))
 }
 
-const printFail = error => {
-  if (process.stdout.isTTY) console.error()
-  console.error(
-    label(error.status || 'fail', 'red'),
-    gray(String(error.message).replace(`${error.code}, `, ''))
+const isClientError = statusCode => statusCode >= 400 && statusCode < 500
+
+/**
+ * The API reports the actionable reason per field under `data`, keeping
+ * `message` as a generic pointer to it.
+ */
+const reasons = error => {
+  const values = Object.values(error.data ?? {}).filter(
+    value => typeof value === 'string'
   )
+  return values.length > 0
+    ? values
+    : [String(error.message).replace(`${error.code}, `, '')]
+}
+
+const printFail = error => {
+  const color = isClientError(error.statusCode) ? orange : red
+  const status = error.status || 'fail'
+  const [reason, ...rest] = reasons(error)
+  const indent = ' '.repeat(status.length + 2)
+  if (process.stdout.isTTY) console.error()
+  console.error(label(status, color), gray(reason))
+  for (const extra of rest) console.error(indent, gray(extra))
   console.error()
   const id = error.headers?.['x-request-id']
-  if (id) console.error('    ', keyValue(red('id'), id))
-  if (error.url) console.error('   ', keyValue(red('uri'), error.url))
+  if (id) console.error('    ', keyValue(color('id'), id))
+  if (error.url) console.error('   ', keyValue(color('uri'), link(error.url)))
   if (error.code) {
     console.error(
       '  ',
       keyValue(
-        red('code'),
+        color('code'),
         `${error.code}${error.statusCode ? ` (${error.statusCode})` : ''}`
       )
     )
   }
-  if (error.more) console.error('  ', keyValue(red('more'), error.more))
+  if (error.more) console.error('  ', keyValue(color('more'), link(error.more)))
 }
 
 const showHelp = command => {

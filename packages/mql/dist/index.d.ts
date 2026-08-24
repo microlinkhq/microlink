@@ -194,6 +194,7 @@ export type MqlErrorProps = {
   code: string
   status: MqlStatus
   message: string
+  cause?: Error
   data?: MqlResponseData
   headers?: { [key: string]: string }
   more?: string
