@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.3](https://github.com/microlinkhq/microlink/compare/microlink.io%400.2.2...microlink.io%400.2.3) (2026-08-24)
+
+### Bug Fixes
+
+* report the real reason behind a failed request ([#21](https://github.com/microlinkhq/microlink/issues/21)) ([5c7e618](https://github.com/microlinkhq/microlink/commit/5c7e61885425321e11a9c089ac879a4a69f74a63))
+
 ## [0.2.2](https://github.com/microlinkhq/microlink/compare/microlink.io%400.2.1...microlink.io%400.2.2) (2026-08-23)
 
 ### Bug Fixes
