@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.1](https://github.com/microlinkhq/microlink/compare/microlink.io%400.5.0...microlink.io%400.5.1) (2026-08-25)
+
+### Bug Fixes
+
+* **cli:** accept urls without a protocol ([#28](https://github.com/microlinkhq/microlink/issues/28)) ([6a4bba3](https://github.com/microlinkhq/microlink/commit/6a4bba3dfd41dda8d9861067ef447cede43f0cf3))
+
 ## [0.5.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.4.0...microlink.io%400.5.0) (2026-08-25)
 
 ### Features
