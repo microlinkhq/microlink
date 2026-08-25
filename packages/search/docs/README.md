@@ -136,7 +136,13 @@ for (const result of results) {
 
 ### Pagination
 
-Pages chain naturally:
+Jump to a page with `page` (1 default), matching the API query param:
+
+```js
+const page2 = await google('node.js frameworks', { page: 2 })
+```
+
+Pages also chain with `.next()`:
 
 ```js
 const page1 = await google('node.js frameworks')

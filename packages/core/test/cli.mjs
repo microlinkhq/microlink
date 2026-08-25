@@ -48,12 +48,13 @@ test('prints command help for product --help', async t => {
   t.false(stdout.includes('Products'))
 })
 
-test('search help documents html, markdown, and limit flags', async t => {
+test('search help documents html, markdown, limit, and page flags', async t => {
   const { stdout } = await $('node', [bin, 'search', '--help'])
   t.true(stdout.includes('search <query>'))
   t.true(stdout.includes('--html'))
   t.true(stdout.includes('--markdown'))
   t.true(stdout.includes('--limit'))
+  t.true(stdout.includes('--page'))
 })
 
 test('prints command help for --help before the product', async t => {

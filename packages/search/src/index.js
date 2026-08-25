@@ -9,10 +9,11 @@ const buildPath = (query, limit, location) =>
     .filter(v => v !== undefined)
     .join('/')
 
-const buildUrl = (query, { limit, location, type, period } = {}) => {
+const buildUrl = (query, { limit, location, type, period, page } = {}) => {
   const url = new URL(`https://${DOMAIN}/${buildPath(query, limit, location)}`)
   if (type) url.searchParams.set('type', type)
   if (period) url.searchParams.set('period', period)
+  if (page > 1) url.searchParams.set('page', String(page))
   return url
 }
 
@@ -71,7 +72,7 @@ const createGoogleClient = ctxOpts => {
     query,
     { limit, location, type, period, html, markdown, page = 1, ...opts } = {}
   ) => {
-    const url = buildUrl(query, { limit, location, type, period })
+    const url = buildUrl(query, { limit, location, type, period, page })
     const result = await fetchPage(url, { ...ctxOpts, ...opts }, page, query)
     if (html) {
       await resolve(result, 'html')
