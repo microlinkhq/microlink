@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.3.0...microlink.io%400.4.0) (2026-08-25)
+
+### Features
+
+* **cli:** add login and logout ([#23](https://github.com/microlinkhq/microlink/issues/23)) ([352fe0e](https://github.com/microlinkhq/microlink/commit/352fe0e5d7f54f5858212dc64e9afc91d89b76af))
+
 ## [0.3.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.2.3...microlink.io%400.3.0) (2026-08-25)
 
 ### Features
