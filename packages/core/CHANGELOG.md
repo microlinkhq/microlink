@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.2.3...microlink.io%400.3.0) (2026-08-25)
+
+### Features
+
+* **cli:** add search --html and --markdown ([#22](https://github.com/microlinkhq/microlink/issues/22)) ([9f6070a](https://github.com/microlinkhq/microlink/commit/9f6070a1a5d786cbc2aab1b8b99a8ccd196a2e8d))
+
 ## [0.2.3](https://github.com/microlinkhq/microlink/compare/microlink.io%400.2.2...microlink.io%400.2.3) (2026-08-24)
 
 ### Bug Fixes

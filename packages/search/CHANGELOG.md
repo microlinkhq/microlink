@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fgoogle%401.0.7...%40microlink%2Fgoogle%401.1.0) (2026-08-25)
+
+### Features
+
+* **cli:** add search --html and --markdown ([#22](https://github.com/microlinkhq/microlink/issues/22)) ([9f6070a](https://github.com/microlinkhq/microlink/commit/9f6070a1a5d786cbc2aab1b8b99a8ccd196a2e8d))
+
 ## [1.0.7](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fgoogle%401.0.6...%40microlink%2Fgoogle%401.0.7) (2026-08-24)
 
 **Note:** Version bump only for package @microlink/google
