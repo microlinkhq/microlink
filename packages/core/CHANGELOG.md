@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.4.0...microlink.io%400.5.0) (2026-08-25)
+
+### Features
+
+* **search:** expose page to match the API ([#24](https://github.com/microlinkhq/microlink/issues/24)) ([a6da33a](https://github.com/microlinkhq/microlink/commit/a6da33a9538dbeaf7eb168126a34818c7e5ed782))
+
+### Bug Fixes
+
+* **cli:** fail cleanly on invalid extract --data ([#25](https://github.com/microlinkhq/microlink/issues/25)) ([c8ac889](https://github.com/microlinkhq/microlink/commit/c8ac889534815ab3ea7b0bc2cc966e6e05ed1469))
+
 ## [0.4.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.3.0...microlink.io%400.4.0) (2026-08-25)
 
 ### Features

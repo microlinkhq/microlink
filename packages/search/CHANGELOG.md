@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fgoogle%401.1.0...%40microlink%2Fgoogle%401.2.0) (2026-08-25)
+
+### Features
+
+* **search:** expose page to match the API ([#24](https://github.com/microlinkhq/microlink/issues/24)) ([a6da33a](https://github.com/microlinkhq/microlink/commit/a6da33a9538dbeaf7eb168126a34818c7e5ed782))
+
 ## [1.1.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fgoogle%401.0.7...%40microlink%2Fgoogle%401.1.0) (2026-08-25)
 
 ### Features
