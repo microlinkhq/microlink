@@ -63,7 +63,9 @@ const printPretty = (value, indent = 0) => {
   if (typeof value !== 'object') return white(String(value))
 
   const isArray = Array.isArray(value)
-  const keys = isArray ? value : Object.keys(value)
+  const keys = isArray
+    ? value.filter(item => typeof item !== 'function')
+    : Object.keys(value).filter(key => typeof value[key] !== 'function')
   if (keys.length === 0) return gray(isArray ? '[]' : '{}')
 
   const pad = '  '.repeat(indent)
@@ -265,7 +267,7 @@ const takeHttpHeaders = flags => {
 
 const argv = mri(process.argv.slice(2), {
   alias: { H: 'header' },
-  boolean: ['trace', 'trace-full', 'help'],
+  boolean: ['trace', 'trace-full', 'help', 'html', 'markdown'],
   string: ['header', 'api-key', 'data', 'file', 'endpoint']
 })
 
@@ -280,6 +282,8 @@ let {
   endpoint: endpointFlag,
   trace,
   'trace-full': traceFull,
+  html: htmlFlag,
+  markdown: markdownFlag,
   ...flags
 } = argv
 
@@ -329,6 +333,13 @@ const invoke = () => {
   if (command === 'function' || command === 'run') {
     const code = readFileSync(path.resolve(file), 'utf8')
     return client.function(target, code, options)
+  }
+  if (command === 'search') {
+    return client.search(target, {
+      ...options,
+      ...(htmlFlag && { html: true }),
+      ...(markdownFlag && { markdown: true })
+    })
   }
   return client[command](target, options)
 }

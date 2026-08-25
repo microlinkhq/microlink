@@ -222,6 +222,8 @@ const PRODUCTS = {
         'news, images, videos, places, maps, shopping, scholar, patents, autocomplete'
       ],
       ['--limit', 'Maximum number of results'],
+      ['--html', 'Fetch HTML for the results page and each result'],
+      ['--markdown', 'Fetch Markdown for the results page and each result'],
       ['--location', 'Country or locale (e.g. es)'],
       ['--period', 'Recency: hour, day, week, month, year'],
       ['--timeout', 'Request timeout']
@@ -235,6 +237,10 @@ const PRODUCTS = {
       [
         'search "open source llm" --type news --period week',
         'news results from the past week'
+      ],
+      [
+        'search "the matrix" --markdown',
+        'include Markdown for the SERP and each result'
       ]
     ]
   },

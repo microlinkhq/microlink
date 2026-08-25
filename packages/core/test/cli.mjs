@@ -31,6 +31,14 @@ test('prints command help for product --help', async t => {
   t.false(stdout.includes('Products'))
 })
 
+test('search help documents html, markdown, and limit flags', async t => {
+  const { stdout } = await $('node', [bin, 'search', '--help'])
+  t.true(stdout.includes('search <query>'))
+  t.true(stdout.includes('--html'))
+  t.true(stdout.includes('--markdown'))
+  t.true(stdout.includes('--limit'))
+})
+
 test('prints command help for --help before the product', async t => {
   const { stdout } = await $('node', [bin, '--help', 'screenshot'])
   t.true(stdout.includes('screenshot <url>'))

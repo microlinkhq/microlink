@@ -56,6 +56,9 @@ interface Options {
   limit?: number
   location?: Location
   period?: Period
+  page?: number
+  html?: boolean
+  markdown?: boolean
 }
 
 interface Sitelink {

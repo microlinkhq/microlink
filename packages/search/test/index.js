@@ -25,14 +25,24 @@ const mqlStub =
       }
     }
 
-test('starts pagination offset at 0', async t => {
+test('omits page on the first request', async t => {
   const calls = []
   const google = createModule(mqlStub(calls))({})
 
   await google('test')
 
   const url = new URL(calls[0].url)
-  t.is(url.searchParams.get('start'), '0')
+  t.is(url.searchParams.get('page'), null)
+})
+
+test('page option is forwarded', async t => {
+  const calls = []
+  const google = createModule(mqlStub(calls))({})
+
+  await google('test', { page: 2 })
+
+  const url = new URL(calls[0].url)
+  t.is(url.searchParams.get('page'), '2')
 })
 
 test('merges context opts with per-call opts', async t => {
@@ -139,7 +149,7 @@ test('result markdown() fetches content from result URL', async t => {
   t.deepEqual(calls[1].opts.data, { markdown: { attr: 'markdown' } })
 })
 
-test('next() returns second page with correct offset', async t => {
+test('next() requests page 2', async t => {
   const calls = []
   const google = createModule(mqlStub(calls))({})
 
@@ -147,7 +157,7 @@ test('next() returns second page with correct offset', async t => {
   await page1.next()
 
   const url = new URL(calls[1].url)
-  t.is(url.searchParams.get('start'), '2')
+  t.is(url.searchParams.get('page'), '2')
 })
 
 test('next() preserves all URL params', async t => {
@@ -166,7 +176,7 @@ test('next() preserves all URL params', async t => {
   t.is(url.pathname, '/test/5/fr')
 })
 
-test('chained next() accumulates offset', async t => {
+test('chained next() increments page', async t => {
   const calls = []
   const google = createModule(mqlStub(calls))({})
 
@@ -175,7 +185,7 @@ test('chained next() accumulates offset', async t => {
   await page2.next()
 
   const url = new URL(calls[2].url)
-  t.is(url.searchParams.get('start'), '4')
+  t.is(url.searchParams.get('page'), '3')
 })
 
 test('type option sets type query param', async t => {
@@ -229,6 +239,30 @@ test('results without link skip html()', async t => {
   t.is(page.results[0].value, 'suggestion')
   t.is(page.results[0].html, undefined)
   t.is(page.results[0].markdown, undefined)
+})
+
+test('html: true resolves page and result html to strings', async t => {
+  const calls = []
+  const google = createModule(mqlStub(calls))({})
+
+  const page = await google('test', { html: true })
+
+  t.is(page.html, '<html>page</html>')
+  t.is(page.results[0].html, '<html>page</html>')
+  t.is(typeof page.next, 'function')
+  t.is(calls[0].opts.html, undefined)
+})
+
+test('markdown: true resolves page and result markdown to strings', async t => {
+  const calls = []
+  const google = createModule(mqlStub(calls))({})
+
+  const page = await google('test', { markdown: true })
+
+  t.is(page.markdown, '# page')
+  t.is(page.results[0].markdown, '# page')
+  t.is(typeof page.next, 'function')
+  t.is(calls[0].opts.markdown, undefined)
 })
 
 test('extra data fields are forwarded to page', async t => {
