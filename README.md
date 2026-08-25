@@ -341,9 +341,10 @@ try {
 
 ## CLI
 
-Every product is a `microlink` subcommand — `npx microlink.io` works without a global install:
+Every product is a `microlink` subcommand — `npx microlink.io` works without a global install. Run `microlink login` to save an API key from your account.
 
 ```bash
+npx microlink.io login
 npx microlink.io markdown https://example.com
 npx microlink.io screenshot https://example.com --fullPage
 npx microlink.io logo https://github.com --square

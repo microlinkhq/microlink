@@ -12,7 +12,10 @@ const cmd = (rest, comment) =>
 const rows = items => items.map(([name, desc]) => col(name, desc)).join('\n')
 
 const CLI = [
-  ['--api-key', 'Microlink API key (defaults to MICROLINK_API_KEY env)'],
+  [
+    '--api-key',
+    'Microlink API key (flag, MICROLINK_API_KEY, or `microlink login`)'
+  ],
   ['--endpoint', 'Microlink API endpoint'],
   ['--header, -H', "Extra request header as 'Name: value' (repeatable)"],
   [
@@ -70,6 +73,23 @@ const COLLECTION = [
 ]
 
 const ALIAS = { run: 'function' }
+
+const COMMANDS = {
+  login: {
+    usage: 'login',
+    desc: 'Save an API key from your Microlink account',
+    flags: [],
+    cli: [],
+    examples: [['login', 'open the dashboard and save an API key']]
+  },
+  logout: {
+    usage: 'logout',
+    desc: 'Remove the saved API key from this machine',
+    flags: [],
+    cli: [],
+    examples: [['logout', 'forget the saved API key']]
+  }
+}
 
 const content = (name, desc) => ({
   usage: `${name} <url> [options]`,
@@ -264,9 +284,18 @@ const productList = Object.entries(PRODUCTS)
   .map(([name, product]) => col(name, product.desc))
   .join('\n')
 
+const commandList = Object.entries(COMMANDS)
+  .map(([name, command]) => col(name, command.desc))
+  .join('\n')
+
 const global = `Usage
 ${cmd('<url> [options]')}
 ${cmd('<product> <url|query> [options]')}
+${cmd('login')}
+${cmd('logout')}
+
+Commands
+${commandList}
 
 Products
 ${productList}
@@ -275,6 +304,7 @@ Options
 ${rows(CLI)}
 
 Examples
+${cmd('login', 'save an API key from your account')}
 ${cmd('https://example.com', 'unified metadata (default)')}
 ${cmd(
   'https://example.com --trace',
@@ -313,15 +343,8 @@ const render = (name, product) => {
     .join('\n')
   const cli = product.cli ?? CLI
   const options = [...product.flags, ...cli]
-  const parts = [
-    'Usage',
-    usage,
-    '',
-    gray(product.desc),
-    '',
-    'Options',
-    rows(options)
-  ]
+  const parts = ['Usage', usage, '', gray(product.desc)]
+  if (options.length > 0) parts.push('', 'Options', rows(options))
   if (product.browser) parts.push('', 'Browser', rows(BROWSER))
   if (product.note) parts.push('', gray(product.note))
   if (product.examples) {
@@ -336,5 +359,6 @@ const render = (name, product) => {
 
 module.exports = command => {
   const name = ALIAS[command] ?? command
+  if (COMMANDS[name]) return render(name, COMMANDS[name])
   return PRODUCTS[name] ? render(name, PRODUCTS[name]) : global
 }

@@ -5,6 +5,8 @@ const { readFileSync } = require('fs')
 const path = require('path')
 const mri = require('mri')
 const helpText = require('./help')
+const { readApiKey, clearConfig } = require('./config')
+const login = require('./login')
 const { gray, white, green, red, orange, link, styleText } = require('./style')
 
 const create = require('../src')
@@ -230,6 +232,12 @@ const printFail = error => {
     )
   }
   if (error.more) console.error('  ', keyValue(color('more'), link(error.more)))
+  if (error.statusCode === 429) {
+    console.error(
+      '  ',
+      keyValue(color('hint'), 'run `microlink login` to use an API key')
+    )
+  }
 }
 
 const showHelp = command => {
@@ -291,76 +299,92 @@ const isTrace = trace || traceFull
 
 if (!command) showHelp()
 
-const apiKey = apiKeyFlag || apiKeyCamel || process.env.MICROLINK_API_KEY
-const endpoint = endpointFlag
-const client = create({
-  ...(apiKey && { apiKey }),
-  ...(endpoint && { endpoint })
-})
-
-if (typeof client[command] !== 'function') {
-  if (!target && URL.canParse(command)) {
-    target = command
-    command = 'metadata'
-  } else if (help) {
-    showHelp()
-  } else {
-    console.error(
-      `Unknown command \`${command}\`. Run \`microlink --help\` to see the available commands.`
-    )
-    process.exit(1)
-  }
-}
-
-if (help || !target) showHelp(command)
-
-if (
-  isTrace &&
-  (command === 'search' || command === 'function' || command === 'run')
-) {
-  console.error(`\`--trace\` is not supported for \`${command}\`.`)
-  process.exit(1)
-}
-
-const options = { ...flags }
-const headers = { ...takeHttpHeaders(options), ...parseHeaders(header) }
-if (Object.keys(headers).length > 0) options.headers = headers
-
-const invoke = () => {
-  if (command === 'extract') {
-    return client.extract(target, JSON.parse(data), options)
-  }
-  if (command === 'function' || command === 'run') {
-    const code = readFileSync(path.resolve(file), 'utf8')
-    return client.function(target, code, options)
-  }
-  if (command === 'search') {
-    return client.search(target, {
-      ...options,
-      ...(htmlFlag && { html: true }),
-      ...(markdownFlag && { markdown: true })
-    })
-  }
-  return client[command](target, options)
-}
-
-const spin = !isTrace && shouldSpin() ? spinner() : null
-
-;(async () => {
-  spin?.start()
-  const started = Date.now()
-  try {
-    const result = await invoke()
-    const duration = Date.now() - started
-    spin?.stop()
-    if (isTrace) printJson(tracePayload({ ...client.last, full: traceFull }))
-    else if (typeof result === 'string') console.log(result)
-    else printJson({ status: 'success', data: result })
-    if (!isTrace) printFooter({ duration, response: client.last.response })
+if (command === 'login' || command === 'logout') {
+  if (help) showHelp(command)
+  if (command === 'logout') {
+    console.error(clearConfig() ? 'Logged out.' : 'Already logged out.')
     process.exit(0)
-  } catch (error) {
-    spin?.stop()
-    printFail(error)
+  }
+  login().then(
+    () => process.exit(0),
+    error => {
+      console.error(error.message)
+      process.exit(error.code === 'ABORT' ? 130 : 1)
+    }
+  )
+} else {
+  const apiKey =
+    apiKeyFlag || apiKeyCamel || process.env.MICROLINK_API_KEY || readApiKey()
+  const endpoint = endpointFlag
+  const client = create({
+    ...(apiKey && { apiKey }),
+    ...(endpoint && { endpoint })
+  })
+
+  if (typeof client[command] !== 'function') {
+    if (!target && URL.canParse(command)) {
+      target = command
+      command = 'metadata'
+    } else if (help) {
+      showHelp()
+    } else {
+      console.error(
+        `Unknown command \`${command}\`. Run \`microlink --help\` to see the available commands.`
+      )
+      process.exit(1)
+    }
+  }
+
+  if (help || !target) showHelp(command)
+
+  if (
+    isTrace &&
+    (command === 'search' || command === 'function' || command === 'run')
+  ) {
+    console.error(`\`--trace\` is not supported for \`${command}\`.`)
     process.exit(1)
   }
-})()
+
+  const options = { ...flags }
+  const headers = { ...takeHttpHeaders(options), ...parseHeaders(header) }
+  if (Object.keys(headers).length > 0) options.headers = headers
+
+  const invoke = () => {
+    if (command === 'extract') {
+      return client.extract(target, JSON.parse(data), options)
+    }
+    if (command === 'function' || command === 'run') {
+      const code = readFileSync(path.resolve(file), 'utf8')
+      return client.function(target, code, options)
+    }
+    if (command === 'search') {
+      return client.search(target, {
+        ...options,
+        ...(htmlFlag && { html: true }),
+        ...(markdownFlag && { markdown: true })
+      })
+    }
+    return client[command](target, options)
+  }
+
+  const spin = !isTrace && shouldSpin() ? spinner() : null
+
+  ;(async () => {
+    spin?.start()
+    const started = Date.now()
+    try {
+      const result = await invoke()
+      const duration = Date.now() - started
+      spin?.stop()
+      if (isTrace) printJson(tracePayload({ ...client.last, full: traceFull }))
+      else if (typeof result === 'string') console.log(result)
+      else printJson({ status: 'success', data: result })
+      if (!isTrace) printFooter({ duration, response: client.last.response })
+      process.exit(0)
+    } catch (error) {
+      spin?.stop()
+      printFail(error)
+      process.exit(1)
+    }
+  })()
+}
