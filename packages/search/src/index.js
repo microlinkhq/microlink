@@ -67,10 +67,26 @@ const fetchPage = async (url, mqlOpts, offset, query) => {
   }
 }
 
+const resolve = async (item, key) => {
+  if (typeof item[key] === 'function') item[key] = await item[key]()
+}
+
 const createGoogleClient = ctxOpts => {
-  return async (query, { limit, location, type, period, ...opts } = {}) => {
+  return async (
+    query,
+    { limit, location, type, period, html, markdown, ...opts } = {}
+  ) => {
     const url = buildUrl(query, { limit, location, type, period })
-    return fetchPage(url, { ...ctxOpts, ...opts }, 0, query)
+    const page = await fetchPage(url, { ...ctxOpts, ...opts }, 0, query)
+    if (html) {
+      await resolve(page, 'html')
+      await Promise.all(page.results.map(result => resolve(result, 'html')))
+    }
+    if (markdown) {
+      await resolve(page, 'markdown')
+      await Promise.all(page.results.map(result => resolve(result, 'markdown')))
+    }
+    return page
   }
 }
 

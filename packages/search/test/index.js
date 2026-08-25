@@ -231,6 +231,30 @@ test('results without link skip html()', async t => {
   t.is(page.results[0].markdown, undefined)
 })
 
+test('html: true resolves page and result html to strings', async t => {
+  const calls = []
+  const google = createModule(mqlStub(calls))({})
+
+  const page = await google('test', { html: true })
+
+  t.is(page.html, '<html>page</html>')
+  t.is(page.results[0].html, '<html>page</html>')
+  t.is(typeof page.next, 'function')
+  t.is(calls[0].opts.html, undefined)
+})
+
+test('markdown: true resolves page and result markdown to strings', async t => {
+  const calls = []
+  const google = createModule(mqlStub(calls))({})
+
+  const page = await google('test', { markdown: true })
+
+  t.is(page.markdown, '# page')
+  t.is(page.results[0].markdown, '# page')
+  t.is(typeof page.next, 'function')
+  t.is(calls[0].opts.markdown, undefined)
+})
+
 test('extra data fields are forwarded to page', async t => {
   const mqlFn = async () => ({
     data: {

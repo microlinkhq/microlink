@@ -273,9 +273,14 @@ test('function/run are the same method', async t => {
 test('search delegates to @microlink/google with the routed options', async t => {
   const { create, googleCalls } = setup()
   const client = create({ apiKey: 'secret', headers: { 'x-foo': 'bar' } })
-  await client.search('coffee', { limit: 3 })
+  await client.search('coffee', { limit: 3, html: true, markdown: true })
   t.is(googleCalls[0].query, 'coffee')
-  t.deepEqual(googleCalls[0].opts, { apiKey: 'secret', limit: 3 })
+  t.deepEqual(googleCalls[0].opts, {
+    apiKey: 'secret',
+    limit: 3,
+    html: true,
+    markdown: true
+  })
 })
 
 test('MicrolinkError is re-exported', async t => {
