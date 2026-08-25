@@ -67,6 +67,11 @@ test('prints command help for --help before the product', async t => {
 test('fails on unknown commands', async t => {
   const error = await t.throwsAsync(() => $('node', [bin, 'nope', 'https://example.com']))
   t.true(error.stderr.includes('Unknown command'))
+
+  const { endpoint, seen } = await listenSuccess(t)
+  const lone = await t.throwsAsync(() => $('node', [bin, 'nope', '--endpoint', endpoint]))
+  t.true(lone.stderr.includes('Unknown command'))
+  t.is(seen.header, null)
 })
 
 test('fail footer prints FAIL on stderr', async t => {

@@ -253,7 +253,9 @@ const httpUrl = value => {
 
 const asUrl = input => {
   if (typeof input !== 'string' || !input) return
-  return httpUrl(input) ?? httpUrl(`https://${input}`)
+  if (httpUrl(input)) return input
+  if (/^[a-z][a-z\d+.-]*:\/\//i.test(input) || !/[.:]/.test(input)) return
+  return httpUrl(`https://${input}`)
 }
 
 const HTTP_HEADER = 'http.header.'
