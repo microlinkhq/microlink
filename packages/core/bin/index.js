@@ -245,6 +245,13 @@ const showHelp = command => {
   process.exit(0)
 }
 
+const asUrl = input => {
+  if (typeof input !== 'string' || !input) return
+  if (URL.canParse(input)) return input
+  const prefixed = `https://${input}`
+  return URL.canParse(prefixed) ? prefixed : undefined
+}
+
 const HTTP_HEADER = 'http.header.'
 
 const parseHeaders = input => {
@@ -322,8 +329,9 @@ if (command === 'login' || command === 'logout') {
   })
 
   if (typeof client[command] !== 'function') {
-    if (!target && URL.canParse(command)) {
-      target = command
+    const url = asUrl(command)
+    if (!target && url) {
+      target = url
       command = 'metadata'
     } else if (help) {
       showHelp()
@@ -336,6 +344,7 @@ if (command === 'login' || command === 'logout') {
   }
 
   if (help || !target) showHelp(command)
+  if (command !== 'search') target = asUrl(target) ?? target
 
   if (
     isTrace &&

@@ -87,6 +87,30 @@ test('url without a product runs metadata', async t => {
   t.true(stderr.includes('SUCCESS'))
 })
 
+test('url without protocol is treated as https', async t => {
+  const { endpoint } = await listenSuccess(t)
+  const encoded = encodeURIComponent('https://example.com')
+
+  const bare = await $('node', [
+    bin,
+    'example.com',
+    '--endpoint',
+    endpoint,
+    '--trace'
+  ])
+  t.true(JSON.parse(bare.stdout).request.url.includes(encoded))
+
+  const product = await $('node', [
+    bin,
+    'metadata',
+    'example.com',
+    '--endpoint',
+    endpoint,
+    '--trace'
+  ])
+  t.true(JSON.parse(product.stdout).request.url.includes(encoded))
+})
+
 test('trace prints request and response payload', async t => {
   const { stdout, stderr } = await $('node', [bin, 'https://example.com', '--trace'])
   const payload = JSON.parse(stdout)
