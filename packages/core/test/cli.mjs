@@ -73,7 +73,8 @@ test('fail footer prints FAIL on stderr', async t => {
   const error = await t.throwsAsync(() =>
     $('node', [bin, 'extract', 'https://example.com', '--data', '{'])
   )
-  t.true(error.stderr.includes('FAIL'))
+  t.true(error.stderr.includes('FAIL'), error.stderr)
+  t.true(error.stderr.includes('Invalid --data JSON'), error.stderr)
 })
 
 test('url without a product runs metadata', async t => {
