@@ -36,14 +36,26 @@ test('omits falsy params', t => {
   t.is(url.searchParams.get('period'), null)
 })
 
+test('sets page param when greater than 1', t => {
+  const url = buildUrl('q', { page: 2 })
+  t.is(url.searchParams.get('page'), '2')
+})
+
+test('omits page on the first page', t => {
+  t.is(buildUrl('q').searchParams.get('page'), null)
+  t.is(buildUrl('q', { page: 1 }).searchParams.get('page'), null)
+})
+
 test('combines all options', t => {
   const url = buildUrl('q', {
     limit: 5,
     location: 'fr',
     type: 'images',
-    period: 'last_month'
+    period: 'last_month',
+    page: 3
   })
   t.is(url.pathname, '/q/5/fr')
   t.is(url.searchParams.get('type'), 'images')
   t.is(url.searchParams.get('period'), 'last_month')
+  t.is(url.searchParams.get('page'), '3')
 })

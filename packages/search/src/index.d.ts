@@ -318,6 +318,7 @@ export declare function buildUrl(
     location?: string
     type?: Type
     period?: Period
+    page?: number
   }
 ): URL
 

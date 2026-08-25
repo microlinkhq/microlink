@@ -242,6 +242,7 @@ const PRODUCTS = {
         'news, images, videos, places, maps, shopping, scholar, patents, autocomplete'
       ],
       ['--limit', 'Maximum number of results'],
+      ['--page', 'Results page (1 default)'],
       ['--html', 'Fetch HTML for the results page and each result'],
       ['--markdown', 'Fetch Markdown for the results page and each result'],
       ['--location', 'Country or locale (e.g. es)'],
@@ -261,7 +262,8 @@ const PRODUCTS = {
       [
         'search "the matrix" --markdown',
         'include Markdown for the SERP and each result'
-      ]
+      ],
+      ['search "the matrix" --page 2', 'second page of results']
     ]
   },
   function: {

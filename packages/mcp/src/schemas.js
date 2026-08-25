@@ -403,6 +403,7 @@ export const searchInputSchema = z
       ])
       .optional(),
     limit: z.coerce.number().int().positive().optional(),
+    page: z.coerce.number().int().positive().optional(),
     location: z.string().min(1).optional(),
     period: z.enum(['hour', 'day', 'week', 'month', 'year']).optional()
   })

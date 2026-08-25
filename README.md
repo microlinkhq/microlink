@@ -216,10 +216,11 @@ const autocomplete = await microlink.search('how to fine tune', { type: 'autocom
 console.log(autocomplete.results.map(r => r.value)) // → ['how to fine tune llm', ...]
 ```
 
-`location` (ISO 3166-1 country code) localizes ranking and language; `period` (`hour`/`day`/`week`/`month`/`year`) constrains freshness; `limit` caps results per page:
+`location` (ISO 3166-1 country code) localizes ranking and language; `period` (`hour`/`day`/`week`/`month`/`year`) constrains freshness; `limit` caps results per page; `page` selects which page to fetch (1 default):
 
 ```mjs
 await microlink.search('recetas de pasta', { location: 'es', limit: 10 })
+await microlink.search('node.js frameworks', { page: 2 })
 ```
 
 Results compose in depth: every result with a `url` exposes lazy `.html()` and `.markdown()` for fetching the full page content only when needed — the source-expansion pattern for RAG:
@@ -243,7 +244,7 @@ const markdown = await page.markdown() // the SERP as Markdown
 const html = await page.html() // the SERP as HTML
 ```
 
-Pages chain with `.next()`:
+Pages chain with `.next()`, or jump ahead with `{ page: 2 }`:
 
 ```mjs
 let page = await microlink.search('node.js frameworks')
