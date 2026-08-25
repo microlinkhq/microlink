@@ -25,14 +25,24 @@ const mqlStub =
       }
     }
 
-test('starts pagination offset at 0', async t => {
+test('omits page on the first request', async t => {
   const calls = []
   const google = createModule(mqlStub(calls))({})
 
   await google('test')
 
   const url = new URL(calls[0].url)
-  t.is(url.searchParams.get('start'), '0')
+  t.is(url.searchParams.get('page'), null)
+})
+
+test('page option is forwarded', async t => {
+  const calls = []
+  const google = createModule(mqlStub(calls))({})
+
+  await google('test', { page: 2 })
+
+  const url = new URL(calls[0].url)
+  t.is(url.searchParams.get('page'), '2')
 })
 
 test('merges context opts with per-call opts', async t => {
@@ -139,7 +149,7 @@ test('result markdown() fetches content from result URL', async t => {
   t.deepEqual(calls[1].opts.data, { markdown: { attr: 'markdown' } })
 })
 
-test('next() returns second page with correct offset', async t => {
+test('next() requests page 2', async t => {
   const calls = []
   const google = createModule(mqlStub(calls))({})
 
@@ -147,7 +157,7 @@ test('next() returns second page with correct offset', async t => {
   await page1.next()
 
   const url = new URL(calls[1].url)
-  t.is(url.searchParams.get('start'), '2')
+  t.is(url.searchParams.get('page'), '2')
 })
 
 test('next() preserves all URL params', async t => {
@@ -166,7 +176,7 @@ test('next() preserves all URL params', async t => {
   t.is(url.pathname, '/test/5/fr')
 })
 
-test('chained next() accumulates offset', async t => {
+test('chained next() increments page', async t => {
   const calls = []
   const google = createModule(mqlStub(calls))({})
 
@@ -175,7 +185,7 @@ test('chained next() accumulates offset', async t => {
   await page2.next()
 
   const url = new URL(calls[2].url)
-  t.is(url.searchParams.get('start'), '4')
+  t.is(url.searchParams.get('page'), '3')
 })
 
 test('type option sets type query param', async t => {

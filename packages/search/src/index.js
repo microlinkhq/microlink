@@ -26,8 +26,9 @@ const fetchDataField = async (url, mqlOpts, field, attr) => {
   return data[field]
 }
 
-const fetchPage = async (url, mqlOpts, offset, query) => {
-  url.searchParams.set('start', String(offset))
+const fetchPage = async (url, mqlOpts, page, query) => {
+  if (page > 1) url.searchParams.set('page', String(page))
+  else url.searchParams.delete('page')
   const { data } = await mql(url.toString(), mqlOpts)
   const { results, ...extra } = data
 
@@ -57,13 +58,7 @@ const fetchPage = async (url, mqlOpts, offset, query) => {
         })
       }
     }),
-    next: () =>
-      fetchPage(
-        new URL(url.toString()),
-        mqlOpts,
-        offset + results.length,
-        query
-      )
+    next: () => fetchPage(new URL(url.toString()), mqlOpts, page + 1, query)
   }
 }
 
@@ -74,19 +69,19 @@ const resolve = async (item, key) => {
 const createGoogleClient = ctxOpts => {
   return async (
     query,
-    { limit, location, type, period, html, markdown, ...opts } = {}
+    { limit, location, type, period, html, markdown, page = 1, ...opts } = {}
   ) => {
     const url = buildUrl(query, { limit, location, type, period })
-    const page = await fetchPage(url, { ...ctxOpts, ...opts }, 0, query)
+    const result = await fetchPage(url, { ...ctxOpts, ...opts }, page, query)
     if (html) {
-      await resolve(page, 'html')
-      await Promise.all(page.results.map(result => resolve(result, 'html')))
+      await resolve(result, 'html')
+      await Promise.all(result.results.map(item => resolve(item, 'html')))
     }
     if (markdown) {
-      await resolve(page, 'markdown')
-      await Promise.all(page.results.map(result => resolve(result, 'markdown')))
+      await resolve(result, 'markdown')
+      await Promise.all(result.results.map(item => resolve(item, 'markdown')))
     }
-    return page
+    return result
   }
 }
 
