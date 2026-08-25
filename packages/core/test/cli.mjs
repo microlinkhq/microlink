@@ -67,6 +67,11 @@ test('prints command help for --help before the product', async t => {
 test('fails on unknown commands', async t => {
   const error = await t.throwsAsync(() => $('node', [bin, 'nope', 'https://example.com']))
   t.true(error.stderr.includes('Unknown command'))
+
+  const { endpoint, seen } = await listenSuccess(t)
+  const lone = await t.throwsAsync(() => $('node', [bin, 'nope', '--endpoint', endpoint]))
+  t.true(lone.stderr.includes('Unknown command'))
+  t.is(seen.header, null)
 })
 
 test('fail footer prints FAIL on stderr', async t => {
@@ -85,6 +90,43 @@ test('url without a product runs metadata', async t => {
   t.truthy(payload.data.url)
   t.false(stdout.includes('SUCCESS'))
   t.true(stderr.includes('SUCCESS'))
+})
+
+test('url without protocol is treated as https', async t => {
+  const { endpoint } = await listenSuccess(t)
+  const encoded = encodeURIComponent('https://example.com')
+
+  const bare = await $('node', [
+    bin,
+    'example.com',
+    '--endpoint',
+    endpoint,
+    '--trace'
+  ])
+  t.true(JSON.parse(bare.stdout).request.url.includes(encoded))
+
+  const product = await $('node', [
+    bin,
+    'metadata',
+    'example.com',
+    '--endpoint',
+    endpoint,
+    '--trace'
+  ])
+  t.true(JSON.parse(product.stdout).request.url.includes(encoded))
+
+  const hostPort = await $('node', [
+    bin,
+    'localhost:3000',
+    '--endpoint',
+    endpoint,
+    '--trace'
+  ])
+  t.true(
+    JSON.parse(hostPort.stdout).request.url.includes(
+      encodeURIComponent('https://localhost:3000')
+    )
+  )
 })
 
 test('trace prints request and response payload', async t => {

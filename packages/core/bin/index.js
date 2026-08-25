@@ -245,6 +245,19 @@ const showHelp = command => {
   process.exit(0)
 }
 
+const httpUrl = value => {
+  if (!URL.canParse(value)) return
+  const { protocol } = new URL(value)
+  if (protocol === 'http:' || protocol === 'https:') return value
+}
+
+const asUrl = input => {
+  if (typeof input !== 'string' || !input) return
+  if (httpUrl(input)) return input
+  if (/^[a-z][a-z\d+.-]*:\/\//i.test(input) || !/[.:]/.test(input)) return
+  return httpUrl(`https://${input}`)
+}
+
 const HTTP_HEADER = 'http.header.'
 
 const parseHeaders = input => {
@@ -322,8 +335,9 @@ if (command === 'login' || command === 'logout') {
   })
 
   if (typeof client[command] !== 'function') {
-    if (!target && URL.canParse(command)) {
-      target = command
+    const url = asUrl(command)
+    if (!target && url) {
+      target = url
       command = 'metadata'
     } else if (help) {
       showHelp()
@@ -336,6 +350,7 @@ if (command === 'login' || command === 'logout') {
   }
 
   if (help || !target) showHelp(command)
+  if (command !== 'search') target = asUrl(target) ?? target
 
   if (
     isTrace &&
