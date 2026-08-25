@@ -14,10 +14,19 @@ const dashboardUrl = () =>
 
 const openUrl = url => {
   const { platform } = process
-  const cmd =
-    platform === 'darwin' ? 'open' : platform === 'win32' ? 'cmd' : 'xdg-open'
-  const args = platform === 'win32' ? ['/c', 'start', '', url] : [url]
-  spawn(cmd, args, { detached: true, stdio: 'ignore' }).unref()
+  const child =
+    platform === 'win32'
+      ? spawn('cmd', ['/c', 'start', '""', `"${url}"`], {
+        detached: true,
+        stdio: 'ignore',
+        windowsVerbatimArguments: true
+      })
+      : spawn(platform === 'darwin' ? 'open' : 'xdg-open', [url], {
+        detached: true,
+        stdio: 'ignore'
+      })
+  child.on('error', () => {})
+  child.unref()
 }
 
 const listen = state =>
