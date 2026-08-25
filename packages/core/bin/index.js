@@ -349,9 +349,19 @@ if (command === 'login' || command === 'logout') {
   const headers = { ...takeHttpHeaders(options), ...parseHeaders(header) }
   if (Object.keys(headers).length > 0) options.headers = headers
 
+  let rules
+  if (command === 'extract') {
+    try {
+      rules = JSON.parse(data)
+    } catch {
+      printFail({ message: 'Invalid --data JSON' })
+      process.exit(1)
+    }
+  }
+
   const invoke = () => {
     if (command === 'extract') {
-      return client.extract(target, JSON.parse(data), options)
+      return client.extract(target, rules, options)
     }
     if (command === 'function' || command === 'run') {
       const code = readFileSync(path.resolve(file), 'utf8')
