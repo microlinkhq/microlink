@@ -109,6 +109,19 @@ test('url without protocol is treated as https', async t => {
     '--trace'
   ])
   t.true(JSON.parse(product.stdout).request.url.includes(encoded))
+
+  const hostPort = await $('node', [
+    bin,
+    'localhost:3000',
+    '--endpoint',
+    endpoint,
+    '--trace'
+  ])
+  t.true(
+    JSON.parse(hostPort.stdout).request.url.includes(
+      encodeURIComponent('https://localhost:3000')
+    )
+  )
 })
 
 test('trace prints request and response payload', async t => {

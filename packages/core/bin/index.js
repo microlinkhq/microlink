@@ -245,11 +245,15 @@ const showHelp = command => {
   process.exit(0)
 }
 
+const httpUrl = value => {
+  if (!URL.canParse(value)) return
+  const { protocol } = new URL(value)
+  if (protocol === 'http:' || protocol === 'https:') return value
+}
+
 const asUrl = input => {
   if (typeof input !== 'string' || !input) return
-  if (URL.canParse(input)) return input
-  const prefixed = `https://${input}`
-  return URL.canParse(prefixed) ? prefixed : undefined
+  return httpUrl(input) ?? httpUrl(`https://${input}`)
 }
 
 const HTTP_HEADER = 'http.header.'
