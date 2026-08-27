@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.2](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.1.1...%40microlink%2Fmcp%402.1.2) (2026-08-27)
+
+**Note:** Version bump only for package @microlink/mcp
+
 ## [2.1.1](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.1.0...%40microlink%2Fmcp%402.1.1) (2026-08-25)
 
 **Note:** Version bump only for package @microlink/mcp

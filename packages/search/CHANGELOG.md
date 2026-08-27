@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.1](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fgoogle%401.2.0...%40microlink%2Fgoogle%401.2.1) (2026-08-27)
+
+### Bug Fixes
+
+* **cli:** report search footer size ([#29](https://github.com/microlinkhq/microlink/issues/29)) ([b0d6bfb](https://github.com/microlinkhq/microlink/commit/b0d6bfb5949095f51e292dd1b0c721786ddb0425))
+
 ## [1.2.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fgoogle%401.1.0...%40microlink%2Fgoogle%401.2.0) (2026-08-25)
 
 ### Features
