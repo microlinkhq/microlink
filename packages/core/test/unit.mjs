@@ -44,13 +44,19 @@ const setup = () => {
 
   const googleCalls = []
   const googleStub = ctx => {
+    const last = { response: { headers: { 'content-length': '128' } } }
     const fn = (query, opts) => {
       googleCalls.push({ ctx, query, opts })
-      return Promise.resolve({ results: [] })
+      last.response = { headers: { 'content-length': '128' } }
+      return Promise.resolve({
+        results: [],
+        next: () => {
+          last.response = { headers: { 'content-length': '256' } }
+          return Promise.resolve({ results: [] })
+        }
+      })
     }
-    Object.defineProperty(fn, 'last', {
-      value: { response: { headers: { 'content-length': '128' } } }
-    })
+    Object.defineProperty(fn, 'last', { value: last })
     return fn
   }
 
@@ -288,6 +294,15 @@ test('search delegates to @microlink/google with the routed options', async t =>
     markdown: true
   })
   t.is(client.last.response.headers['content-length'], '128')
+})
+
+test('search next() keeps last.response in sync', async t => {
+  const { create } = setup()
+  const client = create()
+  const page = await client.search('coffee')
+  t.is(client.last.response.headers['content-length'], '128')
+  await page.next()
+  t.is(client.last.response.headers['content-length'], '256')
 })
 
 test('MicrolinkError is re-exported', async t => {
