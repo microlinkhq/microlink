@@ -41,7 +41,8 @@ const LIGHTHOUSE_KEYS = ['onlyCategories', 'onlyAudits', 'skipAudits', 'output']
 const isEmpty = obj => Object.keys(obj).length === 0
 
 const create = (ctx = {}) => {
-  const last = {}
+  const googleClient = createGoogleClient()
+  const last = googleClient.last ?? {}
   const request = (...args) => {
     const [requestUrl, requestOptions] = mql.getApiUrl(...args)
     last.requestUrl = requestUrl
@@ -104,8 +105,6 @@ const create = (ctx = {}) => {
       ({ data }) => data[field]
     )
   }
-
-  const googleClient = createGoogleClient()
 
   const run = (url, code, options) => {
     const { top, got } = route(options)

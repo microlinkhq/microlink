@@ -27,10 +27,11 @@ const fetchDataField = async (url, mqlOpts, field, attr) => {
   return data[field]
 }
 
-const fetchPage = async (url, mqlOpts, page, query) => {
+const fetchPage = async (url, mqlOpts, page, query, last) => {
   if (page > 1) url.searchParams.set('page', String(page))
   else url.searchParams.delete('page')
-  const { data } = await mql(url.toString(), mqlOpts)
+  const { data, response } = await mql(url.toString(), mqlOpts)
+  last.response = response
   const { results, ...extra } = data
 
   return {
@@ -59,7 +60,8 @@ const fetchPage = async (url, mqlOpts, page, query) => {
         })
       }
     }),
-    next: () => fetchPage(new URL(url.toString()), mqlOpts, page + 1, query)
+    next: () =>
+      fetchPage(new URL(url.toString()), mqlOpts, page + 1, query, last)
   }
 }
 
@@ -68,12 +70,19 @@ const resolve = async (item, key) => {
 }
 
 const createGoogleClient = ctxOpts => {
-  return async (
+  const last = {}
+  const client = async (
     query,
     { limit, location, type, period, html, markdown, page = 1, ...opts } = {}
   ) => {
     const url = buildUrl(query, { limit, location, type, period, page })
-    const result = await fetchPage(url, { ...ctxOpts, ...opts }, page, query)
+    const result = await fetchPage(
+      url,
+      { ...ctxOpts, ...opts },
+      page,
+      query,
+      last
+    )
     if (html) {
       await resolve(result, 'html')
       await Promise.all(result.results.map(item => resolve(item, 'html')))
@@ -84,6 +93,8 @@ const createGoogleClient = ctxOpts => {
     }
     return result
   }
+  Object.defineProperty(client, 'last', { value: last })
+  return client
 }
 
 module.exports = createGoogleClient
