@@ -43,9 +43,15 @@ const setup = () => {
   }
 
   const googleCalls = []
-  const googleStub = ctx => (query, opts) => {
-    googleCalls.push({ ctx, query, opts })
-    return Promise.resolve({ results: [] })
+  const googleStub = ctx => {
+    const fn = (query, opts) => {
+      googleCalls.push({ ctx, query, opts })
+      return Promise.resolve({ results: [] })
+    }
+    Object.defineProperty(fn, 'last', {
+      value: { response: { headers: { 'content-length': '128' } } }
+    })
+    return fn
   }
 
   const create = proxyquire('../src/index.js', {
@@ -281,6 +287,7 @@ test('search delegates to @microlink/google with the routed options', async t =>
     html: true,
     markdown: true
   })
+  t.is(client.last.response.headers['content-length'], '128')
 })
 
 test('MicrolinkError is re-exported', async t => {

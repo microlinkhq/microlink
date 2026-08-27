@@ -265,6 +265,19 @@ test('markdown: true resolves page and result markdown to strings', async t => {
   t.is(calls[0].opts.markdown, undefined)
 })
 
+test('exposes the last mql response', async t => {
+  const response = { headers: { 'content-length': '99' }, url: 'https://api' }
+  const mqlFn = async () => ({
+    data: { results: [] },
+    response
+  })
+  const google = createModule(mqlFn)({})
+
+  await google('test')
+
+  t.is(google.last.response, response)
+})
+
 test('extra data fields are forwarded to page', async t => {
   const mqlFn = async () => ({
     data: {

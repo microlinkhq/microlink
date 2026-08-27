@@ -196,7 +196,10 @@ const create = (ctx = {}) => {
     },
     search: (query, options) => {
       const { top } = route(options)
-      return googleClient(query, top)
+      return googleClient(query, top).then(data => {
+        last.response = googleClient.last?.response
+        return data
+      })
     },
     function: run,
     run
