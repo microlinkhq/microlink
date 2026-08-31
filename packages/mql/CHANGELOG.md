@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.19.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmql%400.18.1...%40microlink%2Fmql%400.19.0) (2026-08-31)
+
+### Features
+
+* type proxy as url or location ([#30](https://github.com/microlinkhq/microlink/issues/30)) ([a39ab0f](https://github.com/microlinkhq/microlink/commit/a39ab0f128ea285be45834d60071ddd08e862bc0))
+
 ## [0.18.1](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmql%400.18.0...%40microlink%2Fmql%400.18.1) (2026-08-24)
 
 ### Bug Fixes

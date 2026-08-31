@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.5.2...microlink.io%400.6.0) (2026-08-31)
+
+### Features
+
+* type proxy as url or location ([#30](https://github.com/microlinkhq/microlink/issues/30)) ([a39ab0f](https://github.com/microlinkhq/microlink/commit/a39ab0f128ea285be45834d60071ddd08e862bc0))
+
 ## [0.5.2](https://github.com/microlinkhq/microlink/compare/microlink.io%400.5.1...microlink.io%400.5.2) (2026-08-27)
 
 ### Bug Fixes
