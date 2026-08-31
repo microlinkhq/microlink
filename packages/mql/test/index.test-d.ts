@@ -93,6 +93,8 @@ mql('https://github.com/microlinkhq', {
 mql('https://example.com')
 mql('https://example.com', { meta: true })
 mql('https://example.com', { meta: { logo: { square: true } } })
+mql('https://example.com', { meta: { author: true, title: true, image: false } })
+mql('https://example.com', { cacheKey: 'variant-a' })
 
 /** pdf */
 

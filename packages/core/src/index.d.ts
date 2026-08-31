@@ -18,20 +18,24 @@ interface Options {
   colorScheme?: 'light' | 'dark' | 'no-preference'
   device?: string
   filename?: string
+  filter?: string | string[]
   force?: boolean
   javascript?: boolean
-  meta?: boolean
+  mediaType?: string
+  meta?: boolean | { logo?: boolean | { square: boolean } }
   modules?: string | string[]
   prerender?: boolean | 'auto'
   proxy?: string | { url: string } | { location: string }
   retry?: number
   scripts?: string | string[]
+  scroll?: string
   staleTtl?: string | number
   styles?: string | string[]
   timeout?: number
   ttl?: string | number
   video?: boolean
   viewport?: Record<string, unknown>
+  waitForSelector?: string
   waitForTimeout?: number
   waitUntil?: string | string[]
   [key: string]: unknown

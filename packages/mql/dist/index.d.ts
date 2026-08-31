@@ -1,6 +1,7 @@
-export type ColorScheme = 'dark' | 'light'
+export type ColorScheme = 'dark' | 'light' | 'no-preference'
 
 type WaitUntilEvent =
+  | 'auto'
   | 'load'
   | 'domcontentloaded'
   | 'networkidle0'
@@ -31,13 +32,28 @@ type PdfOptions = {
 }
 
 type ScreenshotOptions = {
+  animated?: boolean
   codeScheme?: string
   element?: string
   fullPage?: boolean
   omitBackground?: boolean
   optimizeForSpeed?: boolean
   overlay?: ScreenshotOverlay
+  palette?: boolean
+  quality?: number
   type?: 'jpeg' | 'png'
+}
+
+type MetaOptions = {
+  author?: boolean
+  date?: boolean
+  description?: boolean
+  image?: boolean
+  lang?: boolean
+  logo?: boolean | { square: boolean }
+  publisher?: boolean
+  title?: boolean
+  url?: boolean
 }
 
 type MqlClientOptions = {
@@ -81,13 +97,14 @@ export type MicrolinkApiOptions = {
   adblock?: boolean
   animations?: boolean
   audio?: boolean
+  cacheKey?: string
   click?: string | string[]
   colorScheme?: ColorScheme
   data?: MqlQuery
   device?: string
   embed?: string
   filename?: string
-  filter?: string
+  filter?: string | string[]
   force?: boolean
   function?: string
   headers?: Record<string, string>
@@ -95,7 +112,7 @@ export type MicrolinkApiOptions = {
   insights?: boolean | { lighthouse?: boolean | object; technologies?: boolean }
   javascript?: boolean
   mediaType?: string
-  meta?: boolean | { logo: { square: boolean } }
+  meta?: boolean | MetaOptions
   modules?: string | string[]
   palette?: boolean
   pdf?: boolean | PdfOptions
