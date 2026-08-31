@@ -3,6 +3,16 @@ import create, { MicrolinkError } from '../src/index.js'
 
 const client = create({ apiKey: 'MyApiToken' })
 
+client.metadata('https://example.com', {
+  proxy: { location: 'US' }
+})
+client.metadata('https://example.com', {
+  proxy: { url: 'http://user:pass@proxy.example:8080' }
+})
+client.metadata('https://example.com', {
+  proxy: 'http://user:pass@proxy.example:8080'
+})
+
 expectType<Promise<string>>(client.markdown('https://example.com'))
 expectType<Promise<string>>(
   client.markdown('https://example.com', { selector: 'article' })
