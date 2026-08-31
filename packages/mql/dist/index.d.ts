@@ -104,7 +104,7 @@ export type MicrolinkApiOptions = {
   device?: string
   embed?: string
   filename?: string
-  filter?: string | string[]
+  filter?: string
   force?: boolean
   function?: string
   headers?: Record<string, string>

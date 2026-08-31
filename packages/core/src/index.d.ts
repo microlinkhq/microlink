@@ -18,7 +18,7 @@ interface Options {
   colorScheme?: 'light' | 'dark' | 'no-preference'
   device?: string
   filename?: string
-  filter?: string | string[]
+  filter?: string
   force?: boolean
   javascript?: boolean
   mediaType?: string
