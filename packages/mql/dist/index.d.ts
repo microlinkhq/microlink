@@ -101,7 +101,7 @@ export type MicrolinkApiOptions = {
   pdf?: boolean | PdfOptions
   ping?: boolean | object
   prerender?: boolean | 'auto'
-  proxy?: string | { countryCode?: string }
+  proxy?: string | { url: string } | { location: string }
   retry?: number
   screenshot?: boolean | ScreenshotOptions
   scripts?: string | string[]

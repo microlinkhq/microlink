@@ -128,6 +128,9 @@ mql('https://example.com', {
 /** others */
 
 mql('https://example.com', { click: ['div'] })
+mql('https://example.com', { proxy: 'http://user:pass@proxy.example:8080' })
+mql('https://example.com', { proxy: { url: 'http://user:pass@proxy.example:8080' } })
+mql('https://example.com', { proxy: { location: 'US' } })
 mql('https://example.com', {
   adblock: true,
   animations: false,

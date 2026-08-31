@@ -23,7 +23,7 @@ interface Options {
   meta?: boolean
   modules?: string | string[]
   prerender?: boolean | 'auto'
-  proxy?: string
+  proxy?: string | { url: string } | { location: string }
   retry?: number
   scripts?: string | string[]
   staleTtl?: string | number
