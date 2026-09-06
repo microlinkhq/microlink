@@ -115,7 +115,7 @@ const login = async () => {
   const url = new URL('/connect', dashboardUrl())
   url.searchParams.set('port', String(port))
   url.searchParams.set('state', state)
-  process.stderr.write(`Opening ${url}\n`)
+  process.stderr.write(`Opening ${url}\n\n`)
   openUrl(url.toString())
 
   try {
