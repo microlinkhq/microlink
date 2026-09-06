@@ -1,7 +1,9 @@
 'use strict'
 
 import microlink from '@microlink/function'
-import test from 'ava'
+import ava from 'ava'
+
+const test = ava.serial
 
 const ENDPOINT = 'https://api.microlink.io'
 const PRO_ENDPOINT = 'https://pro.microlink.io'
