@@ -60,7 +60,7 @@
     "prepublishOnly": "pnpm --recursive --if-present run prepublishOnly",
     "pretest": "pnpm run lint",
     "release": "lerna publish --yes --sort --conventional-commits --changelog-preset conventionalcommits --create-release github -m \"chore(release): publish\"",
-    "test": "c8 pnpm --recursive --sequential test"
+    "test": "c8 pnpm --recursive --workspace-concurrency=1 test"
   },
   "private": true,
   "license": "MIT",
