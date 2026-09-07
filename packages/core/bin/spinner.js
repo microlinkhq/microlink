@@ -1,11 +1,13 @@
 'use strict'
 
+const { prettyMs } = require('./pretty')
+
 const SHOW_CURSOR = '\u001b[?25h'
 const HIDE_CURSOR = '\u001b[?25l'
 const CLEAR_LINE = '\r\u001b[K'
 const FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
 
-module.exports = ({ stderr, prettyMs, onInterrupt, onAbort }) => {
+module.exports = ({ stderr, onInterrupt, onAbort }) => {
   const now = Date.now()
   let i = 0
   let timer

@@ -1,273 +1,27 @@
 'use strict'
 
-const mriModule = require('mri')
-const mri = typeof mriModule === 'function' ? mriModule : mriModule.default
-const helpText = require('./help')
+const { createPrint, writeLine, tracePayload } = require('./print')
+const { parseHeaders, takeHttpHeaders } = require('./headers')
 const spinner = require('./spinner')
-const { gray, white, green, red, orange, link, styleText } = require('./style')
-
+const parseArgv = require('./argv')
+const helpText = require('./help')
+const { asUrl } = require('./url')
 const create = require('../src')
 
-const label = (text, color) =>
-  styleText(['inverse', 'bold'], color(` ${text.toUpperCase()} `))
-const keyValue = (key, value) => key + ' ' + gray(value)
-
-const prettyMs = ms => {
-  if (!Number.isFinite(ms)) return 'unknown'
-  const sign = ms < 0 ? '-' : ''
-  let n = Math.abs(ms)
-  if (n < 1000) return `${sign}${Math.round(n)}ms`
-  n /= 1000
-  if (n < 60) return `${sign}${n.toFixed(1).replace(/\.0$/, '')}s`
-  const hours = Math.floor(n / 3600)
-  n %= 3600
-  const mins = Math.floor(n / 60)
-  const secs = (n % 60).toFixed(1).replace(/\.0$/, '')
-  if (hours) return `${sign}${hours}h ${mins}m ${secs}s`
-  return secs === '0' ? `${sign}${mins}m` : `${sign}${mins}m ${secs}s`
-}
-
-const prettyBytes = n => {
-  if (!Number.isFinite(n) || n < 1000) return `${Math.round(n || 0)} B`
-  if (n < 1e6) {
-    const val = n / 1000
-    return `${
-      val >= 100 ? Math.round(val) : val.toFixed(1).replace(/\.0$/, '')
-    } kB`
-  }
-  return `${(n / 1e6).toFixed(1).replace(/\.0$/, '')} MB`
-}
-
-const toPlainHeaders = headers => {
-  if (!headers) return {}
-  if (typeof headers.entries === 'function') {
-    return Object.fromEntries(headers.entries())
-  }
-  return headers
-}
-
-const humanizeApiKey = apiKey => `${String(apiKey).slice(0, 5)}…`
-
-const quote = str =>
-  gray('"') + white(JSON.stringify(str).slice(1, -1)) + gray('"')
-
-const printPretty = (value, indent = 0) => {
-  if (value === null) return white('null')
-  if (typeof value === 'string') return quote(value)
-  if (typeof value !== 'object') return white(String(value))
-
-  const isArray = Array.isArray(value)
-  const keys = isArray
-    ? value.filter(item => typeof item !== 'function')
-    : Object.keys(value).filter(key => typeof value[key] !== 'function')
-  if (keys.length === 0) return gray(isArray ? '[]' : '{}')
-
-  const pad = '  '.repeat(indent)
-  const inner = '  '.repeat(indent + 1)
-  const open = gray(isArray ? '[' : '{')
-  const close = gray(isArray ? ']' : '}')
-  const lines = keys.map(key => {
-    if (isArray) return inner + printPretty(key, indent + 1)
-    const name = /^[A-Za-z_$][\w$]*$/.test(key) ? white(key) : quote(key)
-    return inner + name + gray(':') + ' ' + printPretty(value[key], indent + 1)
-  })
-  return open + '\n' + lines.join(gray(',') + '\n') + '\n' + pad + close
-}
-
-const writeLine = (stream, ...args) => {
-  stream.write(args.map(String).join(' ') + '\n')
-}
-
-const httpUrl = value => {
-  if (!URL.canParse(value)) return
-  const { protocol } = new URL(value)
-  if (protocol === 'http:' || protocol === 'https:') return value
-}
-
-const asUrl = input => {
-  if (typeof input !== 'string' || !input) return
-  if (httpUrl(input)) return input
-  if (/^[a-z][a-z\d+.-]*:\/\//i.test(input) || !/[.:]/.test(input)) return
-  return httpUrl(`https://${input}`)
-}
-
-const HTTP_HEADER = 'http.header.'
-
-const parseHeaders = input => {
-  const headers = {}
-  for (const item of [].concat(input ?? [])) {
-    const index = String(item).indexOf(':')
-    if (index === -1) continue
-    headers[String(item).slice(0, index).trim().toLowerCase()] = String(item)
-      .slice(index + 1)
-      .trim()
-  }
-  return headers
-}
-
-const takeHttpHeaders = flags => {
-  const headers = {}
-  for (const key of Object.keys(flags)) {
-    if (!key.startsWith(HTTP_HEADER)) continue
-    let value = flags[key]
-    delete flags[key]
-    if (Array.isArray(value)) value = value.at(-1)
-    if (typeof value !== 'string' && typeof value !== 'number') continue
-    const name = key.slice(HTTP_HEADER.length).toLowerCase()
-    if (name) headers[name] = String(value)
-  }
-  return headers
-}
-
-const isClientError = statusCode => statusCode >= 400 && statusCode < 500
-
-const reasons = error => {
-  const values = Object.values(error.data ?? {}).filter(
-    value => typeof value === 'string'
-  )
-  return values.length > 0
-    ? values
-    : [String(error.message).replace(`${error.code}, `, '')]
-}
-
-const tracePayload = ({
-  requestUrl,
-  requestOptions = {},
-  response,
-  full = false
-}) => {
-  const rest = { ...requestOptions }
-  delete rest.responseType
-  const headers = { ...rest.headers }
-  if (!full) {
-    for (const key of ['x-api-key', 'authorization', 'cookie']) {
-      if (headers[key]) headers[key] = humanizeApiKey(headers[key])
-    }
-  }
-  return {
-    request: { url: requestUrl, ...rest, headers },
-    response: {
-      ...response,
-      headers: toPlainHeaders(response?.headers)
-    }
-  }
-}
-
 const run = async (argvInput, host) => {
-  const stdout = host.stdout
-  const stderr = host.stderr
+  const { stdout, stderr } = host
   const env = host.env ?? {}
   const finish = (code = 0) => host.exit(code)
+  const { printJson, printFooter, printFail } = createPrint(host)
   let aborted = false
-
-  const printJson = payload => {
-    writeLine(
-      stdout,
-      host.hasColors ? printPretty(payload) : JSON.stringify(payload, null, 2)
-    )
-  }
 
   const shouldSpin = () =>
     !env.NO_COLOR && env.FORCE_COLOR !== '0' && Boolean(host.hasColors)
-
-  const printFooter = ({ duration, response }) => {
-    const headers = toPlainHeaders(response?.headers)
-    const time = prettyMs(duration)
-    const size = Number(headers['content-length']) || 0
-    const serverTiming = headers['server-timing']
-    const id = headers['x-request-id']
-    const edgeCacheStatus = headers['cf-cache-status']
-    const unifiedCacheStatus = headers['x-cache-status']
-    const cacheStatus =
-      unifiedCacheStatus === 'MISS' && edgeCacheStatus === 'HIT'
-        ? edgeCacheStatus
-        : unifiedCacheStatus
-    const timestamp = Number(headers['x-timestamp'])
-    const ttl = Number(headers['x-cache-ttl'])
-    const expires = timestamp + ttl - Date.now()
-    const expiredAt =
-      cacheStatus === 'HIT' && Number.isFinite(expires)
-        ? `(${prettyMs(expires)})`
-        : ''
-    const fetchMode = headers['x-fetch-mode']
-    const fetchTime = fetchMode && `(${headers['x-fetch-time']})`
-    const uri = response?.url
-
-    if (host.isTTY) writeLine(stderr)
-    writeLine(
-      stderr,
-      label('success', green),
-      gray(`${prettyBytes(size)} in ${time}`)
-    )
-    writeLine(stderr)
-
-    if (serverTiming) {
-      writeLine(stderr, '  ', keyValue(green('timing'), serverTiming))
-    }
-    if (cacheStatus) {
-      writeLine(
-        stderr,
-        '   ',
-        keyValue(green('cache'), `${cacheStatus} ${gray(expiredAt)}`.trim())
-      )
-    }
-    if (fetchMode) {
-      writeLine(
-        stderr,
-        '    ',
-        keyValue(green('mode'), `${fetchMode} ${gray(fetchTime)}`.trim())
-      )
-    }
-    if (uri) writeLine(stderr, '     ', keyValue(green('uri'), link(uri)))
-    if (id) writeLine(stderr, '      ', keyValue(green('id'), id))
-  }
-
-  const printFail = error => {
-    const color = isClientError(error.statusCode) ? orange : red
-    const status = error.status || 'fail'
-    const [reason, ...rest] = reasons(error)
-    const indent = ' '.repeat(status.length + 2)
-    if (host.isTTY) writeLine(stderr)
-    writeLine(stderr, label(status, color), gray(reason))
-    for (const extra of rest) writeLine(stderr, indent, gray(extra))
-    writeLine(stderr)
-    const id = error.headers?.['x-request-id']
-    if (id) writeLine(stderr, '    ', keyValue(color('id'), id))
-    if (error.url) {
-      writeLine(stderr, '   ', keyValue(color('uri'), link(error.url)))
-    }
-    if (error.code) {
-      writeLine(
-        stderr,
-        '  ',
-        keyValue(
-          color('code'),
-          `${error.code}${error.statusCode ? ` (${error.statusCode})` : ''}`
-        )
-      )
-    }
-    if (error.more) {
-      writeLine(stderr, '  ', keyValue(color('more'), link(error.more)))
-    }
-    if (error.statusCode === 429) {
-      writeLine(
-        stderr,
-        '  ',
-        keyValue(color('hint'), 'run `microlink login` to use an API key')
-      )
-    }
-  }
 
   const showHelp = command => {
     writeLine(stdout, helpText(command).trimEnd())
     return finish(0)
   }
-
-  const argv = mri(argvInput, {
-    alias: { H: 'header' },
-    boolean: ['trace', 'trace-full', 'help', 'html', 'markdown'],
-    string: ['header', 'api-key', 'data', 'file', 'endpoint']
-  })
 
   let {
     _: [command, target],
@@ -283,7 +37,7 @@ const run = async (argvInput, host) => {
     html: htmlFlag,
     markdown: markdownFlag,
     ...flags
-  } = argv
+  } = parseArgv(argvInput)
 
   const isTrace = trace || traceFull
 
@@ -383,7 +137,6 @@ const run = async (argvInput, host) => {
     !isTrace && shouldSpin()
       ? spinner({
         stderr,
-        prettyMs,
         onInterrupt: host.onInterrupt,
         onAbort () {
           aborted = true
