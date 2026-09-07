@@ -1,3 +1,4 @@
+import { createRequire } from 'module'
 import { fileURLToPath } from 'url'
 import { spawn } from 'child_process'
 import { mkdirSync, mkdtempSync, writeFileSync, existsSync } from 'fs'
@@ -6,6 +7,9 @@ import http from 'http'
 import path from 'path'
 import $ from 'tinyspawn'
 import test from 'ava'
+
+const require = createRequire(import.meta.url)
+const run = require('../bin/run')
 
 const bin = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -171,6 +175,13 @@ test('trace rejects search and function', async t => {
   t.true(search.stderr.includes('not supported'))
   const run = await t.throwsAsync(() => $('node', [bin, 'function', 'https://example.com', '--trace']))
   t.true(run.stderr.includes('not supported'))
+})
+
+test('function without --file fails clearly', async t => {
+  const error = await t.throwsAsync(() =>
+    $('node', [bin, 'function', 'https://example.com'])
+  )
+  t.true(error.stderr.includes('Missing `--file`'))
 })
 
 test('markdown prints the raw string', async t => {
@@ -424,4 +435,55 @@ test('429 points at microlink login', async t => {
     $('node', [bin, 'https://example.com', '--endpoint', endpoint])
   )
   t.true(error.stderr.includes('microlink login'))
+})
+
+const memoryHost = (overrides = {}) => {
+  const stdout = []
+  const stderr = []
+  return {
+    stdout: { write: chunk => stdout.push(chunk) },
+    stderr: { write: chunk => stderr.push(chunk) },
+    env: {},
+    isTTY: false,
+    hasColors: false,
+    readApiKey: () => {},
+    exit: code => code,
+    ...overrides,
+    stdoutText: () => stdout.join(''),
+    stderrText: () => stderr.join('')
+  }
+}
+
+test('run writes help through the host without exiting the process', async t => {
+  const host = memoryHost()
+  t.is(await run([], host), 0)
+  t.true(host.stdoutText().includes('Usage'))
+})
+
+test('run reports unknown commands through the host', async t => {
+  const host = memoryHost()
+  t.is(await run(['nope'], host), 1)
+  t.true(host.stderrText().includes('Unknown command'))
+})
+
+test('run reports missing --file through the host', async t => {
+  const host = memoryHost()
+  t.is(await run(['function', 'https://example.com'], host), 1)
+  t.true(host.stderrText().includes('Missing `--file`'))
+})
+
+test('run unsubscribes interrupt after the request finishes', async t => {
+  const { endpoint } = await listenSuccess(t)
+  let listeners = 0
+  const host = memoryHost({
+    hasColors: true,
+    onInterrupt () {
+      listeners++
+      return () => listeners--
+    }
+  })
+  t.is(await run(['https://example.com', '--endpoint', endpoint], host), 0)
+  t.is(listeners, 0)
+  t.is(await run(['https://example.com', '--endpoint', endpoint], host), 0)
+  t.is(listeners, 0)
 })
