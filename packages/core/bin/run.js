@@ -390,6 +390,11 @@ const run = async (argvInput, host) => {
     }
   }
 
+  if ((command === 'function' || command === 'run') && !file) {
+    printFail({ message: 'Missing `--file` with the function source code' })
+    return finish(1)
+  }
+
   const invoke = () => {
     if (command === 'extract') {
       return client.extract(target, rules, options)

@@ -173,6 +173,13 @@ test('trace rejects search and function', async t => {
   t.true(run.stderr.includes('not supported'))
 })
 
+test('function without --file fails clearly', async t => {
+  const error = await t.throwsAsync(() =>
+    $('node', [bin, 'function', 'https://example.com'])
+  )
+  t.true(error.stderr.includes('Missing `--file`'))
+})
+
 test('markdown prints the raw string', async t => {
   const { stdout } = await $('node', [bin, 'markdown', 'https://example.com'])
   t.true(stdout.length > 0)
