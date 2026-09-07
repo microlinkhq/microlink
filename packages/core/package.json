@@ -11,6 +11,11 @@
       "require": "./src/index.js",
       "import": "./src/main.mjs",
       "default": "./src/main.mjs"
+    },
+    "./cli": {
+      "import": "./bin/cli.mjs",
+      "require": "./bin/run.js",
+      "default": "./bin/cli.mjs"
     }
   },
   "bin": {
@@ -47,8 +52,7 @@
     "@microlink/function": "workspace:*",
     "@microlink/google": "workspace:*",
     "@microlink/mql": "workspace:*",
-    "mri": "~1.2.0",
-    "terminal-link": "~5.0.0"
+    "mri": "~1.2.0"
   },
   "devDependencies": {
     "ava": "latest",
