@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.6.0...microlink.io%400.7.0) (2026-09-07)
+
+### Features
+
+* **cli:** export run() for embedding ([#32](https://github.com/microlinkhq/microlink/issues/32)) ([0c40c82](https://github.com/microlinkhq/microlink/commit/0c40c82863562a95b23447f4daf0458b4295bae4))
+
+### Bug Fixes
+
+* **cli:** space key picker from opening url ([#31](https://github.com/microlinkhq/microlink/issues/31)) ([1c13953](https://github.com/microlinkhq/microlink/commit/1c1395312f4cf8bc3b93e045fa884d1ebaccba82))
+
 ## [0.6.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.5.2...microlink.io%400.6.0) (2026-08-31)
 
 ### Features

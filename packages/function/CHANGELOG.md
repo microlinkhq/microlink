@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.4](https://github.com/microlinkhq/microlink/compare/%40microlink%2Ffunction%400.3.3...%40microlink%2Ffunction%400.3.4) (2026-09-07)
+
+### Bug Fixes
+
+* **cli:** space key picker from opening url ([#31](https://github.com/microlinkhq/microlink/issues/31)) ([1c13953](https://github.com/microlinkhq/microlink/commit/1c1395312f4cf8bc3b93e045fa884d1ebaccba82))
+
 ## [0.3.3](https://github.com/microlinkhq/microlink/compare/%40microlink%2Ffunction%400.3.2...%40microlink%2Ffunction%400.3.3) (2026-08-31)
 
 **Note:** Version bump only for package @microlink/function
