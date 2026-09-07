@@ -2,7 +2,7 @@
 
 const { readFileSync } = require('fs')
 const path = require('path')
-const { readApiKey, writeConfig, clearConfig } = require('./config')
+const { readApiKey, clearConfig } = require('./config')
 const login = require('./login')
 
 module.exports = {
@@ -19,7 +19,6 @@ module.exports = {
     return readFileSync(path.resolve(file), 'utf8')
   },
   readApiKey,
-  writeConfig,
   clearConfig,
   login,
   exit (code) {
@@ -27,5 +26,6 @@ module.exports = {
   },
   onInterrupt (fn) {
     process.on('SIGINT', fn)
+    return () => process.off('SIGINT', fn)
   }
 }

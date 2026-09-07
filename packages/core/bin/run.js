@@ -3,14 +3,10 @@
 const mriModule = require('mri')
 const mri = typeof mriModule === 'function' ? mriModule : mriModule.default
 const helpText = require('./help')
+const spinner = require('./spinner')
 const { gray, white, green, red, orange, link, styleText } = require('./style')
 
 const create = require('../src')
-
-const SHOW_CURSOR = '\u001b[?25h'
-const HIDE_CURSOR = '\u001b[?25l'
-const CLEAR_LINE = '\r\u001b[K'
-const FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
 
 const label = (text, color) =>
   styleText(['inverse', 'bold'], color(` ${text.toUpperCase()} `))
@@ -173,36 +169,6 @@ const run = async (argvInput, host) => {
 
   const shouldSpin = () =>
     !env.NO_COLOR && env.FORCE_COLOR !== '0' && Boolean(host.hasColors)
-
-  const spinner = () => {
-    const now = Date.now()
-    let i = 0
-    let timer
-    const draw = () => {
-      stderr.write(
-        `${CLEAR_LINE}${FRAMES[i++ % FRAMES.length]} ${prettyMs(
-          Date.now() - now
-        )}`
-      )
-    }
-    return {
-      start () {
-        stderr.write(HIDE_CURSOR)
-        draw()
-        host.onInterrupt?.(() => {
-          aborted = true
-          clearInterval(timer)
-          stderr.write(CLEAR_LINE + SHOW_CURSOR)
-          finish(130)
-        })
-        timer = setInterval(draw, 50)
-      },
-      stop () {
-        clearInterval(timer)
-        if (!aborted) stderr.write(CLEAR_LINE + SHOW_CURSOR)
-      }
-    }
-  }
 
   const printFooter = ({ duration, response }) => {
     const headers = toPlainHeaders(response?.headers)
@@ -413,7 +379,18 @@ const run = async (argvInput, host) => {
     return client[command](target, options)
   }
 
-  const spin = !isTrace && shouldSpin() ? spinner() : null
+  const spin =
+    !isTrace && shouldSpin()
+      ? spinner({
+        stderr,
+        prettyMs,
+        onInterrupt: host.onInterrupt,
+        onAbort () {
+          aborted = true
+          finish(130)
+        }
+      })
+      : null
 
   spin?.start()
   const started = Date.now()
