@@ -162,6 +162,7 @@ const run = async (argvInput, host) => {
   const stderr = host.stderr
   const env = host.env ?? {}
   const finish = (code = 0) => host.exit(code)
+  let aborted = false
 
   const printJson = payload => {
     writeLine(
@@ -189,6 +190,8 @@ const run = async (argvInput, host) => {
         stderr.write(HIDE_CURSOR)
         draw()
         host.onInterrupt?.(() => {
+          aborted = true
+          clearInterval(timer)
           stderr.write(CLEAR_LINE + SHOW_CURSOR)
           finish(130)
         })
@@ -196,7 +199,7 @@ const run = async (argvInput, host) => {
       },
       stop () {
         clearInterval(timer)
-        stderr.write(CLEAR_LINE + SHOW_CURSOR)
+        if (!aborted) stderr.write(CLEAR_LINE + SHOW_CURSOR)
       }
     }
   }
@@ -264,7 +267,9 @@ const run = async (argvInput, host) => {
     writeLine(stderr)
     const id = error.headers?.['x-request-id']
     if (id) writeLine(stderr, '    ', keyValue(color('id'), id))
-    if (error.url) { writeLine(stderr, '   ', keyValue(color('uri'), link(error.url))) }
+    if (error.url) {
+      writeLine(stderr, '   ', keyValue(color('uri'), link(error.url)))
+    }
     if (error.code) {
       writeLine(
         stderr,
@@ -409,6 +414,7 @@ const run = async (argvInput, host) => {
   const started = Date.now()
   try {
     const result = await invoke()
+    if (aborted) return 130
     const duration = Date.now() - started
     spin?.stop()
     if (isTrace) printJson(tracePayload({ ...client.last, full: traceFull }))
@@ -417,6 +423,7 @@ const run = async (argvInput, host) => {
     if (!isTrace) printFooter({ duration, response: client.last.response })
     return finish(0)
   } catch (error) {
+    if (aborted) return 130
     spin?.stop()
     printFail(error)
     return finish(1)

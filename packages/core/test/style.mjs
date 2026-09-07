@@ -2,7 +2,7 @@ import { createRequire } from 'module'
 import test from 'ava'
 
 const require = createRequire(import.meta.url)
-const { orange } = require('../bin/style')
+const { orange, styleText } = require('../bin/style')
 
 const withColors = (t, hasColors) => {
   const original = Object.getOwnPropertyDescriptor(process.stdout, 'hasColors')
@@ -26,4 +26,9 @@ test('orange is plain text when the terminal cannot report colors', t => {
 test('orange uses the 256 color palette when the terminal has colors', t => {
   withColors(t, () => true)
   t.is(orange('FAIL'), '\u001b[38;5;208mFAIL\u001b[39m')
+})
+
+test('cyan highlights the login picker', t => {
+  withColors(t, () => true)
+  t.is(styleText('cyan', '?'), '\u001b[36m?\u001b[39m')
 })
