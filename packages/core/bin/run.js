@@ -89,15 +89,10 @@ const run = async (argvInput, host) => {
   if (help || !target) return showHelp(command)
 
   if (target === 'docs') {
-    const resolved = docs.resolve(command)
-    if (resolved.error) {
-      writeLine(stderr, `No docs page for \`${command}\`.`)
-      return finish(1)
-    }
     try {
       writeLine(
         stdout,
-        (await docs.load(resolved.href, host.fetch ?? fetch)).trimEnd()
+        (await docs.load(command, host.fetch ?? fetch)).trimEnd()
       )
       return finish(0)
     } catch (error) {
