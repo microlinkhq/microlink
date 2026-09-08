@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.5](https://github.com/microlinkhq/microlink/compare/%40microlink%2Ffunction%400.3.4...%40microlink%2Ffunction%400.3.5) (2026-09-08)
+
+**Note:** Version bump only for package @microlink/function
+
 ## [0.3.4](https://github.com/microlinkhq/microlink/compare/%40microlink%2Ffunction%400.3.3...%40microlink%2Ffunction%400.3.4) (2026-09-07)
 
 ### Bug Fixes

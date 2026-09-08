@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.1](https://github.com/microlinkhq/microlink/compare/microlink.io%400.9.0...microlink.io%400.9.1) (2026-09-08)
+
+**Note:** Version bump only for package microlink.io
+
 ## [0.9.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.8.0...microlink.io%400.9.0) (2026-09-08)
 
 ### ⚠ BREAKING CHANGES
