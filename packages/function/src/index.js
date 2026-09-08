@@ -12,13 +12,20 @@ const format = (() => {
   }
 })()
 
+const toBase64url = bytes => {
+  if (typeof Buffer === 'function') { return Buffer.from(bytes).toString('base64url') }
+  let binary = ''
+  for (const byte of bytes) binary += String.fromCharCode(byte)
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+}
+
 const toCompress = async code => {
   const stream = new Blob([code.toString()])
     .stream()
     .pipeThrough(new CompressionStream(format))
   const bytes = new Uint8Array(await new Response(stream).arrayBuffer())
   const alias = format === 'brotli' ? 'br' : 'gz'
-  return `${alias}#${bytes.toBase64({ alphabet: 'base64url' })}`
+  return `${alias}#${toBase64url(bytes)}`
 }
 
 const fn = (code, mqlOpts, gotOpts) => {
