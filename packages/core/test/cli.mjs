@@ -377,6 +377,37 @@ test('search footer reports the response size', async t => {
   t.false(stderr.includes('0 B'))
 })
 
+test('search footer uses x-content-length when content-length is absent', async t => {
+  const body = JSON.stringify({
+    status: 'success',
+    data: { results: [{ title: 'The Matrix', url: 'https://example.com' }] }
+  })
+  const bytes = Buffer.byteLength(body)
+  const server = http.createServer((req, res) => {
+    res.statusCode = 200
+    res.setHeader('content-type', 'application/json')
+    res.setHeader('x-content-length', bytes)
+    res.end(body)
+  })
+  t.teardown(() => new Promise(resolve => server.close(resolve)))
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
+  const endpoint = `http://127.0.0.1:${server.address().port}`
+
+  const { stderr } = await $('node', [
+    bin,
+    'search',
+    '--type',
+    'images',
+    'the matrix',
+    '--endpoint',
+    endpoint
+  ])
+
+  t.true(stderr.includes('SUCCESS'), stderr)
+  t.true(stderr.includes(`${bytes} B`), stderr)
+  t.false(stderr.includes('0 B'))
+})
+
 test('logout removes the saved config file', async t => {
   const { dir, env } = configHome('file-key-1')
   const file = path.join(dir, 'microlink', 'config.json')
