@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.8.0...microlink.io%400.9.0) (2026-09-08)
+
+### ⚠ BREAKING CHANGES
+
+* `microlink.run()` and `microlink run` are gone.
+  Use `microlink.function()` / `microlink function`.
+
+### Features
+
+* rename run to function ([#34](https://github.com/microlinkhq/microlink/issues/34))
+
 ## [0.8.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.7.0...microlink.io%400.8.0) (2026-09-08)
 
 ### Features
