@@ -75,6 +75,16 @@ const COLLECTION = [
 const ALIAS = { run: 'function' }
 
 const COMMANDS = {
+  help: {
+    usage: 'help [command]',
+    desc: 'Show this help',
+    flags: [],
+    cli: [],
+    examples: [
+      ['help', 'show this help'],
+      ['help screenshot', 'show screenshot help']
+    ]
+  },
   login: {
     usage: 'login',
     desc: 'Save an API key from your Microlink account',
@@ -293,6 +303,7 @@ const commandList = Object.entries(COMMANDS)
 const global = `Usage
 ${cmd('<url> [options]')}
 ${cmd('<product> <url|query> [options]')}
+${cmd('help')}
 ${cmd('login')}
 ${cmd('logout')}
 

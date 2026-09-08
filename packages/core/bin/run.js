@@ -41,7 +41,7 @@ const run = async (argvInput, host) => {
 
   const isTrace = trace || traceFull
 
-  if (!command) return showHelp()
+  if (!command || command === 'help') return showHelp(target)
 
   if (command === 'login' || command === 'logout') {
     if (help) return showHelp(command)
