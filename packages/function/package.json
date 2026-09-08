@@ -34,8 +34,7 @@
     "serverless"
   ],
   "dependencies": {
-    "@microlink/mql": "workspace:*",
-    "lz-ts": "~1.1.2"
+    "@microlink/mql": "workspace:*"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "latest",

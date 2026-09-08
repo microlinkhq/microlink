@@ -284,10 +284,10 @@ If you still need the rendered markup, call `page.content()` inside the function
 
 ```js
 const compressed = await microlink.compress(({ page }) => page.title())
-// 'br#...' on Node.js (brotli), 'lz#...' as fallback
+// 'br#...' when brotli is available, 'gz#...' in Chrome
 ```
 
-Supported prefixes: `lz#` (lz-string), `br#` (brotli), `gz#` (gzip).
+Supported prefixes: `br#` (brotli), `gz#` (gzip).
 
 ### Optimization checklist
 
