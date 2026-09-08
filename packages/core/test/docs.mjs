@@ -9,8 +9,9 @@ test('points at the SDK method markdown file', t => {
 })
 
 test('load fetches the markdown file', async t => {
-  const text = await load('markdown', href => {
+  const text = await load('markdown', (href, opts) => {
     t.is(href, url('markdown'))
+    t.true(opts.signal instanceof AbortSignal)
     return Promise.resolve({
       ok: true,
       text: () => Promise.resolve('# markdown\n')

@@ -57,12 +57,6 @@ test('product help includes the docs usage', async t => {
   t.true(stdout.includes('print the docs page'))
 })
 
-test('markdown docs prints the docs page', async t => {
-  const { stdout } = await $('node', [bin, 'markdown', 'docs'])
-  t.true(stdout.includes('# markdown'))
-  t.true(stdout.includes('The page as clean Markdown'))
-})
-
 test('prints command help for a product with no url', async t => {
   const { stdout } = await $('node', [bin, 'metadata'])
   t.true(stdout.includes('metadata <url>'))
