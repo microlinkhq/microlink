@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.8.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.7.0...microlink.io%400.8.0) (2026-09-08)
+
+### Features
+
+* **cli:** add help command ([#33](https://github.com/microlinkhq/microlink/issues/33)) ([d673f8e](https://github.com/microlinkhq/microlink/commit/d673f8ec819b9ffc4d206734a63c71dfa8a8f2ac))
+
 ## [0.7.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.6.0...microlink.io%400.7.0) (2026-09-07)
 
 ### Features
