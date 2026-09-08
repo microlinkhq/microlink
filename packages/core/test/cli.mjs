@@ -25,6 +25,18 @@ test('prints help with no arguments', async t => {
   t.true(stdout.includes('logout'))
 })
 
+test('help command matches --help', async t => {
+  const { stdout: help } = await $('node', [bin, 'help'])
+  const { stdout: flag } = await $('node', [bin, '--help'])
+  t.is(help, flag)
+})
+
+test('help <product> matches product --help', async t => {
+  const { stdout: help } = await $('node', [bin, 'help', 'screenshot'])
+  const { stdout: flag } = await $('node', [bin, 'screenshot', '--help'])
+  t.is(help, flag)
+})
+
 test('prints command help for login', async t => {
   const { stdout } = await $('node', [bin, 'login', '--help'])
   t.true(stdout.includes('login'))
