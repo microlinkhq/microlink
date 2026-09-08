@@ -50,7 +50,7 @@ test.skip('video detects the primary video', async t => {
 })
 
 test('function runs code remotely with injected scope variables', async t => {
-  const { isFulfilled, value } = await microlink.run(
+  const { isFulfilled, value } = await microlink.function(
     targetUrl,
     ({ greeting }) => greeting,
     { greeting: 'hello' }

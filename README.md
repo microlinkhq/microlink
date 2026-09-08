@@ -70,7 +70,7 @@ Every [microlink.io](https://microlink.io) product maps to a client method:
 | Lighthouse | `lighthouse(url)` |
 | Technologies | `technologies(url)` |
 | Search | `search(query)` |
-| Function | `run(url, code)` (alias `function`) |
+| Function | `function(url, code)` |
 
 Plus library extras: `links` / `images` / `videos` / `audios` / `emails` collections and `extract` for custom data rules.
 
@@ -254,19 +254,19 @@ while (page) {
 }
 ```
 
-### run(url, code, options)
+### function(url, code, options)
 
-Run any JavaScript remotely in a sandboxed runtime — no Lambda bundle, no browser fleet, no server ([guide](https://microlink.io/docs/guides/function)). Also exposed as `function`, matching the API parameter name. You write a plain function; the library handles serialization, compression and the API call for you. When the code doesn't reference `page`, no browser is started, making execution faster and cheaper:
+Run any JavaScript remotely in a sandboxed runtime — no Lambda bundle, no browser fleet, no server ([guide](https://microlink.io/docs/guides/function)). You write a plain function; the library handles serialization, compression and the API call for you. When the code doesn't reference `page`, no browser is started, making execution faster and cheaper:
 
 ```mjs
-const { value } = await microlink.run('https://example.com', () => 40 + 2)
+const { value } = await microlink.function('https://example.com', () => 40 + 2)
 console.log(value) // → 42
 ```
 
 When it references `page`, Microlink starts a headless browser and navigates to the URL first, handing your code the full [puppeteer `page`](https://pptr.dev/api/puppeteer.page) for clicks, waits, evaluation and navigation ([browser interaction](https://microlink.io/docs/guides/function/browser-interaction)):
 
 ```mjs
-const { value } = await microlink.run('https://example.com', async ({ page }) => {
+const { value } = await microlink.function('https://example.com', async ({ page }) => {
   await page.waitForSelector('h1')
   return page.$eval('h1', el => el.textContent)
 })
@@ -276,7 +276,7 @@ console.log(value) // → 'Example Domain'
 Any extra option you pass is forwarded into the function scope — the simplest way to make one function reusable across requests ([custom parameters](https://microlink.io/docs/guides/function/writing-functions)):
 
 ```mjs
-const { value } = await microlink.run(
+const { value } = await microlink.function(
   'https://example.com',
   ({ page, selector }) => page.$eval(selector, el => el.textContent),
   { selector: 'h1' }
@@ -287,7 +287,7 @@ console.log(value)
 You can `require()` any npm package inside the function — dependencies are detected, installed on the fly into the sandbox, and cached for subsequent runs. Pin a version with `require('cheerio@1.0.0')`:
 
 ```mjs
-const { value } = await microlink.run('https://news.ycombinator.com', async ({ page }) => {
+const { value } = await microlink.function('https://news.ycombinator.com', async ({ page }) => {
   const cheerio = require('cheerio')
   const $ = cheerio.load(await page.content())
   return $('.titleline > a').map((i, el) => $(el).text()).toArray()
@@ -298,7 +298,7 @@ console.log(value) // → ['Top HN story', ...]
 The result carries more than the return value — `console.log` calls are captured in `logging`, and `profiling` reports peak cpu/memory plus per-phase timings (`install`/`build`/`spawn`/`run`) so you can spot the bottleneck ([profiling](https://microlink.io/docs/guides/function/profiling-and-performance)):
 
 ```mjs
-const { isFulfilled, value, logging, profiling } = await microlink.run('https://example.com', ({ page }) => {
+const { isFulfilled, value, logging, profiling } = await microlink.function('https://example.com', ({ page }) => {
   console.log('visiting page')
   return page.title()
 })
@@ -359,7 +359,7 @@ npx microlink.io function https://example.com --file ./fn.js
 
 - [@microlink/mql](https://github.com/microlinkhq/mql) — the low-level Microlink Query Language client (raw envelopes, `buffer`/`stream` access).
 - [@microlink/google](https://github.com/microlinkhq/google) — structured Google data, powering `search`.
-- [@microlink/function](https://github.com/microlinkhq/function) — remote JavaScript functions, powering `function`/`run` ([guides](https://microlink.io/docs/guides/function)).
+- [@microlink/function](https://github.com/microlinkhq/function) — remote JavaScript functions, powering `function` ([guides](https://microlink.io/docs/guides/function)).
 
 ## License
 
