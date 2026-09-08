@@ -301,6 +301,7 @@ const commandList = Object.entries(COMMANDS)
 const global = `Usage
 ${cmd('<url> [options]')}
 ${cmd('<product> <url|query> [options]')}
+${cmd('<product> docs')}
 ${cmd('help')}
 ${cmd('login')}
 ${cmd('logout')}
@@ -316,6 +317,7 @@ ${rows(CLI)}
 
 Examples
 ${cmd('login', 'save an API key from your account')}
+${cmd('markdown docs', 'print the markdown docs page')}
 ${cmd('https://example.com', 'unified metadata (default)')}
 ${cmd(
   'https://example.com --trace',
@@ -348,21 +350,24 @@ ${cmd(
 `
 
 const render = (name, product) => {
-  const usage = []
-    .concat(product.usage)
-    .map(line => cmd(line))
-    .join('\n')
+  const usageLines = [].concat(product.usage)
+  const examples = [...(product.examples ?? [])]
+  if (PRODUCTS[name]) {
+    usageLines.push(`${name} docs`)
+    examples.push([`${name} docs`, 'print the docs page'])
+  }
+  const usage = usageLines.map(line => cmd(line)).join('\n')
   const cli = product.cli ?? CLI
   const options = [...product.flags, ...cli]
   const parts = ['Usage', usage, '', gray(product.desc)]
   if (options.length > 0) parts.push('', 'Options', rows(options))
   if (product.browser) parts.push('', 'Browser', rows(BROWSER))
   if (product.note) parts.push('', gray(product.note))
-  if (product.examples) {
+  if (examples.length > 0) {
     parts.push(
       '',
       'Examples',
-      ...product.examples.map(([rest, comment]) => cmd(rest, comment))
+      ...examples.map(([rest, comment]) => cmd(rest, comment))
     )
   }
   return parts.join('\n') + '\n'

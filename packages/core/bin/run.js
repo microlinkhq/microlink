@@ -6,6 +6,7 @@ const spinner = require('./spinner')
 const parseArgv = require('./argv')
 const helpText = require('./help')
 const { asUrl } = require('./url')
+const docs = require('./docs')
 const create = require('../src')
 
 const run = async (argvInput, host) => {
@@ -86,6 +87,25 @@ const run = async (argvInput, host) => {
   }
 
   if (help || !target) return showHelp(command)
+
+  if (target === 'docs') {
+    const resolved = docs.resolve(command)
+    if (resolved.error) {
+      writeLine(stderr, `No docs page for \`${command}\`.`)
+      return finish(1)
+    }
+    try {
+      writeLine(
+        stdout,
+        (await docs.load(resolved.href, host.fetch ?? fetch)).trimEnd()
+      )
+      return finish(0)
+    } catch (error) {
+      writeLine(stderr, error.message)
+      return finish(1)
+    }
+  }
+
   if (command !== 'search') target = asUrl(target) ?? target
 
   if (isTrace && (command === 'search' || command === 'function')) {
