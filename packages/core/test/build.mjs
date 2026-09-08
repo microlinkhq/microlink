@@ -30,7 +30,6 @@ const PRODUCTS = [
   'markdown',
   'metadata',
   'pdf',
-  'run',
   'screenshot',
   'search',
   'technologies',

@@ -72,8 +72,6 @@ const COLLECTION = [
   ['--type', 'Cast each value (url, image, email, ...)']
 ]
 
-const ALIAS = { run: 'function' }
-
 const COMMANDS = {
   help: {
     usage: 'help [command]',
@@ -371,7 +369,6 @@ const render = (name, product) => {
 }
 
 module.exports = command => {
-  const name = ALIAS[command] ?? command
-  if (COMMANDS[name]) return render(name, COMMANDS[name])
-  return PRODUCTS[name] ? render(name, PRODUCTS[name]) : global
+  if (COMMANDS[command]) return render(command, COMMANDS[command])
+  return PRODUCTS[command] ? render(command, PRODUCTS[command]) : global
 }

@@ -268,12 +268,11 @@ test('per-call options override the factory context', async t => {
   t.is(calls[0].mqlOpts.apiKey, 'override')
 })
 
-test('function/run are the same method', async t => {
+test('function runs remote code with routed options', async t => {
   const { create, fnCalls } = setup()
   const client = create({ apiKey: 'secret' })
-  t.is(client.function, client.run)
   const code = '({ page }) => page.title()'
-  const result = await client.run(URL, code, {
+  const result = await client.function(URL, code, {
     headers: { 'x-foo': 'bar' }
   })
   t.deepEqual(result, { isFulfilled: true, value: URL })

@@ -66,7 +66,6 @@ async function assertions (): Promise<void> {
 
   const fnResult = await client.function('https://example.com', '() => 1')
   expectType<boolean>(fnResult.isFulfilled)
-  expectType<typeof client.function>(client.run)
 }
 
 void assertions()

@@ -169,7 +169,6 @@ interface MicrolinkClient {
     code: FunctionInput,
     options?: Options
   ): Promise<FunctionResult<T>>
-  run: MicrolinkClient['function']
 }
 
 interface create {

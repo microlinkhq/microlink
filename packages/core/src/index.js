@@ -106,11 +106,6 @@ const create = (ctx = {}) => {
     )
   }
 
-  const run = (url, code, options) => {
-    const { top, got } = route(options)
-    return fn(code, top, got)(url)
-  }
-
   const client = {
     metadata: (url, options) => {
       const { top, got } = route(options)
@@ -197,8 +192,10 @@ const create = (ctx = {}) => {
       const { top } = route(options)
       return googleClient(query, top)
     },
-    function: run,
-    run
+    function: (url, code, options) => {
+      const { top, got } = route(options)
+      return fn(code, top, got)(url)
+    }
   }
 
   Object.defineProperty(client, 'last', { value: last })

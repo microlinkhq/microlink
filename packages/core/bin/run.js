@@ -88,10 +88,7 @@ const run = async (argvInput, host) => {
   if (help || !target) return showHelp(command)
   if (command !== 'search') target = asUrl(target) ?? target
 
-  if (
-    isTrace &&
-    (command === 'search' || command === 'function' || command === 'run')
-  ) {
+  if (isTrace && (command === 'search' || command === 'function')) {
     writeLine(stderr, `\`--trace\` is not supported for \`${command}\`.`)
     return finish(1)
   }
@@ -110,7 +107,7 @@ const run = async (argvInput, host) => {
     }
   }
 
-  if ((command === 'function' || command === 'run') && !file) {
+  if (command === 'function' && !file) {
     printFail({ message: 'Missing `--file` with the function source code' })
     return finish(1)
   }
@@ -119,7 +116,7 @@ const run = async (argvInput, host) => {
     if (command === 'extract') {
       return client.extract(target, rules, options)
     }
-    if (command === 'function' || command === 'run') {
+    if (command === 'function') {
       const code = host.readFile(file)
       return client.function(target, code, options)
     }
