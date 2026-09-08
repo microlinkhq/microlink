@@ -23,6 +23,7 @@ test('prints help with no arguments', async t => {
   t.true(stdout.includes('--endpoint'))
   t.true(stdout.includes('login'))
   t.true(stdout.includes('logout'))
+  t.true(stdout.includes('<product> docs'))
 })
 
 test('help command matches --help', async t => {
@@ -48,6 +49,12 @@ test('prints command help for logout', async t => {
   const { stdout } = await $('node', [bin, 'logout', '--help'])
   t.true(stdout.includes('logout'))
   t.true(stdout.includes('Remove the saved API key'))
+})
+
+test('product help includes the docs usage', async t => {
+  const { stdout } = await $('node', [bin, 'markdown', '--help'])
+  t.true(stdout.includes('markdown docs'))
+  t.true(stdout.includes('print the docs page'))
 })
 
 test('prints command help for a product with no url', async t => {
@@ -507,6 +514,20 @@ test('run reports unknown commands through the host', async t => {
   const host = memoryHost()
   t.is(await run(['nope'], host), 1)
   t.true(host.stderrText().includes('Unknown command'))
+})
+
+test('run <product> docs writes the fetched markdown through the host', async t => {
+  const host = memoryHost({
+    fetch: url => {
+      t.is(url, 'https://microlink.io/docs/sdk/methods/markdown.md')
+      return Promise.resolve({
+        ok: true,
+        text: () => Promise.resolve('# markdown\n')
+      })
+    }
+  })
+  t.is(await run(['markdown', 'docs'], host), 0)
+  t.is(host.stdoutText().trim(), '# markdown')
 })
 
 test('run reports missing --file through the host', async t => {
