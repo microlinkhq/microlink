@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.2](https://github.com/microlinkhq/microlink/compare/microlink.io%400.9.1...microlink.io%400.9.2) (2026-09-08)
+
+### Bug Fixes
+
+* **cli:** read x-content-length when Content-Length is missing ([#36](https://github.com/microlinkhq/microlink/issues/36)) ([8108df7](https://github.com/microlinkhq/microlink/commit/8108df74ac7fc2eff58e0126a578eb85b399c625))
+
 ## [0.9.1](https://github.com/microlinkhq/microlink/compare/microlink.io%400.9.0...microlink.io%400.9.1) (2026-09-08)
 
 **Note:** Version bump only for package microlink.io
