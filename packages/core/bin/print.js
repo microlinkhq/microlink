@@ -87,7 +87,8 @@ const createPrint = host => {
   const printFooter = ({ duration, response }) => {
     const headers = toPlainHeaders(response?.headers)
     const time = prettyMs(duration)
-    const size = Number(headers['content-length']) || 0
+    const size =
+      Number(headers['content-length'] || headers['x-content-length']) || 0
     const serverTiming = headers['server-timing']
     const id = headers['x-request-id']
     const edgeCacheStatus = headers['cf-cache-status']
