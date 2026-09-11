@@ -65,21 +65,14 @@ export function register (server, name, description, inputSchema, invoke) {
       const parsed = inputSchema.safeParse(args)
 
       if (!parsed.success) {
+        const payload = {
+          message: 'Input validation failed.',
+          issues: parsed.error.issues
+        }
         return {
           isError: true,
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(
-                {
-                  message: 'Input validation failed.',
-                  issues: parsed.error.issues
-                },
-                null,
-                2
-              )
-            }
-          ]
+          structuredContent: { error: payload },
+          content: [{ type: 'text', text: JSON.stringify(payload, null, 2) }]
         }
       }
 
