@@ -108,6 +108,30 @@ test('errors without data details keep the original message', () => {
   assert.equal(error.details, undefined)
 })
 
+test('a specific API description wins over auxiliary data strings', () => {
+  const result = asErrorResult(
+    apiError({
+      status: 'fail',
+      data: { url: 'https://example.com' },
+      code: 'EFATAL',
+      message: 'The target URL is unreachable.'
+    })
+  )
+  const error = result.structuredContent.error
+
+  assert.equal(error.message, 'The target URL is unreachable.')
+  assert.deepEqual(error.details, { url: 'https://example.com' })
+})
+
+test('non-Error thrown values fall back to String(error)', () => {
+  const result = asErrorResult('plain failure')
+
+  assert.equal(result.isError, true)
+  assert.deepEqual(result.structuredContent.error, {
+    message: 'plain failure'
+  })
+})
+
 test('429 keeps the quota hint and exposes a machine-readable reason', () => {
   const result = asErrorResult(
     apiError({

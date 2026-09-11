@@ -46,13 +46,18 @@ export function asToolResult (value) {
 const isPlainObject = value =>
   value !== null && typeof value === 'object' && !Array.isArray(value)
 
+// The API wraps some failures in a generic top-level message ("The request
+// has been not processed…"), while the specific cause travels in `data`
+// (e.g. `data.url`). Only then should the data-derived message lead: a
+// specific description is the real cause and must not be hidden by
+// auxiliary strings in `data`.
+const GENERIC_API_MESSAGE = 'The request has been not processed.'
+
 export function asErrorResult (error) {
   const isMql = error instanceof MicrolinkError
   const statusCode = isMql ? error.statusCode : undefined
+  const description = isMql ? error.description : undefined
 
-  // The API puts the specific cause in `data` (e.g. `data.url`), while the
-  // top-level message stays generic ("The request has been not processed…").
-  // Surface the specific message so agents know what actually happened.
   const details = isMql && isPlainObject(error.data) ? error.data : undefined
   const detailMessage =
     details &&
@@ -60,10 +65,14 @@ export function asErrorResult (error) {
       .filter(value => typeof value === 'string')
       .join(' ')
 
+  const isGenericDescription =
+    typeof description === 'string' &&
+    description.startsWith(GENERIC_API_MESSAGE)
+
   const payload = {
     message:
-      detailMessage ||
-      (isMql ? error.description : undefined) ||
+      (isGenericDescription ? detailMessage : undefined) ||
+      description ||
       error?.message ||
       String(error)
   }
