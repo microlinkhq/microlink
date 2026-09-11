@@ -1,6 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
+import { z } from 'zod'
+
 import {
   audioInputSchema,
   extractInputSchema,
@@ -10,6 +12,7 @@ import {
   logoInputSchema,
   pdfInputSchema,
   screenshotInputSchema,
+  searchInputSchema,
   textInputSchema,
   videoInputSchema
 } from '../src/schemas.js'
@@ -596,4 +599,17 @@ test('text schema rejects unknown top-level keys', () => {
     result.error.issues[0].message,
     /Unrecognized key|unrecognized key/i
   )
+})
+
+test('base fields document url and apiKey for MCP clients', () => {
+  const { properties } = z.toJSONSchema(metadataInputSchema)
+
+  assert.match(properties.url.description, /Public URL/)
+  assert.match(properties.apiKey.description, /PRO API key/)
+})
+
+test('search schema documents the required API key', () => {
+  const { properties } = z.toJSONSchema(searchInputSchema)
+
+  assert.match(properties.apiKey.description, /Required for this tool/)
 })
