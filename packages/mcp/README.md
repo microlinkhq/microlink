@@ -161,7 +161,7 @@ Each tool is a thin wrapper over a [`microlink.io`](https://github.com/microlink
 ### Response shape
 
 - Each tool returns the library's **direct result** under `structuredContent.data` (and the same value as pretty-printed JSON text). For example `microlink_markdown` → `{ data: "# Title\n..." }`, `microlink_screenshot` → `{ data: { url, type, width, height, size } }`, `microlink_links` → `{ data: ["https://...", ...] }`.
-- On failure the tool sets MCP `isError` and returns `{ error: { message, code?, status?, statusCode?, url?, more? } }`. A `429` also includes a free-quota `hint`.
+- On failure the tool sets MCP `isError` and returns `{ error: { message, code?, status?, statusCode?, url?, more?, details? } }`, where `message` carries the specific cause reported by the API. Capability errors that retrying cannot fix (for example `EPROXYNEEDED` or `EINTEGRATION`) also include machine-readable `reason` (`upgrade_required`), `capability`, an `upgrade` object with the plan and pricing URL, and an agent-facing `hint` with the next step. A `429` includes `reason: "quota_exceeded"` and a free-quota `hint`.
 
 Parameters labeled `PRO` in the official Microlink docs require a paid plan.
 For compatibility with some MCP clients:
@@ -519,7 +519,7 @@ The `MICROLINK_API_KEY` environment variable is the recommended approach for mos
 
 If an API key is present, requests are sent to `https://pro.microlink.io`; otherwise they go to `https://api.microlink.io` (free endpoint).
 
-When the free endpoint returns `429`, this MCP adds a clear hint in the tool error message: free daily quota reached (`50 requests/day`) and upgrade/API key guidance at [microlink.io/#pricing](https://microlink.io/#pricing).
+When the free endpoint returns `429`, this MCP adds a clear hint in the tool error message: free daily quota reached, plus upgrade/API key guidance at [microlink.io/#pricing](https://microlink.io/#pricing).
 
 ## License
 

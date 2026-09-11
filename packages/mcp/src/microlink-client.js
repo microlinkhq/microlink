@@ -1,7 +1,25 @@
 import createClient, { MicrolinkError } from 'microlink.io'
 
-const FREE_QUOTA_EXCEEDED_HINT =
-  'Free daily quota reached (50 requests/day). Extend your limit by getting an API key at https://microlink.io/#pricing.'
+const UPGRADE_URL = 'https://microlink.io/#pricing'
+
+const FREE_QUOTA_EXCEEDED_HINT = `Free daily quota reached. Extend your limit by getting an API key at ${UPGRADE_URL}.`
+
+// Actionable guidance for capability errors that retrying cannot fix:
+// what happened, why, and how to continue. `reason` and `capability` are
+// machine-readable so clients can react programmatically; `hint` is the
+// agent-facing next step.
+const ERROR_GUIDANCE = {
+  EPROXYNEEDED: {
+    reason: 'upgrade_required',
+    capability: 'proxy',
+    hint: `The target website is behind antibot protection and needs the Microlink proxy network, included in PRO plans. The request is correct: get an API key at ${UPGRADE_URL}, pass it as \`apiKey\` (or set MICROLINK_API_KEY) and repeat the same call.`
+  },
+  EINTEGRATION: {
+    reason: 'upgrade_required',
+    capability: 'integration',
+    hint: `This capability requires a PRO plan. Get an API key at ${UPGRADE_URL}, pass it as \`apiKey\` (or set MICROLINK_API_KEY) and repeat the same call.`
+  }
+}
 
 // A single shared client; the per-request apiKey travels in the options bag.
 export const client = createClient()
@@ -25,13 +43,29 @@ export function asToolResult (value) {
   }
 }
 
+const isPlainObject = value =>
+  value !== null && typeof value === 'object' && !Array.isArray(value)
+
 export function asErrorResult (error) {
   const isMql = error instanceof MicrolinkError
   const statusCode = isMql ? error.statusCode : undefined
 
+  // The API puts the specific cause in `data` (e.g. `data.url`), while the
+  // top-level message stays generic ("The request has been not processed…").
+  // Surface the specific message so agents know what actually happened.
+  const details = isMql && isPlainObject(error.data) ? error.data : undefined
+  const detailMessage =
+    details &&
+    Object.values(details)
+      .filter(value => typeof value === 'string')
+      .join(' ')
+
   const payload = {
     message:
-      (isMql ? error.description : undefined) || error?.message || String(error)
+      detailMessage ||
+      (isMql ? error.description : undefined) ||
+      error?.message ||
+      String(error)
   }
 
   if (isMql) {
@@ -40,9 +74,21 @@ export function asErrorResult (error) {
     if (statusCode) payload.statusCode = statusCode
     if (error.url) payload.url = error.url
     if (error.more) payload.more = error.more
+    if (details) payload.details = details
   }
 
-  if (statusCode === 429) payload.hint = FREE_QUOTA_EXCEEDED_HINT
+  const guidance = isMql && ERROR_GUIDANCE[error.code]
+  if (guidance) {
+    payload.reason = guidance.reason
+    payload.capability = guidance.capability
+    payload.hint = guidance.hint
+    payload.upgrade = { plan: 'pro', url: UPGRADE_URL }
+  }
+
+  if (statusCode === 429) {
+    payload.reason = 'quota_exceeded'
+    payload.hint = FREE_QUOTA_EXCEEDED_HINT
+  }
 
   return {
     isError: true,
