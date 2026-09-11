@@ -387,7 +387,7 @@ Mirrors the `microlink.metadata(url)` library method.
 
 ### `microlink_logo`
 
-Extract the brand logo of any public URL. Returns the logo asset in `data.logo`: `url`, `type`, `width`, `height`, `size`, and `size_pretty`.
+Extract the brand logo of any public URL. Returns the logo asset: `url`, `type`, `width`, `height`, `size`, and `size_pretty`.
 
 Mirrors the `microlink.logo(url, { square })` library method. Useful for building link previews, favicons, or brand cards.
 
@@ -458,7 +458,7 @@ Mirrors the `microlink.embed(url)` library method.
 
 ### `microlink_links` / `microlink_images` / `microlink_videos` / `microlink_audios` / `microlink_emails`
 
-Collect every link, image, video source, audio source, or email address on a page. Each returns a clean, absolute, deduped array under `data.links` / `data.images` / `data.videos` / `data.audios` / `data.emails`.
+Collect every link, image, video source, audio source, or email address on a page. Each returns a clean, absolute, deduped array under `data`.
 
 Mirror the `microlink.links(url)` / `.images(url)` / `.videos(url)` / `.audios(url)` / `.emails(url)` library methods. For the single primary playable media, use `microlink_video` / `microlink_audio`.
 
@@ -523,7 +523,7 @@ When the free endpoint returns `429`, this MCP adds a clear hint in the tool err
 
 ## License
 
-**microlink** © [Microlink](https://microlink.io), released under the [MIT](https://github.com/microlinkhq/mcp/blob/master/LICENSE.md) License.<br>
-Authored and maintained by [Kiko Beats](https://kikobeats.com) with help from [contributors](https://github.com/microlinkhq/mcp/contributors).
+**microlink** © [Microlink](https://microlink.io), released under the [MIT](https://github.com/microlinkhq/microlink/blob/master/packages/mcp/LICENSE.md) License.<br>
+Authored and maintained by [Kiko Beats](https://kikobeats.com) with help from [contributors](https://github.com/microlinkhq/microlink/graphs/contributors).
 
 > [microlink.io](https://microlink.io) · GitHub [microlinkhq](https://github.com/microlinkhq) · X [@microlinkhq](https://x.com/microlinkhq)
