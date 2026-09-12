@@ -1,6 +1,8 @@
 import { expectAssignable, expectType } from 'tsd'
 import create, { MicrolinkError } from '../src/index.js'
 
+type Asset = Awaited<ReturnType<ReturnType<typeof create>['screenshot']>>
+
 const client = create({ apiKey: 'MyApiToken' })
 
 client.metadata('https://example.com', {
@@ -39,13 +41,16 @@ async function assertions (): Promise<void> {
   expectType<string>(pdf.url)
 
   const logo = await client.logo('https://example.com', { square: true })
-  expectType<string>(logo.url)
+  expectType<Asset | null>(logo)
+  if (logo !== null) expectType<string>(logo.url)
 
   const video = await client.video('https://vimeo.com/76979871')
-  expectType<string>(video.url)
+  expectType<Asset | null>(video)
+  if (video !== null) expectType<string>(video.url)
 
   const audio = await client.audio('https://example.com')
-  expectType<string>(audio.url)
+  expectType<Asset | null>(audio)
+  if (audio !== null) expectType<string>(audio.url)
 
   const metadata = await client.metadata('https://example.com')
   expectAssignable<Record<string, unknown>>(metadata)
