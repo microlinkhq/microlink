@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.1.12...%40microlink%2Fmcp%402.2.0) (2026-09-12)
+
+### Features
+
+* **mcp:** declare read-only tool annotations ([#43](https://github.com/microlinkhq/microlink/issues/43)) ([0046056](https://github.com/microlinkhq/microlink/commit/0046056d816d6883c637c394cd9de3f850e39897))
+
+## [2.1.12](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.1.11...%40microlink%2Fmcp%402.1.12) (2026-09-12)
+
+### Bug Fixes
+
+* **mcp:** expose input validation errors in structuredContent ([#40](https://github.com/microlinkhq/microlink/issues/40)) ([2e16aba](https://github.com/microlinkhq/microlink/commit/2e16aba8b474117ad5321bf30272b234f4f28f60))
+
+## [2.1.11](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.1.10...%40microlink%2Fmcp%402.1.11) (2026-09-12)
+
+**Note:** Version bump only for package @microlink/mcp
+
 ## [2.1.10](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.1.9...%40microlink%2Fmcp%402.1.10) (2026-09-11)
 
 **Note:** Version bump only for package @microlink/mcp
