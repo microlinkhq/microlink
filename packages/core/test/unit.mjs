@@ -256,6 +256,20 @@ test('extract passes the rules verbatim and returns the full data', async t => {
   t.deepEqual(calls[0].mqlOpts, { meta: false, data: rules })
 })
 
+test('extract defaults meta to false but an explicit meta wins', async t => {
+  const { create, calls } = setup()
+  const rules = { avatar: { selector: 'img', attr: 'src', type: 'image' } }
+  await create().extract(URL, rules, { meta: true })
+  t.deepEqual(calls[0].mqlOpts, { meta: true, data: rules })
+})
+
+test('extract passes a meta config object verbatim', async t => {
+  const { create, calls } = setup()
+  const rules = { avatar: { selector: 'img', attr: 'src', type: 'image' } }
+  await create().extract(URL, rules, { meta: { logo: true } })
+  t.deepEqual(calls[0].mqlOpts, { meta: { logo: true }, data: rules })
+})
+
 test('factory context is threaded into every call', async t => {
   const { create, calls } = setup()
   await create({ apiKey: 'secret' }).markdown(URL)
