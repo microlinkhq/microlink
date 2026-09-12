@@ -4,6 +4,7 @@ import {
   client,
   resolveApiKey
 } from '../microlink-client.js'
+import { outputSchemas } from '../output-schemas.js'
 
 function getHeaderValueCaseInsensitive (headers, headerName) {
   if (!headers || typeof headers !== 'object') {
@@ -79,9 +80,16 @@ export function register (
   invoke,
   annotations = READ_ONLY_ANNOTATIONS
 ) {
+  // Every tool wraps its result as `structuredContent.data`; the output
+  // schema describes that `data` value (see output-schemas.js). Error
+  // results are exempt: the SDK skips output validation when `isError`.
+  const key = name.replace(/^microlink_/, '')
+  const dataSchema = outputSchemas[key]
+  const outputSchema = dataSchema ? { data: dataSchema } : undefined
+
   server.registerTool(
     name,
-    { description, inputSchema, annotations },
+    { description, inputSchema, outputSchema, annotations },
     async (args, extra) => {
       const parsed = inputSchema.safeParse(args)
 
