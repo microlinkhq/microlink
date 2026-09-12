@@ -209,6 +209,7 @@ For `screenshot`, `pdf`, and `insights`, use `true` for defaults or an object fo
 | `proxy` | `string \| object` | Proxy configuration *(PRO)* |
 | `retry` | `number` | Retry count |
 | `ttl` | `string \| number` | Cache TTL |
+| `cacheKey` | `string` | Custom cache key for the request *(PRO)* |
 | `staleTtl` | `string \| number \| boolean` | Stale cache TTL policy *(PRO)* |
 | `force` | `boolean` | Bypass cache |
 | `timeout` | `string \| number` | Request timeout |
@@ -250,6 +251,7 @@ Set `screenshot` to `true` for defaults, or pass `screenshot: { ... }` for optio
 | `headers` | `object` | Custom HTTP headers *(PRO)* |
 | `force` | `boolean` | Bypass cache |
 | `ttl` | `string \| number` | Cache TTL |
+| `cacheKey` | `string` | Custom cache key for the request *(PRO)* |
 | `staleTtl` | `string \| number \| boolean` | Stale cache TTL policy *(PRO)* |
 | `retry` | `number` | Retry count |
 | `timeout` | `string \| number` | Request timeout |
@@ -290,6 +292,7 @@ Set `pdf` to `true` for defaults, or pass `pdf: { ... }` for options. `pdf: {}` 
 | `headers` | `object` | Custom HTTP headers *(PRO)* |
 | `force` | `boolean` | Bypass cache |
 | `ttl` | `string \| number` | Cache TTL |
+| `cacheKey` | `string` | Custom cache key for the request *(PRO)* |
 | `staleTtl` | `string \| number \| boolean` | Stale cache TTL policy *(PRO)* |
 | `retry` | `number` | Retry count |
 | `timeout` | `string \| number` | Request timeout |
