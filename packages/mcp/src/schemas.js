@@ -214,6 +214,9 @@ export const metaConfigSchema = objectLikeSchema(
     .strict()
 )
 
+const optionalApiKey = description =>
+  z.string().min(1).optional().describe(description)
+
 const baseSchema = z.object({
   url: z
     .string()
@@ -221,13 +224,9 @@ const baseSchema = z.object({
     .describe(
       'Public URL of the page to process. Include the protocol, for example https://example.com.'
     ),
-  apiKey: z
-    .string()
-    .min(1)
-    .optional()
-    .describe(
-      'Microlink PRO API key. Omit it unless you have one: requests then use the MICROLINK_API_KEY environment variable or the free endpoint.'
-    )
+  apiKey: optionalApiKey(
+    'Microlink PRO API key. Omit it unless you have one: requests then use the MICROLINK_API_KEY environment variable or the free endpoint.'
+  )
 })
 
 const fullShape = {
@@ -426,13 +425,9 @@ export const searchInputSchema = z
       .describe(
         'Google search query. Operators like site:, filetype: or quotes work as-is.'
       ),
-    apiKey: z
-      .string()
-      .min(1)
-      .optional()
-      .describe(
-        'Microlink API key. Required for this tool: Google search runs on the PRO endpoint.'
-      ),
+    apiKey: optionalApiKey(
+      'Microlink API key. Required for this tool: Google search runs on the PRO endpoint.'
+    ),
     type: z
       .enum([
         'search',

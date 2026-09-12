@@ -132,6 +132,15 @@ test('non-Error thrown values fall back to String(error)', () => {
   })
 })
 
+test('plain error payloads are wrapped without rewriting the message', () => {
+  const payload = { message: 'Input validation failed.', issues: [] }
+  const result = asErrorResult(payload)
+
+  assert.equal(result.isError, true)
+  assert.equal(result.structuredContent.error, payload)
+  assert.deepEqual(JSON.parse(result.content[0].text), payload)
+})
+
 test('429 keeps the quota hint and exposes a machine-readable reason', () => {
   const result = asErrorResult(
     apiError({
