@@ -279,3 +279,32 @@ test('errors are surfaced as MCP isError with code/message', async t => {
     { status: 400 }
   )
 })
+
+test('tools declare read-only annotations; microlink_function is the exception', () => {
+  const configs = {}
+  const capture = registerTool => {
+    registerTool({
+      registerTool: (name, config) => {
+        configs[name] = config
+      }
+    })
+  }
+  capture(metadata)
+  capture(screenshot)
+  capture(fn)
+
+  assert.deepEqual(configs.microlink_metadata.annotations, {
+    readOnlyHint: true,
+    destructiveHint: false,
+    openWorldHint: true
+  })
+  assert.deepEqual(configs.microlink_screenshot.annotations, {
+    readOnlyHint: true,
+    destructiveHint: false,
+    openWorldHint: true
+  })
+  assert.deepEqual(configs.microlink_function.annotations, {
+    readOnlyHint: false,
+    openWorldHint: true
+  })
+})
