@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.3.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.2.0...%40microlink%2Fmcp%402.3.0) (2026-09-12)
+
+### Features
+
+* **mcp:** declare output schemas for every tool ([#47](https://github.com/microlinkhq/microlink/issues/47)) ([be241fe](https://github.com/microlinkhq/microlink/commit/be241fe79cc4e75b9a11535fd92c9bf654177c6a))
+* **mcp:** describe url and apiKey fields in tool input schemas ([#41](https://github.com/microlinkhq/microlink/issues/41)) ([3a414c8](https://github.com/microlinkhq/microlink/commit/3a414c811590a811f4a9ebea893163403e9f109b))
+
 ## [2.2.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.1.12...%40microlink%2Fmcp%402.2.0) (2026-09-12)
 
 ### Features
