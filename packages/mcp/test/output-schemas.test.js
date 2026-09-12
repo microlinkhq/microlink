@@ -108,6 +108,10 @@ test('embed validates html plus scripts', () => {
   assert.ok(result.success, result.error?.message)
 })
 
+test('embed validates a null iframe when oEmbed finds nothing', () => {
+  assert.ok(dataSchema('microlink_embed').safeParse({ data: null }).success)
+})
+
 test('technologies validates an array, lighthouse and extract objects', () => {
   assert.ok(
     dataSchema('microlink_technologies').safeParse({ data: [] }).success
@@ -115,6 +119,11 @@ test('technologies validates an array, lighthouse and extract objects', () => {
   assert.ok(
     dataSchema('microlink_lighthouse').safeParse({ data: { version: '12' } })
       .success
+  )
+  assert.ok(
+    dataSchema('microlink_lighthouse').safeParse({
+      data: '<html><body>report</body></html>'
+    }).success
   )
   assert.ok(
     dataSchema('microlink_extract').safeParse({ data: { avatar: 'x' } }).success

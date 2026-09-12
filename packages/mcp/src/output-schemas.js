@@ -31,13 +31,16 @@ const metadataSchema = z
   })
   .catchall(z.unknown())
 
-// `Embed` (packages/core/src/index.d.ts).
+// `Embed` (packages/core/src/index.d.ts). `embed()` returns `data.iframe`
+// verbatim; a successful response omits it when oEmbed discovery fails,
+// and asToolResult stores that as null.
 const embedSchema = z
   .object({
     html: z.string(),
     scripts: z.array(z.unknown()).optional()
   })
   .catchall(z.unknown())
+  .nullable()
 
 // `FunctionResult<unknown>` (packages/core/src/index.d.ts); profiling and
 // logging are optional because the API may omit them.
@@ -78,6 +81,8 @@ const stringSchema = z.string().nullable()
 const stringArraySchema = z.array(z.string())
 const recordSchema = z.record(z.string(), z.unknown())
 const unknownArraySchema = z.array(z.unknown())
+// Default Lighthouse JSON is an object; `output: 'html' | 'csv'` returns a string.
+const lighthouseSchema = z.union([z.string(), recordSchema])
 
 export const outputSchemas = {
   metadata: metadataSchema,
@@ -96,7 +101,7 @@ export const outputSchemas = {
   audios: stringArraySchema,
   emails: stringArraySchema,
   technologies: unknownArraySchema,
-  lighthouse: recordSchema,
+  lighthouse: lighthouseSchema,
   search: searchPageSchema,
   function: functionResultSchema,
   extract: recordSchema
