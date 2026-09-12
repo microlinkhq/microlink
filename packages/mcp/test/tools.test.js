@@ -264,6 +264,33 @@ test('microlink_function sends the function param and returns its value', async 
   )
 })
 
+test('every tool declares a human-friendly title', () => {
+  const configs = {}
+  const fakeServer = {
+    registerTool: (name, config) => {
+      configs[name] = config
+    }
+  }
+  metadata(fakeServer)
+  logo(fakeServer)
+  markdown(fakeServer)
+  screenshot(fakeServer)
+  pdf(fakeServer)
+  audio(fakeServer)
+  links(fakeServer)
+  technologies(fakeServer)
+  lighthouse(fakeServer)
+  embed(fakeServer)
+  search(fakeServer)
+  fn(fakeServer)
+  for (const [name, config] of Object.entries(configs)) {
+    assert.ok(
+      typeof config.title === 'string' && config.title.length > 0,
+      `${name} has a title`
+    )
+  }
+})
+
 test('errors are surfaced as MCP isError with code/message', async t => {
   const handlers = captureTool(metadata)
   await withStubbedRequest(
