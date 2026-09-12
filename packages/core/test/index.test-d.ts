@@ -13,12 +13,12 @@ client.metadata('https://example.com', {
   proxy: 'http://user:pass@proxy.example:8080'
 })
 
-expectType<Promise<string>>(client.markdown('https://example.com'))
-expectType<Promise<string>>(
+expectType<Promise<string | null>>(client.markdown('https://example.com'))
+expectType<Promise<string | null>>(
   client.markdown('https://example.com', { selector: 'article' })
 )
-expectType<Promise<string>>(client.html('https://example.com'))
-expectType<Promise<string>>(client.text('https://example.com'))
+expectType<Promise<string | null>>(client.html('https://example.com'))
+expectType<Promise<string | null>>(client.text('https://example.com'))
 
 expectType<Promise<string[]>>(client.links('https://example.com'))
 expectType<Promise<string[]>>(client.emails('https://example.com'))

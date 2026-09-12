@@ -140,9 +140,9 @@ export declare class MicrolinkError extends Error {
 interface MicrolinkClient {
   metadata (url: string, options?: Options): Promise<Metadata>
   logo (url: string, options?: LogoOptions): Promise<Asset>
-  markdown (url: string, options?: ContentOptions): Promise<string>
-  html (url: string, options?: ContentOptions): Promise<string>
-  text (url: string, options?: ContentOptions): Promise<string>
+  markdown (url: string, options?: ContentOptions): Promise<string | null>
+  html (url: string, options?: ContentOptions): Promise<string | null>
+  text (url: string, options?: ContentOptions): Promise<string | null>
   video (url: string, options?: Options): Promise<Asset>
   audio (url: string, options?: Options): Promise<Asset>
   emails (url: string, options?: Options): Promise<string[]>
