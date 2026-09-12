@@ -242,28 +242,51 @@ const fullShape = {
 // Shared Microlink API query parameters (see microlink.io/docs/api/parameters).
 // Product tools layer their own fields on top; these apply to any URL fetch.
 // `data` is separate: content/collection helpers overwrite it with their field rule.
+// PRO parameters per the Microlink API spec (https://microlink.io/openapi.json):
+// they only take effect with an API key attached to the request.
+const PRO = 'PRO: requires a Microlink API key (Pro plan).'
+
 const browserSchema = {
   adblock: booleanSchema.optional(),
   animations: booleanSchema.optional(),
-  cacheKey: z.string().min(1).optional(),
+  cacheKey: z
+    .string()
+    .min(1)
+    .optional()
+    .describe(`Custom cache key for the request. ${PRO}`),
   click: stringOrStringArraySchema.optional(),
   colorScheme: z.enum(['no-preference', 'light', 'dark']).optional(),
   device: z.string().min(1).optional(),
-  filename: z.string().min(1).optional(),
+  filename: z
+    .string()
+    .min(1)
+    .optional()
+    .describe(`Custom name for the generated asset. ${PRO}`),
   filter: z.string().min(1).optional(),
   force: booleanSchema.optional(),
   headers: objectLikeSchema(
     z.record(z.string(), z.union([z.string(), z.number(), booleanSchema]))
-  ).optional(),
+  )
+    .optional()
+    .describe(`Custom HTTP headers sent to the target URL. ${PRO}`),
   javascript: booleanSchema.optional(),
   mediaType: z.enum(['screen', 'print']).optional(),
   modules: stringOrStringArraySchema.optional(),
   prerender: z.union([z.literal('auto'), booleanSchema]).optional(),
-  proxy: proxySchema.optional(),
+  proxy: proxySchema
+    .optional()
+    .describe(
+      `Proxy rotation to bypass IP rate limits, CAPTCHAs and regional restrictions. ${PRO}`
+    ),
   retry: z.number().int().nonnegative().optional(),
   scripts: stringOrStringArraySchema.optional(),
   scroll: z.string().min(1).optional(),
-  staleTtl: z.union([z.string(), z.number(), booleanSchema]).optional(),
+  staleTtl: z
+    .union([z.string(), z.number(), booleanSchema])
+    .optional()
+    .describe(
+      `Serve stale cached content while refreshing it in the background. ${PRO}`
+    ),
   styles: stringOrStringArraySchema.optional(),
   timeout: stringOrNumberSchema.optional(),
   ttl: stringOrNumberSchema.optional(),

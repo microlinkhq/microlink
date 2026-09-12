@@ -601,6 +601,23 @@ test('text schema rejects unknown top-level keys', () => {
   )
 })
 
+test('PRO parameters are labeled in the JSON Schema shown to MCP clients', () => {
+  const { properties } = z.toJSONSchema(screenshotInputSchema)
+
+  for (const param of [
+    'cacheKey',
+    'filename',
+    'headers',
+    'proxy',
+    'staleTtl'
+  ]) {
+    assert.match(
+      properties[param].description,
+      /PRO: requires a Microlink API key/
+    )
+  }
+})
+
 test('base fields document url and apiKey for MCP clients', () => {
   const { properties } = z.toJSONSchema(metadataInputSchema)
 
