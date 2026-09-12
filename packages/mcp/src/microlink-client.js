@@ -32,19 +32,22 @@ export function resolveApiKey (inputApiKey, headerApiKey) {
   )
 }
 
-// Every tool returns the library's direct result (a string, array, or object).
-// MCP `structuredContent` must be an object, so wrap the value under `data`.
-export function asToolResult (value) {
-  const data = value ?? null
+const isPlainObject = value =>
+  value !== null && typeof value === 'object' && !Array.isArray(value)
+
+function toToolResponse (isError, field, value) {
   return {
-    isError: false,
-    structuredContent: { data },
-    content: [{ type: 'text', text: JSON.stringify(data, null, 2) }]
+    isError,
+    structuredContent: { [field]: value },
+    content: [{ type: 'text', text: JSON.stringify(value, null, 2) }]
   }
 }
 
-const isPlainObject = value =>
-  value !== null && typeof value === 'object' && !Array.isArray(value)
+// Every tool returns the library's direct result (a string, array, or object).
+// MCP `structuredContent` must be an object, so wrap the value under `data`.
+export function asToolResult (value) {
+  return toToolResponse(false, 'data', value ?? null)
+}
 
 // The API wraps some failures in a generic top-level message ("The request
 // has been not processed…"), while the specific cause travels in `data`
@@ -53,7 +56,7 @@ const isPlainObject = value =>
 // auxiliary strings in `data`.
 const GENERIC_API_MESSAGE = 'The request has been not processed.'
 
-export function asErrorResult (error) {
+function toErrorPayload (error) {
   const isMql = error instanceof MicrolinkError
   const statusCode = isMql ? error.statusCode : undefined
   const description = isMql ? error.description : undefined
@@ -99,9 +102,16 @@ export function asErrorResult (error) {
     payload.hint = FREE_QUOTA_EXCEEDED_HINT
   }
 
-  return {
-    isError: true,
-    structuredContent: { error: payload },
-    content: [{ type: 'text', text: JSON.stringify(payload, null, 2) }]
-  }
+  return payload
+}
+
+export function asErrorResult (error) {
+  const payload =
+    isPlainObject(error) &&
+    !(error instanceof Error) &&
+    typeof error.message === 'string'
+      ? error
+      : toErrorPayload(error)
+
+  return toToolResponse(true, 'error', payload)
 }
