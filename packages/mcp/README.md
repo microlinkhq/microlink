@@ -161,9 +161,11 @@ Each tool is a thin wrapper over a [`microlink.io`](https://github.com/microlink
 ### Response shape
 
 - Each tool returns the library's **direct result** under `structuredContent.data` (and the same value as pretty-printed JSON text). For example `microlink_markdown` → `{ data: "# Title\n..." }`, `microlink_screenshot` → `{ data: { url, type, width, height, size } }`, `microlink_links` → `{ data: ["https://...", ...] }`.
+- Every tool also declares an MCP `outputSchema` describing its `structuredContent.data`, mirroring the TypeScript types shipped by the library (`Asset`, `Metadata`, `Embed`, `FunctionResult`, ...), so MCP clients get machine-readable result contracts. Error results are exempt from output validation. Fields that can legitimately be absent are nullable (for example `logo` when no brand logo is detected, or `markdown` when the selector matches nothing).
+- Tools are annotated `readOnlyHint: true` since they only fetch and transform public URLs. The exception is `microlink_function`, which executes user-supplied code and is not annotated read-only.
 - On failure the tool sets MCP `isError` and returns `{ error: { message, code?, status?, statusCode?, url?, more?, details? } }`, where `message` carries the specific cause reported by the API. Capability errors that retrying cannot fix (for example `EPROXYNEEDED` or `EINTEGRATION`) also include machine-readable `reason` (`upgrade_required`), `capability`, an `upgrade` object with the plan and pricing URL, and an agent-facing `hint` with the next step. A `429` includes `reason: "quota_exceeded"` and a free-quota `hint`.
 
-Parameters labeled `PRO` in the official Microlink docs require a paid plan.
+Parameters that require a paid plan are labeled `PRO` in their own schema descriptions, mirroring the official Microlink docs.
 For compatibility with some MCP clients:
 - boolean parameters also accept the strings `"true"` and `"false"` and are normalized before validation.
 - parameters that accept objects also accept JSON stringified objects (for example, `screenshot: "{\"overlay\":{\"browser\":\"dark\"}}"`).
