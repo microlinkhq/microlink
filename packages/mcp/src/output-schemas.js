@@ -72,7 +72,9 @@ const searchPageSchema = z
   })
   .catchall(z.unknown())
 
-const stringSchema = z.string()
+// Content rules return null when the selector matches nothing
+// (verified against the live API: data.markdown/text are null on no match).
+const stringSchema = z.string().nullable()
 const stringArraySchema = z.array(z.string())
 const recordSchema = z.record(z.string(), z.unknown())
 const unknownArraySchema = z.array(z.unknown())
