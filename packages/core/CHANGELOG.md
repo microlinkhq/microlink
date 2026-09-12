@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.10.2](https://github.com/microlinkhq/microlink/compare/microlink.io%400.10.1...microlink.io%400.10.2) (2026-09-12)
+
+### Bug Fixes
+
+* **core:** logo, video and audio return Asset | null ([#46](https://github.com/microlinkhq/microlink/issues/46)) ([62c7d8b](https://github.com/microlinkhq/microlink/commit/62c7d8b5af06123521fb50a398724768bf034940))
+
 ## [0.10.1](https://github.com/microlinkhq/microlink/compare/microlink.io%400.10.0...microlink.io%400.10.1) (2026-09-11)
 
 **Note:** Version bump only for package microlink.io

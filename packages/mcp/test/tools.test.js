@@ -308,3 +308,14 @@ test('tools declare read-only annotations; microlink_function is the exception',
     openWorldHint: true
   })
 })
+
+test('invalid input returns the same error envelope as structuredContent', async t => {
+  const handlers = captureTool(metadata)
+
+  const res = await handlers.microlink_metadata({}, {})
+
+  assert.equal(res.isError, true)
+  assert.equal(res.structuredContent.error.message, 'Input validation failed.')
+  assert.ok(Array.isArray(res.structuredContent.error.issues))
+  assert.deepEqual(JSON.parse(res.content[0].text), res.structuredContent.error)
+})
