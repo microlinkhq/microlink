@@ -279,3 +279,43 @@ test('errors are surfaced as MCP isError with code/message', async t => {
     { status: 400 }
   )
 })
+
+test('tools declare read-only annotations; microlink_function is the exception', () => {
+  const configs = {}
+  const capture = registerTool => {
+    registerTool({
+      registerTool: (name, config) => {
+        configs[name] = config
+      }
+    })
+  }
+  capture(metadata)
+  capture(screenshot)
+  capture(fn)
+
+  assert.deepEqual(configs.microlink_metadata.annotations, {
+    readOnlyHint: true,
+    destructiveHint: false,
+    openWorldHint: true
+  })
+  assert.deepEqual(configs.microlink_screenshot.annotations, {
+    readOnlyHint: true,
+    destructiveHint: false,
+    openWorldHint: true
+  })
+  assert.deepEqual(configs.microlink_function.annotations, {
+    readOnlyHint: false,
+    openWorldHint: true
+  })
+})
+
+test('invalid input returns the same error envelope as structuredContent', async t => {
+  const handlers = captureTool(metadata)
+
+  const res = await handlers.microlink_metadata({}, {})
+
+  assert.equal(res.isError, true)
+  assert.equal(res.structuredContent.error.message, 'Input validation failed.')
+  assert.ok(Array.isArray(res.structuredContent.error.issues))
+  assert.deepEqual(JSON.parse(res.content[0].text), res.structuredContent.error)
+})

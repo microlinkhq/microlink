@@ -4,6 +4,7 @@ import {
   client,
   resolveApiKey
 } from '../microlink-client.js'
+import { outputSchemas } from '../output-schemas.js'
 
 function getHeaderValueCaseInsensitive (headers, headerName) {
   if (!headers || typeof headers !== 'object') {
@@ -39,6 +40,20 @@ function getApiKeyFromRequestHeaders (headers) {
   return undefined
 }
 
+// Every tool is a remote read against the Microlink API: it never modifies
+// the caller's environment. `microlink_function` is the exception: it runs
+// caller-supplied code against the live page, so it is not declared read-only.
+const READ_ONLY_ANNOTATIONS = {
+  readOnlyHint: true,
+  destructiveHint: false,
+  openWorldHint: true
+}
+
+export const INTERACTIVE_ANNOTATIONS = {
+  readOnlyHint: false,
+  openWorldHint: true
+}
+
 // Common shape: a tool that maps to `client.<method>(url, options)`.
 export function urlMethod (method) {
   return (client, { url, ...options }) => client[method](url, options)
@@ -57,29 +72,36 @@ export function capabilityMethod (method, key) {
   }
 }
 
-export function register (server, name, description, inputSchema, invoke) {
+export function register (
+  server,
+  name,
+  description,
+  inputSchema,
+  invoke,
+  annotations = READ_ONLY_ANNOTATIONS
+) {
+  // Every tool wraps its result as `structuredContent.data`; the output
+  // schema describes that `data` value (see output-schemas.js). Error
+  // results are exempt: the SDK skips output validation when `isError`.
+  const key = name.replace(/^microlink_/, '')
+  const dataSchema = outputSchemas[key]
+  const outputSchema = dataSchema ? { data: dataSchema } : undefined
+
   server.registerTool(
     name,
-    { description, inputSchema },
+    { description, inputSchema, outputSchema, annotations },
     async (args, extra) => {
       const parsed = inputSchema.safeParse(args)
 
       if (!parsed.success) {
+        const payload = {
+          message: 'Input validation failed.',
+          issues: parsed.error.issues
+        }
         return {
           isError: true,
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(
-                {
-                  message: 'Input validation failed.',
-                  issues: parsed.error.issues
-                },
-                null,
-                2
-              )
-            }
-          ]
+          structuredContent: { error: payload },
+          content: [{ type: 'text', text: JSON.stringify(payload, null, 2) }]
         }
       }
 

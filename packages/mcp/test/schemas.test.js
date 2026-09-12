@@ -12,6 +12,7 @@ import {
   logoInputSchema,
   pdfInputSchema,
   screenshotInputSchema,
+  searchInputSchema,
   textInputSchema,
   videoInputSchema
 } from '../src/schemas.js'
@@ -615,4 +616,17 @@ test('PRO parameters are labeled in the JSON Schema shown to MCP clients', () =>
       /PRO: requires a Microlink API key/
     )
   }
+})
+
+test('base fields document url and apiKey for MCP clients', () => {
+  const { properties } = z.toJSONSchema(metadataInputSchema)
+
+  assert.match(properties.url.description, /Public URL/)
+  assert.match(properties.apiKey.description, /PRO API key/)
+})
+
+test('search schema documents the required API key', () => {
+  const { properties } = z.toJSONSchema(searchInputSchema)
+
+  assert.match(properties.apiKey.description, /Required for this tool/)
 })
