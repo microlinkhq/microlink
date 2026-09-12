@@ -39,6 +39,20 @@ function getApiKeyFromRequestHeaders (headers) {
   return undefined
 }
 
+// Every tool is a remote read against the Microlink API: it never modifies
+// the caller's environment. `microlink_function` is the exception: it runs
+// caller-supplied code against the live page, so it is not declared read-only.
+const READ_ONLY_ANNOTATIONS = {
+  readOnlyHint: true,
+  destructiveHint: false,
+  openWorldHint: true
+}
+
+export const INTERACTIVE_ANNOTATIONS = {
+  readOnlyHint: false,
+  openWorldHint: true
+}
+
 // Common shape: a tool that maps to `client.<method>(url, options)`.
 export function urlMethod (method) {
   return (client, { url, ...options }) => client[method](url, options)
@@ -57,10 +71,17 @@ export function capabilityMethod (method, key) {
   }
 }
 
-export function register (server, name, description, inputSchema, invoke) {
+export function register (
+  server,
+  name,
+  description,
+  inputSchema,
+  invoke,
+  annotations = READ_ONLY_ANNOTATIONS
+) {
   server.registerTool(
     name,
-    { description, inputSchema },
+    { description, inputSchema, annotations },
     async (args, extra) => {
       const parsed = inputSchema.safeParse(args)
 

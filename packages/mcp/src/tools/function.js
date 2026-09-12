@@ -1,5 +1,5 @@
 import { functionInputSchema } from '../schemas.js'
-import { register } from './register.js'
+import { INTERACTIVE_ANNOTATIONS, register } from './register.js'
 
 export function fn (server) {
   register(
@@ -12,6 +12,7 @@ export function fn (server) {
       'Also returns `isFulfilled`, `profiling`, and `logging`. Mirrors the `microlink.function(url, code)` library method.'
     ].join(' '),
     functionInputSchema,
-    (client, { url, code, ...options }) => client.function(url, code, options)
+    (client, { url, code, ...options }) => client.function(url, code, options),
+    INTERACTIVE_ANNOTATIONS
   )
 }
