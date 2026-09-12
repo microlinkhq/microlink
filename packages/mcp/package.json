@@ -2,7 +2,7 @@
   "name": "@microlink/mcp",
   "description": "MCP server for Microlink API",
   "homepage": "https://github.com/microlinkhq/microlink",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "main": "./src/index.js",
   "exports": {
     ".": "./src/index.js"
