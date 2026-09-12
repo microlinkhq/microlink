@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.10.3](https://github.com/microlinkhq/microlink/compare/microlink.io%400.10.2...microlink.io%400.10.3) (2026-09-12)
+
+### Bug Fixes
+
+* **core:** markdown, html and text return string | null ([#48](https://github.com/microlinkhq/microlink/issues/48)) ([f1792c2](https://github.com/microlinkhq/microlink/commit/f1792c2558271646f3a6bcb7de3da3449af221cb))
+
 ## [0.10.2](https://github.com/microlinkhq/microlink/compare/microlink.io%400.10.1...microlink.io%400.10.2) (2026-09-12)
 
 ### Bug Fixes
