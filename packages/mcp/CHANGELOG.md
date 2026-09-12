@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.4.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.3.0...%40microlink%2Fmcp%402.4.0) (2026-09-12)
+
+### Features
+
+* **mcp:** label PRO parameters in tool input schemas ([#44](https://github.com/microlinkhq/microlink/issues/44)) ([83e0b14](https://github.com/microlinkhq/microlink/commit/83e0b149e02d7c8464df857f76c37dac4dcb6201))
+
+### Bug Fixes
+
+* **mcp:** turn capability errors into actionable agent-facing guidance ([#39](https://github.com/microlinkhq/microlink/issues/39)) ([2b0b64e](https://github.com/microlinkhq/microlink/commit/2b0b64efd17dd81250aa359a7dd4fd9d30688ec0))
+
 ## [2.3.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.2.0...%40microlink%2Fmcp%402.3.0) (2026-09-12)
 
 ### Features
