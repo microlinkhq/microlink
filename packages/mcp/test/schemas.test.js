@@ -1,6 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
+import { z } from 'zod'
+
 import {
   audioInputSchema,
   extractInputSchema,
@@ -596,4 +598,21 @@ test('text schema rejects unknown top-level keys', () => {
     result.error.issues[0].message,
     /Unrecognized key|unrecognized key/i
   )
+})
+
+test('PRO parameters are labeled in the JSON Schema shown to MCP clients', () => {
+  const { properties } = z.toJSONSchema(screenshotInputSchema)
+
+  for (const param of [
+    'cacheKey',
+    'filename',
+    'headers',
+    'proxy',
+    'staleTtl'
+  ]) {
+    assert.match(
+      properties[param].description,
+      /PRO: requires a Microlink API key/
+    )
+  }
 })
