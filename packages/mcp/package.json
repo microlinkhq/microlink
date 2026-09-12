@@ -59,7 +59,8 @@
   "scripts": {
     "postinstall": "node scripts/postinstall.js",
     "start": "node src/index.js",
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "test:live": "LIVE=1 node --test test/live.test.js"
   },
   "license": "MIT",
   "publishConfig": {
