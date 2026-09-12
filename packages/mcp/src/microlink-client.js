@@ -1,7 +1,25 @@
 import createClient, { MicrolinkError } from 'microlink.io'
 
-const FREE_QUOTA_EXCEEDED_HINT =
-  'Free daily quota reached (50 requests/day). Extend your limit by getting an API key at https://microlink.io/#pricing.'
+const UPGRADE_URL = 'https://microlink.io/#pricing'
+
+const FREE_QUOTA_EXCEEDED_HINT = `Free daily quota reached. Extend your limit by getting an API key at ${UPGRADE_URL}.`
+
+// Actionable guidance for capability errors that retrying cannot fix:
+// what happened, why, and how to continue. `reason` and `capability` are
+// machine-readable so clients can react programmatically; `hint` is the
+// agent-facing next step.
+const ERROR_GUIDANCE = {
+  EPROXYNEEDED: {
+    reason: 'upgrade_required',
+    capability: 'proxy',
+    hint: `The target website is behind antibot protection and needs the Microlink proxy network, included in PRO plans. The request is correct: get an API key at ${UPGRADE_URL}, pass it as \`apiKey\` (or set MICROLINK_API_KEY) and repeat the same call.`
+  },
+  EINTEGRATION: {
+    reason: 'upgrade_required',
+    capability: 'integration',
+    hint: `This capability requires a PRO plan. Get an API key at ${UPGRADE_URL}, pass it as \`apiKey\` (or set MICROLINK_API_KEY) and repeat the same call.`
+  }
+}
 
 // A single shared client; the per-request apiKey travels in the options bag.
 export const client = createClient()
@@ -25,13 +43,38 @@ export function asToolResult (value) {
   }
 }
 
+const isPlainObject = value =>
+  value !== null && typeof value === 'object' && !Array.isArray(value)
+
+// The API wraps some failures in a generic top-level message ("The request
+// has been not processed…"), while the specific cause travels in `data`
+// (e.g. `data.url`). Only then should the data-derived message lead: a
+// specific description is the real cause and must not be hidden by
+// auxiliary strings in `data`.
+const GENERIC_API_MESSAGE = 'The request has been not processed.'
+
 export function asErrorResult (error) {
   const isMql = error instanceof MicrolinkError
   const statusCode = isMql ? error.statusCode : undefined
+  const description = isMql ? error.description : undefined
+
+  const details = isMql && isPlainObject(error.data) ? error.data : undefined
+  const detailMessage =
+    details &&
+    Object.values(details)
+      .filter(value => typeof value === 'string')
+      .join(' ')
+
+  const isGenericDescription =
+    typeof description === 'string' &&
+    description.startsWith(GENERIC_API_MESSAGE)
 
   const payload = {
     message:
-      (isMql ? error.description : undefined) || error?.message || String(error)
+      (isGenericDescription ? detailMessage : undefined) ||
+      description ||
+      error?.message ||
+      String(error)
   }
 
   if (isMql) {
@@ -40,9 +83,21 @@ export function asErrorResult (error) {
     if (statusCode) payload.statusCode = statusCode
     if (error.url) payload.url = error.url
     if (error.more) payload.more = error.more
+    if (details) payload.details = details
   }
 
-  if (statusCode === 429) payload.hint = FREE_QUOTA_EXCEEDED_HINT
+  const guidance = isMql && ERROR_GUIDANCE[error.code]
+  if (guidance) {
+    payload.reason = guidance.reason
+    payload.capability = guidance.capability
+    payload.hint = guidance.hint
+    payload.upgrade = { plan: 'pro', url: UPGRADE_URL }
+  }
+
+  if (statusCode === 429) {
+    payload.reason = 'quota_exceeded'
+    payload.hint = FREE_QUOTA_EXCEEDED_HINT
+  }
 
   return {
     isError: true,
