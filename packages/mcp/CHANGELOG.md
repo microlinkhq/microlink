@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.5.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.4.1...%40microlink%2Fmcp%402.5.0) (2026-09-13)
+
+### Features
+
+* **mcp:** add server instructions and human-friendly tool titles ([#52](https://github.com/microlinkhq/microlink/issues/52)) ([ce1ab27](https://github.com/microlinkhq/microlink/commit/ce1ab27161aaf49754dcb946f8303278c01e042e))
+
+### Bug Fixes
+
+* **core:** respect an explicit meta option in extract ([#50](https://github.com/microlinkhq/microlink/issues/50)) ([8cf3372](https://github.com/microlinkhq/microlink/commit/8cf33727a8be8cf425a8450f1825b4eaa03369a0))
+
 ## [2.4.1](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.4.0...%40microlink%2Fmcp%402.4.1) (2026-09-12)
 
 **Note:** Version bump only for package @microlink/mcp
