@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.5.1](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.5.0...%40microlink%2Fmcp%402.5.1) (2026-09-13)
+
+### Bug Fixes
+
+* **mcp:** point README to live integration guide ([#55](https://github.com/microlinkhq/microlink/issues/55)) ([b6adb17](https://github.com/microlinkhq/microlink/commit/b6adb177e5ad203f68872e2f3ac3abc64becc05e))
+* **mcp:** preserve errors in schema-valid clients ([#54](https://github.com/microlinkhq/microlink/issues/54)) ([0fb8de9](https://github.com/microlinkhq/microlink/commit/0fb8de9a23b1800424df464ce2e5aef29eb60bb3))
+
 ## [2.5.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.4.1...%40microlink%2Fmcp%402.5.0) (2026-09-13)
 
 ### Features
