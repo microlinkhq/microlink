@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.5.2](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.5.1...%40microlink%2Fmcp%402.5.2) (2026-09-13)
+
+### Bug Fixes
+
+* **mcp:** correct VS Code configuration guide ([#56](https://github.com/microlinkhq/microlink/issues/56)) ([0ad4a4d](https://github.com/microlinkhq/microlink/commit/0ad4a4db84e7d94a23e3d965f132541009ea5971))
+
 ## [2.5.1](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.5.0...%40microlink%2Fmcp%402.5.1) (2026-09-13)
 
 ### Bug Fixes
