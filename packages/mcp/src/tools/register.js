@@ -54,6 +54,30 @@ export const INTERACTIVE_ANNOTATIONS = {
   openWorldHint: true
 }
 
+// Human-friendly titles shown by MCP clients for each tool.
+const TITLES = {
+  metadata: 'Metadata',
+  logo: 'Logo',
+  markdown: 'Markdown',
+  html: 'HTML',
+  text: 'Plain text',
+  screenshot: 'Screenshot',
+  pdf: 'PDF',
+  embed: 'Embed',
+  video: 'Video',
+  audio: 'Audio',
+  links: 'Links',
+  images: 'Images',
+  videos: 'Videos',
+  audios: 'Audios',
+  emails: 'Emails',
+  technologies: 'Technologies',
+  lighthouse: 'Lighthouse',
+  search: 'Google search',
+  function: 'Function',
+  extract: 'Extract'
+}
+
 // Common shape: a tool that maps to `client.<method>(url, options)`.
 export function urlMethod (method) {
   return (client, { url, ...options }) => client[method](url, options)
@@ -86,10 +110,11 @@ export function register (
   const key = name.replace(/^microlink_/, '')
   const dataSchema = outputSchemas[key]
   const outputSchema = dataSchema ? { data: dataSchema } : undefined
+  const title = TITLES[key]
 
   server.registerTool(
     name,
-    { description, inputSchema, outputSchema, annotations },
+    { title, description, inputSchema, outputSchema, annotations },
     async (args, extra) => {
       const parsed = inputSchema.safeParse(args)
 

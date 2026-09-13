@@ -14,6 +14,14 @@ test('createMicrolinkServer returns MCP server instance', () => {
   assert.equal(typeof server.close, 'function')
 })
 
+test('createMicrolinkServer sets default instructions and honors overrides', () => {
+  const withDefaults = createMicrolinkServer()
+  assert.ok(withDefaults.server._instructions.length > 0)
+
+  const custom = createMicrolinkServer({ instructions: 'Custom.' })
+  assert.equal(custom.server._instructions, 'Custom.')
+})
+
 test('startStdioServer connects provided server and transport', async () => {
   let receivedTransport
   const fakeServer = {
