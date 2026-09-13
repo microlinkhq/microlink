@@ -9,7 +9,7 @@ A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that ex
 
 It turns natural-language requests into Microlink calls: take screenshots, generate PDFs, extract metadata or readable text, detect video/audio sources, run Lighthouse audits, and scrape custom fields with CSS selectors, all without leaving the assistant.
 
-See the [MCP integration page](https://microlink.io/integration/mcp) for a guided walkthrough, or the [`@microlink/mcp`](https://www.npmjs.com/package/@microlink/mcp) npm package.
+See the [MCP integration page](https://microlink.io/integrations/mcp) for a guided walkthrough, or the [`@microlink/mcp`](https://www.npmjs.com/package/@microlink/mcp) npm package.
 
 ## Table of contents
 
