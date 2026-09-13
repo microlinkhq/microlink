@@ -26,7 +26,7 @@ const apiError = ({ statusCode = 400, ...body }) =>
 
 test('EPROXYNEEDED explains the cause and how to continue', () => {
   const result = asErrorResult(apiError(PROXY_ERROR_BODY))
-  const error = result.structuredContent.error
+  const error = JSON.parse(result.content[0].text)
 
   assert.equal(result.isError, true)
   assert.equal(
@@ -63,7 +63,7 @@ test('EINTEGRATION points to the PRO plan requirement', () => {
       message: GENERIC_API_MESSAGE
     })
   )
-  const error = result.structuredContent.error
+  const error = JSON.parse(result.content[0].text)
 
   assert.equal(error.message, 'You need a pro plan for using integrations.')
   assert.equal(error.code, 'EINTEGRATION')
@@ -85,7 +85,7 @@ test('codes without guidance keep the specific message and no upgrade fields', (
       message: GENERIC_API_MESSAGE
     })
   )
-  const error = result.structuredContent.error
+  const error = JSON.parse(result.content[0].text)
 
   assert.equal(
     error.message,
@@ -102,7 +102,7 @@ test('errors without data details keep the original message', () => {
   const result = asErrorResult(
     apiError({ status: 'fail', code: 'ETEST', message: 'boom' })
   )
-  const error = result.structuredContent.error
+  const error = JSON.parse(result.content[0].text)
 
   assert.equal(error.message, 'boom')
   assert.equal(error.details, undefined)
@@ -117,7 +117,7 @@ test('a specific API description wins over auxiliary data strings', () => {
       message: 'The target URL is unreachable.'
     })
   )
-  const error = result.structuredContent.error
+  const error = JSON.parse(result.content[0].text)
 
   assert.equal(error.message, 'The target URL is unreachable.')
   assert.deepEqual(error.details, { url: 'https://example.com' })
@@ -127,7 +127,8 @@ test('non-Error thrown values fall back to String(error)', () => {
   const result = asErrorResult('plain failure')
 
   assert.equal(result.isError, true)
-  assert.deepEqual(result.structuredContent.error, {
+  assert.equal(result.structuredContent, undefined)
+  assert.deepEqual(JSON.parse(result.content[0].text), {
     message: 'plain failure'
   })
 })
@@ -137,7 +138,7 @@ test('plain error payloads are wrapped without rewriting the message', () => {
   const result = asErrorResult(payload)
 
   assert.equal(result.isError, true)
-  assert.equal(result.structuredContent.error, payload)
+  assert.equal(result.structuredContent, undefined)
   assert.deepEqual(JSON.parse(result.content[0].text), payload)
 })
 
@@ -150,7 +151,7 @@ test('429 keeps the quota hint and exposes a machine-readable reason', () => {
       message: 'Rate limit exceeded.'
     })
   )
-  const error = result.structuredContent.error
+  const error = JSON.parse(result.content[0].text)
 
   assert.equal(error.message, 'Rate limit exceeded.')
   assert.equal(error.reason, 'quota_exceeded')
@@ -162,7 +163,8 @@ test('non-Microlink errors only expose the message', () => {
   const result = asErrorResult(new Error('fetch failed'))
 
   assert.equal(result.isError, true)
-  assert.deepEqual(result.structuredContent.error, {
+  assert.equal(result.structuredContent, undefined)
+  assert.deepEqual(JSON.parse(result.content[0].text), {
     message: 'fetch failed'
   })
 })
@@ -172,10 +174,11 @@ test('the text content mirrors the structured error', () => {
 
   assert.equal(result.content.length, 1)
   assert.equal(result.content[0].type, 'text')
-  assert.deepEqual(
-    JSON.parse(result.content[0].text),
-    result.structuredContent.error
-  )
+  assert.equal(result.structuredContent, undefined)
+  const error = JSON.parse(result.content[0].text)
+  assert.equal(error.code, 'EPROXYNEEDED')
+  assert.equal(error.reason, 'upgrade_required')
+  assert.match(error.hint, /repeat the same call/)
 })
 
 test('tool handlers surface actionable proxy errors end to end', async t => {
@@ -208,7 +211,9 @@ test('tool handlers surface actionable proxy errors end to end', async t => {
   )
 
   assert.equal(res.isError, true)
-  assert.equal(res.structuredContent.error.code, 'EPROXYNEEDED')
-  assert.equal(res.structuredContent.error.reason, 'upgrade_required')
-  assert.match(res.structuredContent.error.message, /antibot protection/)
+  assert.equal(res.structuredContent, undefined)
+  const error = JSON.parse(res.content[0].text)
+  assert.equal(error.code, 'EPROXYNEEDED')
+  assert.equal(error.reason, 'upgrade_required')
+  assert.match(error.message, /antibot protection/)
 })
