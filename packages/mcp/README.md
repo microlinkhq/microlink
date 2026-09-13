@@ -23,6 +23,8 @@ See the [MCP integration page](https://microlink.io/integrations/mcp) for a guid
 
 ## Install
 
+Requires Node.js 24 or newer.
+
 ### Use the published package (recommended)
 
 No local installation is required. Run directly with `npx`:
