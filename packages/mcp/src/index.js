@@ -8,14 +8,25 @@ import { tools } from './tools/index.js'
 const require = createRequire(import.meta.url)
 const { version: pkgVersion } = require('../package.json')
 
+const DEFAULT_INSTRUCTIONS = [
+  'Turn any public URL into screenshots, PDFs, metadata, readable content (Markdown, HTML or plain text), media sources, technology stacks, Lighthouse audits, Google search results or custom-scraped fields.',
+  'Always pass full URLs including the protocol.',
+  'Without an API key, requests use the free endpoint (50 requests/day); pass apiKey or set MICROLINK_API_KEY for PRO.',
+  'On failure, read the error message and the hint/reason fields and adjust the request instead of retrying blindly.'
+].join(' ')
+
 export function createMicrolinkServer ({
   name = 'microlink-mcp-server',
-  version = pkgVersion
+  version = pkgVersion,
+  instructions = DEFAULT_INSTRUCTIONS
 } = {}) {
-  const server = new McpServer({
-    name,
-    version
-  })
+  const server = new McpServer(
+    {
+      name,
+      version
+    },
+    { instructions }
+  )
 
   tools(server)
 
