@@ -13,6 +13,14 @@ import { lighthouse } from '../src/tools/lighthouse.js'
 import { embed } from '../src/tools/embed.js'
 import { search } from '../src/tools/search.js'
 import { fn } from '../src/tools/function.js'
+import { text } from '../src/tools/text.js'
+import { html } from '../src/tools/html.js'
+import { video } from '../src/tools/video.js'
+import { images } from '../src/tools/images.js'
+import { videos } from '../src/tools/videos.js'
+import { audios } from '../src/tools/audios.js'
+import { emails } from '../src/tools/emails.js'
+import { extract } from '../src/tools/extract.js'
 
 // Capture the handler each tool registers so we can invoke it directly, then
 // stub `fetch` to inspect the request the tool builds via the microlink.io
@@ -283,6 +291,14 @@ test('every tool declares a human-friendly title', () => {
   embed(fakeServer)
   search(fakeServer)
   fn(fakeServer)
+  text(fakeServer)
+  html(fakeServer)
+  video(fakeServer)
+  images(fakeServer)
+  videos(fakeServer)
+  audios(fakeServer)
+  emails(fakeServer)
+  extract(fakeServer)
   for (const [name, config] of Object.entries(configs)) {
     assert.ok(
       typeof config.title === 'string' && config.title.length > 0,
