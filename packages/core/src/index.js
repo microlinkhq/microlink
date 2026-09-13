@@ -147,7 +147,7 @@ const create = (ctx = {}) => {
     }),
     extract: (url, rules, options) => {
       const { top, got } = route(options)
-      return request(url, { ...top, meta: false, data: rules }, got).then(
+      return request(url, { meta: false, ...top, data: rules }, got).then(
         ({ data }) => data
       )
     },
