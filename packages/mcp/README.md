@@ -60,14 +60,15 @@ Edit `~/Library/Application\ Support/Claude/claude_desktop_config.json`:
 }
 ```
 
-### VS Code / Codex
+### VS Code
 
-Published package:
+Add the published package to `.vscode/mcp.json`:
 
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "microlink": {
+      "type": "stdio",
       "command": "npx",
       "args": ["-y", "@microlink/mcp"],
       "env": {
@@ -78,18 +79,15 @@ Published package:
 }
 ```
 
-Local repository:
+For a local repository checkout, replace the server command with:
 
 ```json
 {
-  "mcpServers": {
-    "microlink": {
-      "command": "node",
-      "args": ["/absolute/path/to/mcp/src/index.js"],
-      "env": {
-        "MICROLINK_API_KEY": "YOUR_MICROLINK_API_KEY"
-      }
-    }
+  "type": "stdio",
+  "command": "node",
+  "args": ["/absolute/path/to/mcp/src/index.js"],
+  "env": {
+    "MICROLINK_API_KEY": "YOUR_MICROLINK_API_KEY"
   }
 }
 ```
