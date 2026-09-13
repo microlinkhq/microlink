@@ -317,7 +317,8 @@ test('errors are surfaced as MCP isError with code/message', async t => {
         {}
       )
       assert.equal(res.isError, true)
-      assert.ok(res.structuredContent.error.message)
+      assert.equal(res.structuredContent, undefined)
+      assert.ok(JSON.parse(res.content[0].text).message)
     },
     { status: 400 }
   )
@@ -352,13 +353,14 @@ test('tools declare read-only annotations; microlink_function is the exception',
   })
 })
 
-test('invalid input returns the same error envelope as structuredContent', async t => {
+test('invalid input returns an MCP error without success-only structuredContent', async t => {
   const handlers = captureTool(metadata)
 
   const res = await handlers.microlink_metadata({}, {})
 
   assert.equal(res.isError, true)
-  assert.equal(res.structuredContent.error.message, 'Input validation failed.')
-  assert.ok(Array.isArray(res.structuredContent.error.issues))
-  assert.deepEqual(JSON.parse(res.content[0].text), res.structuredContent.error)
+  assert.equal(res.structuredContent, undefined)
+  const error = JSON.parse(res.content[0].text)
+  assert.equal(error.message, 'Input validation failed.')
+  assert.ok(Array.isArray(error.issues))
 })

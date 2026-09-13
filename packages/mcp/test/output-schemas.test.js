@@ -171,11 +171,16 @@ test('search validates web, news and autocomplete projections', () => {
   )
 })
 
-test('error results are exempt from output validation by SDK contract', () => {
-  // The MCP SDK skips outputSchema validation when `isError` is true, and
-  // error results carry `structuredContent.error`, never `data`. Assert the
-  // registered handlers keep that split: an error payload must NOT match the
-  // success schema, proving the exemption is load-bearing.
-  const schema = dataSchema('microlink_metadata')
-  assert.equal(schema.safeParse({ error: { message: 'boom' } }).success, false)
+test('error results omit success-only structured content', async () => {
+  const result = await registered.microlink_metadata.handler(
+    { url: 'not-a-url' },
+    {}
+  )
+
+  assert.equal(result.isError, true)
+  assert.equal(result.structuredContent, undefined)
+  assert.equal(
+    JSON.parse(result.content[0].text).message,
+    'Input validation failed.'
+  )
 })

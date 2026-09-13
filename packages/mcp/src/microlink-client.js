@@ -36,11 +36,18 @@ const isPlainObject = value =>
   value !== null && typeof value === 'object' && !Array.isArray(value)
 
 function toToolResponse (isError, field, value) {
-  return {
+  const result = {
     isError,
-    structuredContent: { [field]: value },
     content: [{ type: 'text', text: JSON.stringify(value, null, 2) }]
   }
+
+  // A tool's outputSchema describes successful structuredContent. Clients may
+  // validate any structuredContent they receive against it, including errors.
+  // Keep errors in backwards-compatible text content so those clients surface
+  // the actionable payload instead of replacing it with a validation failure.
+  if (!isError) result.structuredContent = { [field]: value }
+
+  return result
 }
 
 // Every tool returns the library's direct result (a string, array, or object).
