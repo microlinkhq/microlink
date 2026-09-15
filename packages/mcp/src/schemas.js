@@ -455,3 +455,40 @@ export const functionInputSchema = baseSchema
     code: z.string().min(1)
   })
   .strict()
+
+export const listPlansInputSchema = z.object({}).strict()
+
+export const createCheckoutSessionInputSchema = z
+  .object({
+    email: z
+      .string()
+      .email()
+      .describe('Email address for the Microlink account and Stripe Checkout.'),
+    planId: z.string().min(1).describe('Plan id from `microlink_list_plans`.'),
+    label: z
+      .string()
+      .min(1)
+      .optional()
+      .default('default')
+      .describe('Label for the API key that onboarding creates.'),
+    idempotencyKey: z
+      .string()
+      .min(1)
+      .max(255)
+      .optional()
+      .describe(
+        'Stable idempotency key for this logical checkout call. Omit on the first call to generate a UUID; reuse the returned value when retrying.'
+      )
+  })
+  .strict()
+
+export const getCheckoutSessionInputSchema = z
+  .object({
+    sessionId: z
+      .string()
+      .min(1)
+      .describe(
+        'Checkout session id returned by `microlink_create_checkout_session`.'
+      )
+  })
+  .strict()

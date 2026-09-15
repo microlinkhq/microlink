@@ -113,10 +113,11 @@ function toErrorPayload (error) {
 }
 
 export function asErrorResult (error) {
-  const payload =
-    isPlainObject(error) &&
-    !(error instanceof Error) &&
-    typeof error.message === 'string'
+  const payload = isPlainObject(error?.payload)
+    ? error.payload
+    : isPlainObject(error) &&
+      !(error instanceof Error) &&
+      typeof error.message === 'string'
       ? error
       : toErrorPayload(error)
 

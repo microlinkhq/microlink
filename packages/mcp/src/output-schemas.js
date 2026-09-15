@@ -84,7 +84,46 @@ const unknownArraySchema = z.array(z.unknown())
 // Default Lighthouse JSON is an object; `output: 'html' | 'csv'` returns a string.
 const lighthouseSchema = z.union([z.string(), recordSchema])
 
+const planSchema = z
+  .object({
+    id: z.string(),
+    limit: z.number(),
+    price: z.number(),
+    currency: z.string()
+  })
+  .catchall(z.unknown())
+
+const plansSchema = z
+  .object({
+    plans: z.array(planSchema)
+  })
+  .catchall(z.unknown())
+
+const checkoutSessionSchema = z
+  .object({
+    sessionId: z.string(),
+    checkoutUrl: z.string().url(),
+    idempotencyKey: z.string()
+  })
+  .catchall(z.unknown())
+
+const checkoutStatusSchema = z
+  .object({
+    state: z.enum(['open', 'expired', 'paid', 'ready']),
+    sessionId: z.string(),
+    email: z.string().nullable(),
+    planId: z.string().nullable(),
+    sessionStatus: z.string().nullable(),
+    paymentStatus: z.string(),
+    subscriptionId: z.string().nullable(),
+    awsKeyId: z.string().nullable()
+  })
+  .catchall(z.unknown())
+
 export const outputSchemas = {
+  list_plans: plansSchema,
+  create_checkout_session: checkoutSessionSchema,
+  get_checkout_session: checkoutStatusSchema,
   metadata: metadataSchema,
   logo: nullableAssetSchema,
   markdown: stringSchema,

@@ -56,6 +56,9 @@ export const INTERACTIVE_ANNOTATIONS = {
 
 // Human-friendly titles shown by MCP clients for each tool.
 const TITLES = {
+  list_plans: 'Plans',
+  create_checkout_session: 'Create checkout session',
+  get_checkout_session: 'Checkout session status',
   metadata: 'Metadata',
   logo: 'Logo',
   markdown: 'Markdown',
