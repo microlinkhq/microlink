@@ -141,7 +141,7 @@ test('microlink_get_checkout_session returns ready state and key id', async t =>
     sessionStatus: 'complete',
     paymentStatus: 'paid',
     subscriptionId: 'sub_123',
-    awsKeyId: 'key_123'
+    keyId: 'key_123'
   }
   let requestUrl
   stubFetch(t, async input => {

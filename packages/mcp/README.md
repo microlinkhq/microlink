@@ -145,7 +145,7 @@ Each tool is a thin wrapper over a [`microlink.io`](https://github.com/microlink
 
 - `microlink_list_plans`: list plans available to a new customer.
 - `microlink_create_checkout_session`: create an idempotent subscription Checkout Session. Give its `checkoutUrl` to the human.
-- `microlink_get_checkout_session`: poll onboarding state until `ready`, then store the returned `awsKeyId` as a sensitive credential.
+- `microlink_get_checkout_session`: poll onboarding state until `ready` or `expired`, then store the returned `keyId` as a sensitive credential when ready.
 - `microlink_metadata`: normalized metadata extraction with include/exclude config.
 - `microlink_logo`: brand logo extraction.
 - `microlink_markdown` / `microlink_html` / `microlink_text`: URL to Markdown / HTML / plain text.

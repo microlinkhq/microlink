@@ -116,7 +116,7 @@ const checkoutStatusSchema = z
     sessionStatus: z.string().nullable(),
     paymentStatus: z.string(),
     subscriptionId: z.string().nullable(),
-    awsKeyId: z.string().nullable()
+    keyId: z.string().nullable()
   })
   .catchall(z.unknown())
 
