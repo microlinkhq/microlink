@@ -211,3 +211,48 @@ test('onboarding tools expose MCP titles, output schemas and safe annotations', 
     false
   )
 })
+
+test('transport errors preserve the generated idempotency key', async t => {
+  stubFetch(t, async () => {
+    throw new TypeError('fetch failed')
+  })
+
+  const result = await captureTool(
+    checkoutCreate
+  ).microlink_create_checkout_session(
+    { email: 'agent@example.com', planId: 'pro' },
+    {}
+  )
+  const error = JSON.parse(result.content[0].text)
+
+  assert.equal(result.isError, true)
+  assert.match(error.idempotencyKey, /^[0-9a-f-]{36}$/)
+  assert.equal(error.reason, 'dashboard_request_failed')
+  assert.match(error.hint, /Reuse `idempotencyKey`/)
+})
+
+test('unknown plan keeps idempotency key when catalog lookup fails', async t => {
+  let calls = 0
+  stubFetch(t, async () => {
+    calls++
+    if (calls === 1) return jsonResponse({ error: 'Unknown plan' }, 400)
+    throw new TypeError('fetch failed')
+  })
+
+  const result = await captureTool(
+    checkoutCreate
+  ).microlink_create_checkout_session(
+    {
+      email: 'agent@example.com',
+      planId: 'unknown',
+      idempotencyKey: 'logical-call-123'
+    },
+    {}
+  )
+  const error = JSON.parse(result.content[0].text)
+
+  assert.equal(error.reason, 'unknown_plan')
+  assert.equal(error.idempotencyKey, 'logical-call-123')
+  assert.match(error.hint, /microlink_list_plans/)
+  assert.match(error.hint, /same `idempotencyKey`/)
+})

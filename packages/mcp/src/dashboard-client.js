@@ -51,22 +51,47 @@ export async function createCheckoutSession ({
       error instanceof DashboardApiError &&
       error.message === 'Unknown plan'
     ) {
-      const { plans } = await listPlans()
-      throw new DashboardApiError({
-        message: `Unknown planId \`${planId}\`.`,
-        reason: 'unknown_plan',
-        statusCode: error.payload.statusCode,
-        availablePlans: plans,
-        idempotencyKey,
-        hint: 'Choose an `id` from `availablePlans` and call this tool again with that `planId` and the same `idempotencyKey`.'
-      })
+      try {
+        const { plans } = await listPlans()
+        throw new DashboardApiError({
+          message: `Unknown planId \`${planId}\`.`,
+          reason: 'unknown_plan',
+          statusCode: error.payload.statusCode,
+          availablePlans: plans,
+          idempotencyKey,
+          hint: 'Choose an `id` from `availablePlans` and call this tool again with that `planId` and the same `idempotencyKey`.'
+        })
+      } catch (plansError) {
+        if (
+          plansError instanceof DashboardApiError &&
+          plansError.payload.availablePlans
+        ) {
+          throw plansError
+        }
+        throw new DashboardApiError({
+          message: `Unknown planId \`${planId}\`; the plan catalog could not be loaded.`,
+          reason: 'unknown_plan',
+          statusCode: error.payload.statusCode,
+          idempotencyKey,
+          hint: 'Call `microlink_list_plans`, then retry with an available `planId` and the same `idempotencyKey`.'
+        })
+      }
     }
 
-    if (error instanceof DashboardApiError) {
-      error.payload.idempotencyKey = idempotencyKey
-      error.payload.hint = `${error.payload.hint} Reuse \`idempotencyKey\` when retrying this logical checkout call.`
-    }
-    throw error
+    const payload =
+      error instanceof DashboardApiError
+        ? error.payload
+        : {
+            message: error?.message || String(error),
+            reason: 'dashboard_request_failed',
+            hint: 'Check network access before retrying this logical checkout call.'
+          }
+
+    throw new DashboardApiError({
+      ...payload,
+      idempotencyKey,
+      hint: `${payload.hint} Reuse \`idempotencyKey\` when retrying this logical checkout call.`
+    })
   }
 }
 
