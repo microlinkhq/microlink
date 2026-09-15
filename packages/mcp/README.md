@@ -124,7 +124,7 @@ Once the server is configured, talk to your assistant in plain language. It pick
 - *"Run a Lighthouse performance audit on https://example.com."* → `microlink_lighthouse`
 - *"Scrape every article title from this page using the `.title` selector."* → `microlink_extract` with `data`
 
-Tools can also be invoked directly. Every tool takes a `url` and returns `structuredContent` (see [Response shape](#response-shape)):
+Tools can also be invoked directly. URL-processing tools take a `url`; onboarding tools use the inputs listed below. Every tool returns `structuredContent` (see [Response shape](#response-shape)):
 
 ```json
 {
@@ -143,6 +143,9 @@ Tools can also be invoked directly. Every tool takes a `url` and returns `struct
 
 Each tool is a thin wrapper over a [`microlink.io`](https://github.com/microlinkhq/microlink/tree/master/packages/core) library method — same inputs, same result, one source of truth.
 
+- `microlink_list_plans`: list plans available to a new customer.
+- `microlink_create_checkout_session`: create an idempotent subscription Checkout Session. Give its `checkoutUrl` to the human.
+- `microlink_get_checkout_session`: poll onboarding state until `ready` or `expired`, then store the returned `keyId` as a sensitive credential when ready.
 - `microlink_metadata`: normalized metadata extraction with include/exclude config.
 - `microlink_logo`: brand logo extraction.
 - `microlink_markdown` / `microlink_html` / `microlink_text`: URL to Markdown / HTML / plain text.
@@ -162,7 +165,7 @@ Each tool is a thin wrapper over a [`microlink.io`](https://github.com/microlink
 
 - Each tool returns the library's **direct result** under `structuredContent.data` (and the same value as pretty-printed JSON text). For example `microlink_markdown` → `{ data: "# Title\n..." }`, `microlink_screenshot` → `{ data: { url, type, width, height, size } }`, `microlink_links` → `{ data: ["https://...", ...] }`.
 - Every tool also declares an MCP `outputSchema` describing its `structuredContent.data`, mirroring the TypeScript types shipped by the library (`Asset`, `Metadata`, `Embed`, `FunctionResult`, ...), so MCP clients get machine-readable result contracts. Error results are exempt from output validation. Fields that can legitimately be absent are nullable (for example `logo` when no brand logo is detected, or `markdown` when the selector matches nothing).
-- Tools are annotated `readOnlyHint: true` since they only fetch and transform public URLs. The exception is `microlink_function`, which executes user-supplied code and is not annotated read-only.
+- Tools are annotated `readOnlyHint: true` when they only read remote state. `microlink_function` executes user-supplied code and `microlink_create_checkout_session` creates remote Checkout state, so they are not annotated read-only.
 - On failure the tool sets MCP `isError` and returns `{ error: { message, code?, status?, statusCode?, url?, more?, details? } }`, where `message` carries the specific cause reported by the API. Capability errors that retrying cannot fix (for example `EPROXYNEEDED` or `EINTEGRATION`) also include machine-readable `reason` (`upgrade_required`), `capability`, an `upgrade` object with the plan and pricing URL, and an agent-facing `hint` with the next step. A `429` includes `reason: "quota_exceeded"` and a free-quota `hint`.
 
 Parameters that require a paid plan are labeled `PRO` in their own schema descriptions, mirroring the official Microlink docs.
