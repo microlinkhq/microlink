@@ -64,7 +64,9 @@ const buy = async ({ email, plan: planId } = {}) => {
   }
 
   if (!email) email = await ask('Email:')
-  if (!email.includes('@')) throw new Error('Invalid email')
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new Error('Invalid email')
+  }
 
   const session = await request('/api/v1/checkout/sessions', {
     method: 'POST',

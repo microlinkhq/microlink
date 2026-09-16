@@ -170,7 +170,7 @@ const createPrint = host => {
         '  ',
         keyValue(
           color('hint'),
-          'run `microlink buy` or `microlink login` to use an API key'
+          'run `microlink buy` or `microlink login`, or check your plan limits'
         )
       )
     }
