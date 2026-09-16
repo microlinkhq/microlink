@@ -1,4 +1,6 @@
 import { audio } from './audio.js'
+import { checkoutCreate } from './create-checkout-session.js'
+import { checkoutStatus } from './get-checkout-session.js'
 import { audios } from './audios.js'
 import { emails } from './emails.js'
 import { embed } from './embed.js'
@@ -10,6 +12,7 @@ import { lighthouse } from './lighthouse.js'
 import { links } from './links.js'
 import { logo } from './logo.js'
 import { markdown } from './markdown.js'
+import { plans } from './list-plans.js'
 import { metadata } from './metadata.js'
 import { pdf } from './pdf.js'
 import { screenshot } from './screenshot.js'
@@ -20,6 +23,9 @@ import { video } from './video.js'
 import { videos } from './videos.js'
 
 export function tools (server) {
+  plans(server)
+  checkoutCreate(server)
+  checkoutStatus(server)
   metadata(server)
   logo(server)
   markdown(server)
