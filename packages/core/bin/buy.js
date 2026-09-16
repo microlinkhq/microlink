@@ -16,13 +16,6 @@ const dashboardUrl = () =>
 const request = async (path, options) => {
   const res = await fetch(new URL(path, dashboardUrl()), options)
   const body = await res.json().catch(() => ({}))
-  if (res.status === 409) {
-    throw new Error(
-      `${
-        body.error || 'This email already has a Microlink account'
-      }. Run \`microlink login\` to save your API key.`
-    )
-  }
   if (!res.ok) {
     throw new Error(body.error || `Dashboard request failed (${res.status})`)
   }
@@ -78,9 +71,7 @@ const waitForPayment = async sessionId => {
     if (state === 'ready') return
     if (state === 'expired') throw new Error('Checkout expired')
     if (Date.now() - started > TIMEOUT_MS) {
-      throw new Error(
-        'Timed out waiting for payment. If you already have an account, run `microlink login`.'
-      )
+      throw new Error('Timed out waiting for payment')
     }
     await sleep(POLL_MS)
   }
@@ -106,11 +97,7 @@ const buy = async ({ email, plan: planId } = {}) => {
   process.stderr.write(`Opening ${session.checkoutUrl}\n\n`)
   if (process.stderr.isTTY) openUrl(session.checkoutUrl)
 
-  process.stderr.write(
-    `Waiting for payment…\n${gray(
-      'If Stripe emails a login link, Ctrl+C and run `microlink login`.'
-    )}\n`
-  )
+  process.stderr.write('Waiting for payment…\n')
   await waitForPayment(session.sessionId)
   process.stderr.write(
     `\n${gray('Paid.')} Run \`microlink login\` to save your API key.\n`

@@ -49,19 +49,6 @@ export async function createCheckoutSession ({
   } catch (error) {
     if (
       error instanceof DashboardApiError &&
-      error.payload.statusCode === 409
-    ) {
-      throw new DashboardApiError({
-        message: error.message,
-        reason: 'existing_account',
-        statusCode: 409,
-        idempotencyKey,
-        hint: 'This email already has a Microlink account. Tell the human to sign in and use their existing API key (or `microlink login`). Do not create another checkout or keep polling.'
-      })
-    }
-
-    if (
-      error instanceof DashboardApiError &&
       error.payload.statusCode === 400 &&
       /unknown plan/i.test(error.message)
     ) {

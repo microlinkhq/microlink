@@ -102,30 +102,6 @@ test('microlink_create_checkout_session forwards a caller idempotency key', asyn
   assert.equal(result.structuredContent.data.idempotencyKey, 'logical-call-123')
 })
 
-test('existing account error tells the agent to stop checkout', async t => {
-  stubFetch(t, async () =>
-    jsonResponse({ error: 'This email already has a Microlink account' }, 409)
-  )
-
-  const result = await captureTool(
-    checkoutCreate
-  ).microlink_create_checkout_session(
-    {
-      email: 'agent@example.com',
-      planId: 'pro',
-      idempotencyKey: 'logical-call-123'
-    },
-    {}
-  )
-  const error = JSON.parse(result.content[0].text)
-
-  assert.equal(result.isError, true)
-  assert.equal(error.reason, 'existing_account')
-  assert.equal(error.idempotencyKey, 'logical-call-123')
-  assert.match(error.hint, /existing API key/)
-  assert.doesNotMatch(error.hint, /Reuse `idempotencyKey`/)
-})
-
 test('unknown plan error includes available plans and a retry hint', async t => {
   let calls = 0
   stubFetch(t, async () => {
