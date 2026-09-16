@@ -1,33 +1,16 @@
 'use strict'
 
 const { randomBytes } = require('crypto')
-const { spawn } = require('child_process')
 const http = require('http')
 const { writeConfig, readApiKey, configPathDisplay } = require('./config')
 const select = require('./select')
+const openUrl = require('./open')
 const { gray } = require('./style')
 
 const TIMEOUT_MS = 5 * 60 * 1000
 
 const dashboardUrl = () =>
   process.env.MICROLINK_DASHBOARD_URL || 'https://dashboard.microlink.io'
-
-const openUrl = url => {
-  const { platform } = process
-  const child =
-    platform === 'win32'
-      ? spawn('cmd', ['/c', 'start', '""', `"${url}"`], {
-        detached: true,
-        stdio: 'ignore',
-        windowsVerbatimArguments: true
-      })
-      : spawn(platform === 'darwin' ? 'open' : 'xdg-open', [url], {
-        detached: true,
-        stdio: 'ignore'
-      })
-  child.on('error', () => {})
-  child.unref()
-}
 
 const listen = state =>
   new Promise((resolve, reject) => {

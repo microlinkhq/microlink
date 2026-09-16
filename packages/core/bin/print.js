@@ -168,7 +168,10 @@ const createPrint = host => {
       writeLine(
         stderr,
         '  ',
-        keyValue(color('hint'), 'run `microlink login` to use an API key')
+        keyValue(
+          color('hint'),
+          'run `microlink buy` or `microlink login` to use an API key'
+        )
       )
     }
   }

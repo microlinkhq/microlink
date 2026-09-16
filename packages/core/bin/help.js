@@ -83,6 +83,19 @@ const COMMANDS = {
       ['help screenshot', 'show screenshot help']
     ]
   },
+  buy: {
+    usage: 'buy',
+    desc: 'Buy a Microlink API key',
+    flags: [
+      ['--email', 'Email for the Microlink account'],
+      ['--plan', 'Plan id from the catalog']
+    ],
+    cli: [],
+    examples: [
+      ['buy', 'pick a plan and pay in the browser'],
+      ['buy --email you@example.com --plan pro', 'buy a specific plan']
+    ]
+  },
   login: {
     usage: 'login',
     desc: 'Save an API key from your Microlink account',
@@ -303,6 +316,7 @@ ${cmd('<url> [options]')}
 ${cmd('<product> <url|query> [options]')}
 ${cmd('<product> docs')}
 ${cmd('help')}
+${cmd('buy')}
 ${cmd('login')}
 ${cmd('logout')}
 
@@ -316,6 +330,7 @@ Options
 ${rows(CLI)}
 
 Examples
+${cmd('buy', 'buy an API key')}
 ${cmd('login', 'save an API key from your account')}
 ${cmd('markdown docs', 'print the markdown docs page')}
 ${cmd('https://example.com', 'unified metadata (default)')}

@@ -21,6 +21,7 @@ test('prints help with no arguments', async t => {
   t.true(stdout.includes('Usage'))
   t.true(stdout.includes('markdown'))
   t.true(stdout.includes('--endpoint'))
+  t.true(stdout.includes('buy'))
   t.true(stdout.includes('login'))
   t.true(stdout.includes('logout'))
   t.true(stdout.includes('<product> docs'))
@@ -36,6 +37,15 @@ test('help <product> matches product --help', async t => {
   const { stdout: help } = await $('node', [bin, 'help', 'screenshot'])
   const { stdout: flag } = await $('node', [bin, 'screenshot', '--help'])
   t.is(help, flag)
+})
+
+test('prints command help for buy', async t => {
+  const { stdout } = await $('node', [bin, 'buy', '--help'])
+  t.true(stdout.includes('buy'))
+  t.true(stdout.includes('Buy a Microlink API key'))
+  t.true(stdout.includes('--email'))
+  t.true(stdout.includes('--plan'))
+  t.false(stdout.includes('Products'))
 })
 
 test('prints command help for login', async t => {
@@ -88,11 +98,15 @@ test('prints command help for --help before the product', async t => {
 })
 
 test('fails on unknown commands', async t => {
-  const error = await t.throwsAsync(() => $('node', [bin, 'nope', 'https://example.com']))
+  const error = await t.throwsAsync(() =>
+    $('node', [bin, 'nope', 'https://example.com'])
+  )
   t.true(error.stderr.includes('Unknown command'))
 
   const { endpoint, seen } = await listenSuccess(t)
-  const lone = await t.throwsAsync(() => $('node', [bin, 'nope', '--endpoint', endpoint]))
+  const lone = await t.throwsAsync(() =>
+    $('node', [bin, 'nope', '--endpoint', endpoint])
+  )
   t.true(lone.stderr.includes('Unknown command'))
   t.is(seen.header, null)
 })
@@ -153,7 +167,11 @@ test('url without protocol is treated as https', async t => {
 })
 
 test('trace prints request and response payload', async t => {
-  const { stdout, stderr } = await $('node', [bin, 'https://example.com', '--trace'])
+  const { stdout, stderr } = await $('node', [
+    bin,
+    'https://example.com',
+    '--trace'
+  ])
   const payload = JSON.parse(stdout)
   t.truthy(payload.request.url)
   t.truthy(payload.request.headers)
@@ -182,7 +200,11 @@ test('endpoint is used for the request', async t => {
 })
 
 test('trace-full prints request and response payload', async t => {
-  const { stdout, stderr } = await $('node', [bin, 'https://example.com', '--trace-full'])
+  const { stdout, stderr } = await $('node', [
+    bin,
+    'https://example.com',
+    '--trace-full'
+  ])
   const payload = JSON.parse(stdout)
   t.truthy(payload.request.url)
   t.truthy(payload.response)
@@ -190,9 +212,13 @@ test('trace-full prints request and response payload', async t => {
 })
 
 test('trace rejects search and function', async t => {
-  const search = await t.throwsAsync(() => $('node', [bin, 'search', 'coffee', '--trace']))
+  const search = await t.throwsAsync(() =>
+    $('node', [bin, 'search', 'coffee', '--trace'])
+  )
   t.true(search.stderr.includes('not supported'))
-  const run = await t.throwsAsync(() => $('node', [bin, 'function', 'https://example.com', '--trace']))
+  const run = await t.throwsAsync(() =>
+    $('node', [bin, 'function', 'https://example.com', '--trace'])
+  )
   t.true(run.stderr.includes('not supported'))
 })
 
@@ -244,7 +270,9 @@ const listenProxyNeeded = async t => {
     res.end(
       JSON.stringify({
         status: 'fail',
-        data: { url: 'The URL uses antibot protection. Upgrade to a PRO plan.' },
+        data: {
+          url: 'The URL uses antibot protection. Upgrade to a PRO plan.'
+        },
         code: 'EPROXYNEEDED',
         more: 'https://microlink.io/eproxyneeded',
         message:
@@ -283,9 +311,7 @@ test('a terminal with hyperlinks gets the docs url as a link', async t => {
   )
 
   const url = 'https://microlink.io/eproxyneeded'
-  t.true(
-    error.stderr.includes(`\u001b]8;;${url}\u0007${url}\u001b]8;;\u0007`)
-  )
+  t.true(error.stderr.includes(`\u001b]8;;${url}\u0007${url}\u001b]8;;\u0007`))
 })
 
 test('every reason reported by the API is printed, aligned', async t => {
@@ -415,6 +441,150 @@ test('search footer uses x-content-length when content-length is absent', async 
   t.false(stderr.includes('0 B'))
 })
 
+const listenDashboard = async (t, handler) => {
+  const server = http.createServer(handler)
+  t.teardown(() => new Promise(resolve => server.close(resolve)))
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
+  return `http://127.0.0.1:${server.address().port}`
+}
+
+const dashboardEnv = url => ({ ...process.env, MICROLINK_DASHBOARD_URL: url })
+
+const PLAN = { id: 'pro', limit: 1000, price: 2000, currency: 'usd' }
+
+test('buy without flags prompts for email', async t => {
+  let created
+  const url = await listenDashboard(t, (req, res) => {
+    res.setHeader('content-type', 'application/json')
+    if (req.url === '/api/v1/plans') {
+      res.end(JSON.stringify({ plans: [PLAN] }))
+      return
+    }
+    if (req.method === 'POST' && req.url === '/api/v1/checkout/sessions') {
+      const chunks = []
+      req.on('data', chunk => chunks.push(chunk))
+      req.on('end', () => {
+        created = JSON.parse(Buffer.concat(chunks).toString())
+        res.end(
+          JSON.stringify({
+            sessionId: 'cs_1',
+            checkoutUrl: 'https://checkout.example/pay'
+          })
+        )
+      })
+      return
+    }
+    if (req.url === '/api/v1/checkout/sessions/cs_1') {
+      res.end(JSON.stringify({ state: 'ready', sessionId: 'cs_1' }))
+      return
+    }
+    res.statusCode = 404
+    res.end('{}')
+  })
+
+  const subprocess = $('node', [bin, 'buy'], { env: dashboardEnv(url) })
+  subprocess.stdin.end('a@b.c\n')
+  const { stderr } = await subprocess
+  t.deepEqual(created, { email: 'a@b.c', planId: 'pro', label: 'default' })
+  t.true(stderr.includes('checkout.example/pay'))
+  t.true(stderr.includes('microlink login'))
+})
+
+test('buy rejects an unknown plan', async t => {
+  const url = await listenDashboard(t, (req, res) => {
+    res.setHeader('content-type', 'application/json')
+    res.end(JSON.stringify({ plans: [PLAN] }))
+  })
+  const error = await t.throwsAsync(() =>
+    $('node', [bin, 'buy', '--email', 'a@b.c', '--plan', 'nope'], {
+      env: dashboardEnv(url)
+    })
+  )
+  t.true(error.stderr.includes('Unknown plan'))
+})
+
+test('buy rejects an invalid email', async t => {
+  const url = await listenDashboard(t, (req, res) => {
+    res.setHeader('content-type', 'application/json')
+    res.end(JSON.stringify({ plans: [PLAN] }))
+  })
+  const error = await t.throwsAsync(() =>
+    $('node', [bin, 'buy', '--email', 'nope', '--plan', 'pro'], {
+      env: dashboardEnv(url)
+    })
+  )
+  t.true(error.stderr.includes('Invalid email'))
+})
+
+test('buy completes after checkout is ready', async t => {
+  let created
+  const url = await listenDashboard(t, (req, res) => {
+    res.setHeader('content-type', 'application/json')
+    if (req.url === '/api/v1/plans') {
+      res.end(JSON.stringify({ plans: [PLAN] }))
+      return
+    }
+    if (req.method === 'POST' && req.url === '/api/v1/checkout/sessions') {
+      const chunks = []
+      req.on('data', chunk => chunks.push(chunk))
+      req.on('end', () => {
+        created = JSON.parse(Buffer.concat(chunks).toString())
+        t.true(req.headers['idempotency-key'].length > 0)
+        res.end(
+          JSON.stringify({
+            sessionId: 'cs_1',
+            checkoutUrl: 'https://checkout.example/pay'
+          })
+        )
+      })
+      return
+    }
+    if (req.url === '/api/v1/checkout/sessions/cs_1') {
+      res.end(JSON.stringify({ state: 'ready', sessionId: 'cs_1' }))
+      return
+    }
+    res.statusCode = 404
+    res.end('{}')
+  })
+
+  const { stderr } = await $(
+    'node',
+    [bin, 'buy', '--email', 'a@b.c', '--plan', 'pro'],
+    { env: dashboardEnv(url) }
+  )
+
+  t.deepEqual(created, { email: 'a@b.c', planId: 'pro', label: 'default' })
+  t.true(stderr.includes('checkout.example/pay'))
+  t.true(stderr.includes('microlink login'))
+})
+
+test('buy fails when checkout expires', async t => {
+  const url = await listenDashboard(t, (req, res) => {
+    res.setHeader('content-type', 'application/json')
+    if (req.url === '/api/v1/plans') {
+      res.end(JSON.stringify({ plans: [PLAN] }))
+      return
+    }
+    if (req.method === 'POST' && req.url === '/api/v1/checkout/sessions') {
+      res.end(
+        JSON.stringify({
+          sessionId: 'cs_1',
+          checkoutUrl: 'https://checkout.example/pay'
+        })
+      )
+      return
+    }
+    res.end(JSON.stringify({ state: 'expired', sessionId: 'cs_1' }))
+  })
+
+  const error = await t.throwsAsync(() =>
+    $('node', [bin, 'buy', '--email', 'a@b.c', '--plan', 'pro'], {
+      env: dashboardEnv(url)
+    })
+  )
+  t.true(error.stderr.includes('Checkout expired'))
+})
+
 test('logout removes the saved config file', async t => {
   const { dir, env } = configHome('file-key-1')
   const file = path.join(dir, 'microlink', 'config.json')
@@ -434,33 +604,33 @@ test('api key resolution is flag over env over config file', async t => {
   const { endpoint, seen } = await listenSuccess(t)
   const { env } = configHome('FILEKEY123')
 
-  await $('node', [
-    bin,
-    'https://example.com',
-    '--endpoint',
-    endpoint,
-    '--trace'
-  ], { env })
+  await $(
+    'node',
+    [bin, 'https://example.com', '--endpoint', endpoint, '--trace'],
+    { env }
+  )
   t.is(seen.header, 'FILEKEY123')
 
-  await $('node', [
-    bin,
-    'https://example.com',
-    '--endpoint',
-    endpoint,
-    '--trace'
-  ], { env: { ...env, MICROLINK_API_KEY: 'ENVKEY1234' } })
+  await $(
+    'node',
+    [bin, 'https://example.com', '--endpoint', endpoint, '--trace'],
+    { env: { ...env, MICROLINK_API_KEY: 'ENVKEY1234' } }
+  )
   t.is(seen.header, 'ENVKEY1234')
 
-  await $('node', [
-    bin,
-    'https://example.com',
-    '--endpoint',
-    endpoint,
-    '--trace',
-    '--api-key',
-    'FLAGKEY123'
-  ], { env: { ...env, MICROLINK_API_KEY: 'ENVKEY1234' } })
+  await $(
+    'node',
+    [
+      bin,
+      'https://example.com',
+      '--endpoint',
+      endpoint,
+      '--trace',
+      '--api-key',
+      'FLAGKEY123'
+    ],
+    { env: { ...env, MICROLINK_API_KEY: 'ENVKEY1234' } }
+  )
   t.is(seen.header, 'FLAGKEY123')
 })
 
@@ -485,6 +655,7 @@ test('429 points at microlink login', async t => {
     $('node', [bin, 'https://example.com', '--endpoint', endpoint])
   )
   t.true(error.stderr.includes('microlink login'))
+  t.true(error.stderr.includes('microlink buy'))
 })
 
 const memoryHost = (overrides = {}) => {
@@ -503,6 +674,15 @@ const memoryHost = (overrides = {}) => {
     stderrText: () => stderr.join('')
   }
 }
+
+test('run buy delegates to the host', async t => {
+  const host = memoryHost({
+    buy: async opts => {
+      t.deepEqual(opts, { email: 'a@b.c', plan: 'pro' })
+    }
+  })
+  t.is(await run(['buy', '--email', 'a@b.c', '--plan', 'pro'], host), 0)
+})
 
 test('run writes help through the host without exiting the process', async t => {
   const host = memoryHost()
