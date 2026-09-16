@@ -452,34 +452,42 @@ const dashboardEnv = url => ({ ...process.env, MICROLINK_DASHBOARD_URL: url })
 
 const PLAN = { id: 'pro', limit: 1000, price: 2000, currency: 'usd' }
 
-test('buy without flags prompts for email', async t => {
-  let created
-  const url = await listenDashboard(t, (req, res) => {
-    res.setHeader('content-type', 'application/json')
-    if (req.url === '/api/v1/plans') {
-      res.end(JSON.stringify({ plans: [PLAN] }))
-      return
-    }
+const json = (res, body, status = 200) => {
+  res.statusCode = status
+  res.setHeader('content-type', 'application/json')
+  res.end(JSON.stringify(body))
+}
+
+const SESSION = {
+  sessionId: 'cs_1',
+  checkoutUrl: 'https://checkout.example/pay'
+}
+
+const listenCheckout = (t, { state = 'ready', onCreate } = {}) =>
+  listenDashboard(t, (req, res) => {
+    if (req.url === '/api/v1/plans') return json(res, { plans: [PLAN] })
     if (req.method === 'POST' && req.url === '/api/v1/checkout/sessions') {
+      if (!onCreate) return json(res, SESSION)
       const chunks = []
       req.on('data', chunk => chunks.push(chunk))
       req.on('end', () => {
-        created = JSON.parse(Buffer.concat(chunks).toString())
-        res.end(
-          JSON.stringify({
-            sessionId: 'cs_1',
-            checkoutUrl: 'https://checkout.example/pay'
-          })
-        )
+        onCreate(JSON.parse(Buffer.concat(chunks).toString()), req)
+        json(res, SESSION)
       })
       return
     }
     if (req.url === '/api/v1/checkout/sessions/cs_1') {
-      res.end(JSON.stringify({ state: 'ready', sessionId: 'cs_1' }))
-      return
+      return json(res, { state, sessionId: 'cs_1' })
     }
-    res.statusCode = 404
-    res.end('{}')
+    json(res, {}, 404)
+  })
+
+test('buy without flags prompts for email', async t => {
+  let created
+  const url = await listenCheckout(t, {
+    onCreate: body => {
+      created = body
+    }
   })
 
   const subprocess = $('node', [bin, 'buy'], { env: dashboardEnv(url) })
@@ -491,10 +499,7 @@ test('buy without flags prompts for email', async t => {
 })
 
 test('buy rejects an unknown plan', async t => {
-  const url = await listenDashboard(t, (req, res) => {
-    res.setHeader('content-type', 'application/json')
-    res.end(JSON.stringify({ plans: [PLAN] }))
-  })
+  const url = await listenCheckout(t)
   const error = await t.throwsAsync(() =>
     $('node', [bin, 'buy', '--email', 'a@b.c', '--plan', 'nope'], {
       env: dashboardEnv(url)
@@ -504,10 +509,7 @@ test('buy rejects an unknown plan', async t => {
 })
 
 test('buy rejects an invalid email', async t => {
-  const url = await listenDashboard(t, (req, res) => {
-    res.setHeader('content-type', 'application/json')
-    res.end(JSON.stringify({ plans: [PLAN] }))
-  })
+  const url = await listenCheckout(t)
   const error = await t.throwsAsync(() =>
     $('node', [bin, 'buy', '--email', 'nope', '--plan', 'pro'], {
       env: dashboardEnv(url)
@@ -518,33 +520,11 @@ test('buy rejects an invalid email', async t => {
 
 test('buy completes after checkout is ready', async t => {
   let created
-  const url = await listenDashboard(t, (req, res) => {
-    res.setHeader('content-type', 'application/json')
-    if (req.url === '/api/v1/plans') {
-      res.end(JSON.stringify({ plans: [PLAN] }))
-      return
+  const url = await listenCheckout(t, {
+    onCreate: (body, req) => {
+      created = body
+      t.true(req.headers['idempotency-key'].length > 0)
     }
-    if (req.method === 'POST' && req.url === '/api/v1/checkout/sessions') {
-      const chunks = []
-      req.on('data', chunk => chunks.push(chunk))
-      req.on('end', () => {
-        created = JSON.parse(Buffer.concat(chunks).toString())
-        t.true(req.headers['idempotency-key'].length > 0)
-        res.end(
-          JSON.stringify({
-            sessionId: 'cs_1',
-            checkoutUrl: 'https://checkout.example/pay'
-          })
-        )
-      })
-      return
-    }
-    if (req.url === '/api/v1/checkout/sessions/cs_1') {
-      res.end(JSON.stringify({ state: 'ready', sessionId: 'cs_1' }))
-      return
-    }
-    res.statusCode = 404
-    res.end('{}')
   })
 
   const { stderr } = await $(
@@ -559,24 +539,7 @@ test('buy completes after checkout is ready', async t => {
 })
 
 test('buy fails when checkout expires', async t => {
-  const url = await listenDashboard(t, (req, res) => {
-    res.setHeader('content-type', 'application/json')
-    if (req.url === '/api/v1/plans') {
-      res.end(JSON.stringify({ plans: [PLAN] }))
-      return
-    }
-    if (req.method === 'POST' && req.url === '/api/v1/checkout/sessions') {
-      res.end(
-        JSON.stringify({
-          sessionId: 'cs_1',
-          checkoutUrl: 'https://checkout.example/pay'
-        })
-      )
-      return
-    }
-    res.end(JSON.stringify({ state: 'expired', sessionId: 'cs_1' }))
-  })
-
+  const url = await listenCheckout(t, { state: 'expired' })
   const error = await t.throwsAsync(() =>
     $('node', [bin, 'buy', '--email', 'a@b.c', '--plan', 'pro'], {
       env: dashboardEnv(url)

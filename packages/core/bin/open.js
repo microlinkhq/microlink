@@ -2,15 +2,20 @@
 
 const { spawn } = require('child_process')
 
-module.exports = url => {
-  let href
+const asHttpUrl = url => {
   try {
-    href = new URL(url).href
+    const parsed = new URL(url)
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return
+    if (parsed.href.includes('"')) return
+    return parsed.href
   } catch {
-    return
+
   }
-  if (!href.startsWith('https:') && !href.startsWith('http:')) return
-  if (href.includes('"')) return
+}
+
+module.exports = url => {
+  const href = asHttpUrl(url)
+  if (!href) return
 
   const { platform } = process
   const child =
