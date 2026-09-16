@@ -11,7 +11,8 @@ export function checkoutCreate (server) {
       'Generate an idempotency UUID automatically, or accept `idempotencyKey` so a retry of the same logical call cannot create a duplicate session during Stripe’s 24-hour deduplication window.',
       'Give `checkoutUrl` to the human and wait for them to complete payment; never open or complete it on their behalf.',
       'Then poll `microlink_get_checkout_session` with `sessionId` until `state` is `ready` (or stop on `expired`).',
-      'When ready, treat `keyId` as a sensitive credential: do not log or expose it, and store it in the caller’s secure credential store.'
+      '`ready` means the account is provisioned and includes `keyId` (a non-secret key handle, not the API secret).',
+      'These tools never return the API key secret; the human receives it via welcome email or the dashboard.'
     ].join(' '),
     createCheckoutSessionInputSchema,
     (_client, input) => createCheckoutSession(input),

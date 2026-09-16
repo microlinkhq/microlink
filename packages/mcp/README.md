@@ -141,11 +141,11 @@ Tools can also be invoked directly. URL-processing tools take a `url`; onboardin
 
 ### Capabilities at a glance
 
-Each tool is a thin wrapper over a [`microlink.io`](https://github.com/microlinkhq/microlink/tree/master/packages/core) library method — same inputs, same result, one source of truth.
+URL-processing tools are thin wrappers over a [`microlink.io`](https://github.com/microlinkhq/microlink/tree/master/packages/core) library method — same inputs, same result, one source of truth. Onboarding tools call the public dashboard Checkout API instead.
 
 - `microlink_list_plans`: list plans available to a new customer.
 - `microlink_create_checkout_session`: create an idempotent subscription Checkout Session. Give its `checkoutUrl` to the human.
-- `microlink_get_checkout_session`: poll onboarding state until `ready` or `expired`, then store the returned `keyId` as a sensitive credential when ready.
+- `microlink_get_checkout_session`: poll checkout state until `ready` or `expired`. `ready` includes `keyId` (a non-secret key handle); the API key secret is not returned here (welcome email / dashboard).
 - `microlink_metadata`: normalized metadata extraction with include/exclude config.
 - `microlink_logo`: brand logo extraction.
 - `microlink_markdown` / `microlink_html` / `microlink_text`: URL to Markdown / HTML / plain text.

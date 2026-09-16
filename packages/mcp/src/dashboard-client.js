@@ -49,7 +49,8 @@ export async function createCheckoutSession ({
   } catch (error) {
     if (
       error instanceof DashboardApiError &&
-      error.message === 'Unknown plan'
+      error.payload.statusCode === 400 &&
+      /unknown plan/i.test(error.message)
     ) {
       try {
         const { plans } = await listPlans()
@@ -103,7 +104,8 @@ export async function getCheckoutSession ({ sessionId }) {
   } catch (error) {
     if (
       error instanceof DashboardApiError &&
-      error.message === 'Unknown checkout session'
+      error.payload.statusCode === 404 &&
+      /unknown checkout session/i.test(error.message)
     ) {
       throw new DashboardApiError({
         message: `Unknown checkout session \`${sessionId}\`.`,
