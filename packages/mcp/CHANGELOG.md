@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.6.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.5.2...%40microlink%2Fmcp%402.6.0) (2026-09-16)
+
+### Features
+
+* **mcp:** add agent onboarding tools ([#58](https://github.com/microlinkhq/microlink/issues/58)) ([2a85f63](https://github.com/microlinkhq/microlink/commit/2a85f6311ac869c846e31f87cf036aa61ef07058))
+
 ## [2.5.2](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.5.1...%40microlink%2Fmcp%402.5.2) (2026-09-13)
 
 ### Bug Fixes
