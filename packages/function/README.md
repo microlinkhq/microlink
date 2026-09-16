@@ -184,6 +184,7 @@ Any [Puppeteer Page method](https://pptr.dev/api/puppeteer.page) is available.
 
 | Property | Description |
 | --- | --- |
+| `url` | The target URL of the request. Available without starting a browser. |
 | `page` | Full Puppeteer access. Microlink navigates to the URL before calling your function. |
 | `response` | The HTTP response from the implicit navigation. Only available when the function uses `page`. |
 | `headers` | Request headers used to fetch the target URL. |
