@@ -10,11 +10,16 @@ module.exports = url => {
     return
   }
   if (!href.startsWith('https:') && !href.startsWith('http:')) return
+  if (href.includes('"')) return
 
   const { platform } = process
   const child =
     platform === 'win32'
-      ? spawn('explorer.exe', [href], { detached: true, stdio: 'ignore' })
+      ? spawn('cmd', ['/c', 'start', '""', `"${href}"`], {
+        detached: true,
+        stdio: 'ignore',
+        windowsVerbatimArguments: true
+      })
       : spawn(platform === 'darwin' ? 'open' : 'xdg-open', [href], {
         detached: true,
         stdio: 'ignore'
