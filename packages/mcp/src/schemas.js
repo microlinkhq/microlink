@@ -456,6 +456,37 @@ export const functionInputSchema = baseSchema
   })
   .strict()
 
+export const DOC_PRODUCTS = [
+  'metadata',
+  'logo',
+  'markdown',
+  'html',
+  'text',
+  'video',
+  'audio',
+  'emails',
+  'links',
+  'images',
+  'videos',
+  'audios',
+  'extract',
+  'screenshot',
+  'pdf',
+  'embed',
+  'technologies',
+  'lighthouse',
+  'search',
+  'function'
+]
+
+export const docsInputSchema = z
+  .object({
+    product: z.enum(DOC_PRODUCTS, {
+      error: `Unknown product. Valid products: ${DOC_PRODUCTS.join(', ')}.`
+    })
+  })
+  .strict()
+
 export const listPlansInputSchema = z.object({}).strict()
 
 export const createCheckoutSessionInputSchema = z

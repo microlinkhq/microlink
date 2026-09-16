@@ -124,6 +124,7 @@ export const outputSchemas = {
   list_plans: plansSchema,
   create_checkout_session: checkoutSessionSchema,
   get_checkout_session: checkoutStatusSchema,
+  docs: z.string(),
   metadata: metadataSchema,
   logo: nullableAssetSchema,
   markdown: stringSchema,

@@ -59,6 +59,7 @@ const TITLES = {
   list_plans: 'Plans',
   create_checkout_session: 'Create checkout session',
   get_checkout_session: 'Checkout session status',
+  docs: 'Product docs',
   metadata: 'Metadata',
   logo: 'Logo',
   markdown: 'Markdown',
