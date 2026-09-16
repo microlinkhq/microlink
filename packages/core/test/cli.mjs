@@ -1,7 +1,7 @@
 import { createRequire } from 'module'
 import { fileURLToPath } from 'url'
 import { spawn } from 'child_process'
-import { mkdirSync, mkdtempSync, writeFileSync, existsSync } from 'fs'
+import { mkdirSync, mkdtempSync, writeFileSync, existsSync, readFileSync } from 'fs'
 import { tmpdir } from 'os'
 import http from 'http'
 import path from 'path'
@@ -43,8 +43,8 @@ test('prints command help for buy', async t => {
   const { stdout } = await $('node', [bin, 'buy', '--help'])
   t.true(stdout.includes('buy'))
   t.true(stdout.includes('Buy a Microlink API key'))
-  t.true(stdout.includes('--email'))
   t.true(stdout.includes('--plan'))
+  t.false(stdout.includes('--email'))
   t.false(stdout.includes('Products'))
 })
 
@@ -448,7 +448,14 @@ const listenDashboard = async (t, handler) => {
   return `http://127.0.0.1:${server.address().port}`
 }
 
-const dashboardEnv = url => ({ ...process.env, MICROLINK_DASHBOARD_URL: url })
+const dashboardEnv = (url, extra = {}) => ({
+  ...process.env,
+  MICROLINK_DASHBOARD_URL: url,
+  MICROLINK_CONNECT_TOKEN: 'tok',
+  DEBUG: '',
+  XDG_CONFIG_HOME: extra.XDG_CONFIG_HOME ?? configHome().dir,
+  ...extra
+})
 
 const PLAN = { id: 'pro', limit: 1000, price: 2000, currency: 'usd' }
 
@@ -463,7 +470,7 @@ const SESSION = {
   checkoutUrl: 'https://checkout.example/pay'
 }
 
-const listenCheckout = (t, { state = 'ready', onCreate } = {}) =>
+const listenCheckout = (t, { state = 'ready', apiKey = 'ml_secret', onCreate } = {}) =>
   listenDashboard(t, (req, res) => {
     if (req.url === '/api/v1/plans') return json(res, { plans: [PLAN] })
     if (req.method === 'POST' && req.url === '/api/v1/checkout/sessions') {
@@ -477,49 +484,54 @@ const listenCheckout = (t, { state = 'ready', onCreate } = {}) =>
       return
     }
     if (req.url === '/api/v1/checkout/sessions/cs_1') {
-      return json(res, { state, sessionId: 'cs_1' })
+      const body = { state }
+      if (state === 'ready' && apiKey) body.apiKey = apiKey
+      return json(res, body)
     }
     json(res, {}, 404)
   })
 
-test('buy without flags prompts for email', async t => {
+test('buy sends the connect token, not an email', async t => {
   let created
+  let authorization
+  const { dir } = configHome()
   const url = await listenCheckout(t, {
-    onCreate: body => {
+    onCreate: (body, req) => {
       created = body
+      authorization = req.headers.authorization
     }
   })
 
-  const subprocess = $('node', [bin, 'buy'], { env: dashboardEnv(url) })
-  subprocess.stdin.end('a@b.c\n')
-  const { stderr } = await subprocess
-  t.deepEqual(created, { email: 'a@b.c', planId: 'pro', label: 'default' })
+  const { stdout, stderr } = await $(
+    'node',
+    [bin, 'buy', '--plan', 'pro'],
+    { env: dashboardEnv(url, { XDG_CONFIG_HOME: dir }) }
+  )
+  t.deepEqual(created, { planId: 'pro', label: 'default' })
+  t.is(authorization, 'Bearer tok')
   t.true(stderr.includes('checkout.example/pay'))
-  t.true(stderr.includes('microlink login'))
+  t.is(stdout.trim(), 'ml_secret')
+  t.true(stderr.includes('Saved'))
+  t.false(stderr.includes('microlink login'))
+  t.deepEqual(
+    JSON.parse(readFileSync(path.join(dir, 'microlink', 'config.json'), 'utf8')),
+    { apiKey: 'ml_secret' }
+  )
 })
 
 test('buy rejects an unknown plan', async t => {
   const url = await listenCheckout(t)
   const error = await t.throwsAsync(() =>
-    $('node', [bin, 'buy', '--email', 'a@b.c', '--plan', 'nope'], {
+    $('node', [bin, 'buy', '--plan', 'nope'], {
       env: dashboardEnv(url)
     })
   )
   t.true(error.stderr.includes('Unknown plan'))
 })
 
-test('buy rejects an invalid email', async t => {
-  const url = await listenCheckout(t)
-  const error = await t.throwsAsync(() =>
-    $('node', [bin, 'buy', '--email', 'nope', '--plan', 'pro'], {
-      env: dashboardEnv(url)
-    })
-  )
-  t.true(error.stderr.includes('Invalid email'))
-})
-
 test('buy completes after checkout is ready', async t => {
   let created
+  const { dir } = configHome()
   const url = await listenCheckout(t, {
     onCreate: (body, req) => {
       created = body
@@ -527,21 +539,51 @@ test('buy completes after checkout is ready', async t => {
     }
   })
 
-  const { stderr } = await $(
+  const { stdout, stderr } = await $(
     'node',
-    [bin, 'buy', '--email', 'a@b.c', '--plan', 'pro'],
-    { env: dashboardEnv(url) }
+    [bin, 'buy', '--plan', 'pro'],
+    { env: dashboardEnv(url, { XDG_CONFIG_HOME: dir }) }
   )
 
-  t.deepEqual(created, { email: 'a@b.c', planId: 'pro', label: 'default' })
+  t.deepEqual(created, { planId: 'pro', label: 'default' })
   t.true(stderr.includes('checkout.example/pay'))
+  t.is(stdout.trim(), 'ml_secret')
+  t.true(stderr.includes('Saved'))
+  t.false(stderr.includes('microlink login'))
+  t.false(stderr.includes('path=/api/v1/plans'))
+})
+
+test('buy falls back to login when ready has no apiKey', async t => {
+  const url = await listenCheckout(t, { apiKey: null })
+  const { stdout, stderr } = await $(
+    'node',
+    [bin, 'buy', '--plan', 'pro'],
+    { env: dashboardEnv(url) }
+  )
+  t.is(stdout, '')
   t.true(stderr.includes('microlink login'))
+})
+
+test('buy prints dashboard responses when DEBUG=microlink', async t => {
+  const url = await listenCheckout(t)
+  const { stderr } = await $(
+    'node',
+    [bin, 'buy', '--plan', 'pro'],
+    { env: dashboardEnv(url, { DEBUG: 'microlink' }) }
+  )
+  t.true(stderr.includes('method=GET'))
+  t.true(stderr.includes('path=/api/v1/plans'))
+  t.true(stderr.includes('path=/api/v1/checkout/sessions'))
+  t.true(stderr.includes('path=/api/v1/checkout/sessions/cs_1'))
+  t.true(stderr.includes('status=200'))
+  t.true(stderr.includes('state=ready'))
+  t.true(stderr.includes('apiKey=ml_secret'))
 })
 
 test('buy fails when checkout expires', async t => {
   const url = await listenCheckout(t, { state: 'expired' })
   const error = await t.throwsAsync(() =>
-    $('node', [bin, 'buy', '--email', 'a@b.c', '--plan', 'pro'], {
+    $('node', [bin, 'buy', '--plan', 'pro'], {
       env: dashboardEnv(url)
     })
   )
@@ -641,10 +683,10 @@ const memoryHost = (overrides = {}) => {
 test('run buy delegates to the host', async t => {
   const host = memoryHost({
     buy: async opts => {
-      t.deepEqual(opts, { email: 'a@b.c', plan: 'pro' })
+      t.deepEqual(opts, { plan: 'pro' })
     }
   })
-  t.is(await run(['buy', '--email', 'a@b.c', '--plan', 'pro'], host), 0)
+  t.is(await run(['buy', '--plan', 'pro'], host), 0)
 })
 
 test('run writes help through the host without exiting the process', async t => {

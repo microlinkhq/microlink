@@ -86,14 +86,11 @@ const COMMANDS = {
   buy: {
     usage: 'buy',
     desc: 'Buy a Microlink API key',
-    flags: [
-      ['--email', 'Email for the Microlink account'],
-      ['--plan', 'Plan id from the catalog']
-    ],
+    flags: [['--plan', 'Plan id from the catalog']],
     cli: [],
     examples: [
-      ['buy', 'pick a plan and pay in the browser'],
-      ['buy --email you@example.com --plan pro', 'buy a specific plan']
+      ['buy', 'sign in on the dashboard, pick a plan, pay'],
+      ['buy --plan pro', 'buy a specific plan']
     ]
   },
   login: {

@@ -55,7 +55,7 @@ const run = async (argvInput, host) => {
     }
     try {
       if (command === 'buy') {
-        await host.buy({ email: flags.email, plan: flags.plan })
+        await host.buy({ plan: flags.plan })
       } else {
         await host.login()
       }
