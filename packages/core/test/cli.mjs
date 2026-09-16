@@ -548,6 +548,23 @@ test('buy fails when checkout expires', async t => {
   t.true(error.stderr.includes('Checkout expired'))
 })
 
+test('buy fails when the email already has an account', async t => {
+  const url = await listenDashboard(t, (req, res) => {
+    if (req.url === '/api/v1/plans') return json(res, { plans: [PLAN] })
+    if (req.method === 'POST' && req.url === '/api/v1/checkout/sessions') {
+      return json(res, { error: 'This email already has a Microlink account' }, 409)
+    }
+    json(res, {}, 404)
+  })
+  const error = await t.throwsAsync(() =>
+    $('node', [bin, 'buy', '--email', 'a@b.c', '--plan', 'pro'], {
+      env: dashboardEnv(url)
+    })
+  )
+  t.true(error.stderr.includes('already has a Microlink account'))
+  t.true(error.stderr.includes('microlink login'))
+})
+
 test('logout removes the saved config file', async t => {
   const { dir, env } = configHome('file-key-1')
   const file = path.join(dir, 'microlink', 'config.json')
