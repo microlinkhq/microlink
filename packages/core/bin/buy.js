@@ -71,20 +71,20 @@ const buy = async ({ plan: planId } = {}) => {
   planId = await pickPlan(plans, planId)
   const { token, sessionId, checkoutUrl } = await authorize({ plan: planId })
 
-  const session =
-    sessionId != null && checkoutUrl != null
-      ? { sessionId, checkoutUrl }
-      : await request('/api/v1/checkout/sessions', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'idempotency-key': randomUUID(),
-          authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ planId, label: 'default' })
-      })
+  const reuseSession = sessionId != null && checkoutUrl != null
+  const session = reuseSession
+    ? { sessionId, checkoutUrl }
+    : await request('/api/v1/checkout/sessions', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'idempotency-key': randomUUID(),
+        authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ planId, label: 'default' })
+    })
 
-  if (sessionId == null) {
+  if (!reuseSession) {
     process.stderr.write(`Opening ${session.checkoutUrl}\n\n`)
     if (process.stderr.isTTY) openUrl(session.checkoutUrl)
   }
