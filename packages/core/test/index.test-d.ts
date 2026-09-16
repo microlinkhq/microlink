@@ -71,6 +71,18 @@ async function assertions (): Promise<void> {
 
   const fnResult = await client.function('https://example.com', '() => 1')
   expectType<boolean>(fnResult.isFulfilled)
+
+  const title = await client.function(
+    'https://example.com',
+    async ({ page, response, headers, url }) => {
+      expectType<Promise<string>>(page.title())
+      expectType<boolean>(response.ok())
+      expectType<Record<string, string>>(headers)
+      expectType<string>(url)
+      return page.title()
+    }
+  )
+  expectType<boolean>(title.isFulfilled)
 }
 
 void assertions()

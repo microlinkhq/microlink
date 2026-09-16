@@ -39,11 +39,15 @@ export type FunctionRejected = {
 
 export type FunctionResponse = FunctionFulfilled | FunctionRejected
 
-export type FunctionInput = (args: {
+export type FunctionArgs = {
   page: Page
   response: HTTPResponse
+  headers: Record<string, string>
+  url: string
   [key: string]: any
-}) => any
+}
+
+export type FunctionInput = (args: FunctionArgs) => any
 
 declare function microlinkFunction(
   fn: FunctionInput,

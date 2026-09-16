@@ -1,3 +1,6 @@
+import type { HTTPResponse, Page } from 'puppeteer-core' with {
+  'resolution-mode': 'import'
+}
 import createGoogleClient from '@microlink/google'
 
 type GoogleClient = ReturnType<typeof createGoogleClient>
@@ -117,7 +120,15 @@ interface Embed {
   [key: string]: unknown
 }
 
-type FunctionInput = string | ((args: Record<string, unknown>) => unknown)
+export type FunctionArgs = {
+  page: Page
+  response: HTTPResponse
+  headers: Record<string, string>
+  url: string
+  [key: string]: any
+}
+
+export type FunctionInput = (args: FunctionArgs) => any
 
 interface FunctionResult<T = unknown> {
   isFulfilled: boolean
@@ -167,6 +178,11 @@ interface MicrolinkClient {
   function<T = unknown> (
     url: string,
     code: FunctionInput,
+    options?: Options
+  ): Promise<FunctionResult<T>>
+  function<T = unknown> (
+    url: string,
+    code: string,
     options?: Options
   ): Promise<FunctionResult<T>>
 }
