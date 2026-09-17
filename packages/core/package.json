@@ -57,7 +57,7 @@
   "devDependencies": {
     "ava": "latest",
     "proxyquire": "latest",
-    "puppeteer-core": "~25.11.0",
+    "puppeteer-core": "25",
     "tinyspawn": "latest",
     "tsd": "latest"
   },
