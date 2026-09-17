@@ -1,4 +1,4 @@
-import { docs as productDocs } from 'microlink.io/cli'
+import { load as loadProductDocs } from 'microlink.io/docs'
 
 import { docsInputSchema } from '../schemas.js'
 import { register } from './register.js'
@@ -13,6 +13,6 @@ export function docs (server) {
       'Returns the product markdown directly from microlink.io, the same source used by `microlink <product> docs`.'
     ].join(' '),
     docsInputSchema,
-    (_client, { product }) => productDocs.load(product)
+    (_client, { product }) => loadProductDocs(product)
   )
 }

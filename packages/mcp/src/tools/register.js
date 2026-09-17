@@ -40,9 +40,10 @@ function getApiKeyFromRequestHeaders (headers) {
   return undefined
 }
 
-// Every tool is a remote read against the Microlink API: it never modifies
-// the caller's environment. `microlink_function` is the exception: it runs
-// caller-supplied code against the live page, so it is not declared read-only.
+// Tools are remote reads and never modify the caller's environment. Product
+// tools hit the Microlink API; `microlink_docs` fetches public markdown from
+// microlink.io. `microlink_function` is the exception: it runs caller-supplied
+// code against the live page, so it is not declared read-only.
 const READ_ONLY_ANNOTATIONS = {
   readOnlyHint: true,
   destructiveHint: false,

@@ -123,8 +123,9 @@ Once the server is configured, talk to your assistant in plain language. It pick
 - *"Find the playable video in this YouTube link."* → `microlink_video`
 - *"Run a Lighthouse performance audit on https://example.com."* → `microlink_lighthouse`
 - *"Scrape every article title from this page using the `.title` selector."* → `microlink_extract` with `data`
+- *"What parameters does screenshot take?"* → `microlink_docs`
 
-Tools can also be invoked directly. URL-processing tools take a `url`; onboarding tools use the inputs listed below. Every tool returns `structuredContent` (see [Response shape](#response-shape)):
+Tools can also be invoked directly. URL-processing tools take a `url`; onboarding tools use the inputs listed below; `microlink_docs` takes a `product`. Every tool returns `structuredContent` (see [Response shape](#response-shape)):
 
 ```json
 {
@@ -141,11 +142,12 @@ Tools can also be invoked directly. URL-processing tools take a `url`; onboardin
 
 ### Capabilities at a glance
 
-URL-processing tools are thin wrappers over a [`microlink.io`](https://github.com/microlinkhq/microlink/tree/master/packages/core) library method — same inputs, same result, one source of truth. Onboarding tools call the public dashboard Checkout API instead.
+URL-processing tools are thin wrappers over a [`microlink.io`](https://github.com/microlinkhq/microlink/tree/master/packages/core) library method — same inputs, same result, one source of truth. Onboarding tools call the public dashboard Checkout API instead. `microlink_docs` loads canonical product markdown from microlink.io (the same source as `microlink <product> docs`).
 
 - `microlink_list_plans`: list plans available to a new customer.
 - `microlink_create_checkout_session`: create an idempotent subscription Checkout Session. Give its `checkoutUrl` to the human.
 - `microlink_get_checkout_session`: poll checkout state until `ready` or `expired`. `ready` includes `keyId` (a non-secret key handle); the API key secret is not returned here (welcome email / dashboard).
+- `microlink_docs`: canonical parameter docs for a product. Call this before a product tool whose parameters you do not know well.
 - `microlink_metadata`: normalized metadata extraction with include/exclude config.
 - `microlink_logo`: brand logo extraction.
 - `microlink_markdown` / `microlink_html` / `microlink_text`: URL to Markdown / HTML / plain text.
@@ -163,8 +165,8 @@ URL-processing tools are thin wrappers over a [`microlink.io`](https://github.co
 
 ### Response shape
 
-- URL-processing tools return the library's **direct result** under `structuredContent.data` (and the same value as pretty-printed JSON text). For example `microlink_markdown` → `{ data: "# Title\n..." }`, `microlink_screenshot` → `{ data: { url, type, width, height, size } }`, `microlink_links` → `{ data: ["https://...", ...] }`. Onboarding tools return dashboard Checkout payloads under the same `structuredContent.data` envelope.
-- Every tool also declares an MCP `outputSchema` describing its `structuredContent.data`. URL-processing schemas mirror the TypeScript types shipped by the library (`Asset`, `Metadata`, `Embed`, `FunctionResult`, ...); onboarding schemas mirror the dashboard Checkout API. Error results are exempt from output validation. Fields that can legitimately be absent are nullable (for example `logo` when no brand logo is detected, or `markdown` when the selector matches nothing).
+- URL-processing tools return the library's **direct result** under `structuredContent.data` (and the same value as pretty-printed JSON text). For example `microlink_markdown` → `{ data: "# Title\n..." }`, `microlink_screenshot` → `{ data: { url, type, width, height, size } }`, `microlink_links` → `{ data: ["https://...", ...] }`. Onboarding tools return dashboard Checkout payloads under the same envelope. `microlink_docs` returns the product markdown string.
+- Every tool also declares an MCP `outputSchema` describing its `structuredContent.data`. URL-processing schemas mirror the TypeScript types shipped by the library (`Asset`, `Metadata`, `Embed`, `FunctionResult`, ...); onboarding schemas mirror the dashboard Checkout API; `docs` is a markdown string. Error results are exempt from output validation. Fields that can legitimately be absent are nullable (for example `logo` when no brand logo is detected, or `markdown` when the selector matches nothing).
 - Tools are annotated `readOnlyHint: true` when they only read remote state. `microlink_function` executes user-supplied code and `microlink_create_checkout_session` creates remote Checkout state, so they are not annotated read-only.
 - On failure the tool sets MCP `isError` and returns `{ error: { message, code?, status?, statusCode?, url?, more?, details? } }`, where `message` carries the specific cause reported by the API. Capability errors that retrying cannot fix (for example `EPROXYNEEDED` or `EINTEGRATION`) also include machine-readable `reason` (`upgrade_required`), `capability`, an `upgrade` object with the plan and pricing URL, and an agent-facing `hint` with the next step. A `429` includes `reason: "quota_exceeded"` and a free-quota `hint`.
 
@@ -172,6 +174,20 @@ Parameters that require a paid plan are labeled `PRO` in their own schema descri
 For compatibility with some MCP clients:
 - boolean parameters also accept the strings `"true"` and `"false"` and are normalized before validation.
 - parameters that accept objects also accept JSON stringified objects (for example, `screenshot: "{\"overlay\":{\"browser\":\"dark\"}}"`).
+
+### `microlink_docs`
+
+Fetch the canonical parameter documentation for a Microlink product. Returns the same markdown as `microlink <product> docs` (`https://microlink.io/docs/sdk/methods/<product>.md`).
+
+Call this before using a product tool whose parameters you do not know well.
+
+**Key parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `product` | `string` | Product name *(required)*. One of: `metadata`, `logo`, `markdown`, `html`, `text`, `video`, `audio`, `emails`, `links`, `images`, `videos`, `audios`, `extract`, `screenshot`, `pdf`, `embed`, `technologies`, `lighthouse`, `search`, `function` |
+
+---
 
 ### `microlink_extract`
 

@@ -16,7 +16,7 @@ test('createMicrolinkServer returns MCP server instance', () => {
 
 test('createMicrolinkServer sets default instructions and honors overrides', () => {
   const withDefaults = createMicrolinkServer()
-  assert.ok(withDefaults.server._instructions.length > 0)
+  assert.match(withDefaults.server._instructions, /microlink_docs/)
 
   const custom = createMicrolinkServer({ instructions: 'Custom.' })
   assert.equal(custom.server._instructions, 'Custom.')

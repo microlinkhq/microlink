@@ -184,4 +184,3 @@ const run = async (argvInput, host) => {
 module.exports = run
 module.exports.run = run
 module.exports.helpText = helpText
-module.exports.docs = docs

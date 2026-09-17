@@ -11,6 +11,7 @@ const { version: pkgVersion } = require('../package.json')
 const DEFAULT_INSTRUCTIONS = [
   'Turn any public URL into screenshots, PDFs, metadata, readable content (Markdown, HTML or plain text), media sources, technology stacks, Lighthouse audits, Google search results or custom-scraped fields.',
   'Always pass full URLs including the protocol.',
+  "If you are unsure of a product tool's parameters, call microlink_docs first.",
   'Without an API key, requests use the free endpoint (50 requests/day); pass apiKey or set MICROLINK_API_KEY for PRO.',
   'On failure, read the error message and the hint/reason fields and adjust the request instead of retrying blindly.'
 ].join(' ')

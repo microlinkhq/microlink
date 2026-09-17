@@ -58,3 +58,15 @@ test('microlink_docs surfaces fetch failures', async t => {
   assert.equal(result.structuredContent, undefined)
   assert.equal(error.message, 'network unavailable')
 })
+
+test('microlink_docs surfaces HTTP fetch failures', async t => {
+  stubFetch(t, async () => new Response('missing', { status: 404 }))
+
+  const result = await captureDocs()({ product: 'markdown' }, {})
+  const error = JSON.parse(result.content[0].text)
+
+  assert.equal(result.isError, true)
+  assert.equal(result.structuredContent, undefined)
+  assert.match(error.message, /Failed to fetch/)
+  assert.match(error.message, /404/)
+})
