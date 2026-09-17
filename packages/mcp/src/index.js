@@ -9,9 +9,10 @@ const require = createRequire(import.meta.url)
 const { version: pkgVersion } = require('../package.json')
 
 const DEFAULT_INSTRUCTIONS = [
-  'Turn any public URL into screenshots, PDFs, metadata, readable content (Markdown, HTML or plain text), media sources, technology stacks, Lighthouse audits, Google search results or custom-scraped fields.',
-  'Always pass full URLs including the protocol.',
-  "If you are unsure of a product tool's parameters, call microlink_docs first.",
+  'Product tools turn a public URL into a Microlink result. Always pass full URLs including the protocol.',
+  "Call microlink_docs({ product }) for a product tool's parameters; do not guess nested options.",
+  'video/audio return the primary playable asset; videos/audios/links/images collect every match on the page.',
+  'extract is custom MQL rules, not full-page markdown/html/text. search takes a query. Checkout tools buy an API key.',
   'Without an API key, requests use the free endpoint (50 requests/day); pass apiKey or set MICROLINK_API_KEY for PRO.',
   'On failure, read the error message and the hint/reason fields and adjust the request instead of retrying blindly.'
 ].join(' ')

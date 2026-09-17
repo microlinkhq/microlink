@@ -5,11 +5,7 @@ export function videos (server) {
   register(
     server,
     'microlink_videos',
-    [
-      'Collect every video source (`<video>`, `<source>`) from any public URL via Microlink.',
-      'Returns an array of absolute, deduped video URLs.',
-      'Mirrors the `microlink.videos(url)` library method. For the primary playable video, use `microlink_video`.'
-    ].join(' '),
+    'Every video source URL on the page. For the primary playable video, use microlink_video.',
     videosInputSchema,
     urlMethod('videos')
   )

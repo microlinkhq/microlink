@@ -5,12 +5,7 @@ export function logo (server) {
   register(
     server,
     'microlink_logo',
-    [
-      'Extract the brand logo of any public URL via Microlink.',
-      'Returns the logo asset: `url`, `type`, `width`, `height`, `size`, and `size_pretty`.',
-      'Pass `square: true` to prefer a square (icon-shaped) variant.',
-      'Mirrors the `microlink.logo(url, { square })` library method.'
-    ].join(' '),
+    'Brand logo of a public URL as an asset. Null when none is detected.',
     logoInputSchema,
     urlMethod('logo')
   )

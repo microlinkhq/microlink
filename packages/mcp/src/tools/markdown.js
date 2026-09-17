@@ -5,12 +5,7 @@ export function markdown (server) {
   register(
     server,
     'microlink_markdown',
-    [
-      'Convert any public URL to Markdown via Microlink.',
-      'Returns the page content as a Markdown string. Pass `selector` to scope it to part of the page.',
-      'Combine with browser options such as `javascript`, `waitUntil`, `waitForSelector`, `headers`, and `proxy`.',
-      'Mirrors the `microlink.markdown(url)` library method.'
-    ].join(' '),
+    'Page content as Markdown. For custom CSS/MQL fields, use microlink_extract.',
     markdownInputSchema,
     urlMethod('markdown')
   )

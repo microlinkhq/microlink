@@ -5,11 +5,7 @@ export function images (server) {
   register(
     server,
     'microlink_images',
-    [
-      'Collect every image (`<img src>`) from any public URL via Microlink.',
-      'Returns an array of absolute, deduped image URLs. Pass `selectorAll` to scope the collection.',
-      'Mirrors the `microlink.images(url)` library method.'
-    ].join(' '),
+    'Every absolute image URL on the page.',
     imagesInputSchema,
     urlMethod('images')
   )
