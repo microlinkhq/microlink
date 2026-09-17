@@ -7,5 +7,5 @@ module.exports = argvInput =>
   mri(argvInput, {
     alias: { H: 'header' },
     boolean: ['trace', 'trace-full', 'help', 'html', 'markdown'],
-    string: ['header', 'api-key', 'data', 'file', 'endpoint']
+    string: ['header', 'api-key', 'data', 'file', 'endpoint', 'email', 'plan']
   })

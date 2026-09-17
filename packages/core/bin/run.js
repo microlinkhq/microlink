@@ -44,7 +44,7 @@ const run = async (argvInput, host) => {
 
   if (!command || command === 'help') return showHelp(target)
 
-  if (command === 'login' || command === 'logout') {
+  if (command === 'buy' || command === 'login' || command === 'logout') {
     if (help) return showHelp(command)
     if (command === 'logout') {
       writeLine(
@@ -54,7 +54,11 @@ const run = async (argvInput, host) => {
       return finish(0)
     }
     try {
-      await host.login()
+      if (command === 'buy') {
+        await host.buy({ plan: flags.plan })
+      } else {
+        await host.login()
+      }
       return finish(0)
     } catch (error) {
       writeLine(stderr, error.message)

@@ -2,7 +2,7 @@
   "name": "microlink.io",
   "description": "The Microlink API organized into products, each returning a direct result",
   "homepage": "https://github.com/microlinkhq/microlink",
-  "version": "0.10.4",
+  "version": "0.12.0",
   "types": "./src/index.d.ts",
   "main": "./src/index.js",
   "exports": {
@@ -52,11 +52,14 @@
     "@microlink/function": "workspace:*",
     "@microlink/google": "workspace:*",
     "@microlink/mql": "workspace:*",
+    "debug": "~4.4.3",
+    "debug-logfmt": "~1.4.15",
     "mri": "~1.2.0"
   },
   "devDependencies": {
     "ava": "latest",
     "proxyquire": "latest",
+    "puppeteer-core": "25",
     "tinyspawn": "latest",
     "tsd": "latest"
   },

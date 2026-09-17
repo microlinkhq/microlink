@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.11.0...microlink.io%400.12.0) (2026-09-17)
+
+### Features
+
+* **cli:** add buy command ([#59](https://github.com/microlinkhq/microlink/issues/59)) ([61ce1ec](https://github.com/microlinkhq/microlink/commit/61ce1ec519f4bb01717212d6a877f49bfb3fd834))
+
+## [0.11.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.10.5...microlink.io%400.11.0) (2026-09-17)
+
+### Features
+
+* **function:** type page, url, and headers on function args ([#62](https://github.com/microlinkhq/microlink/issues/62)) ([de12223](https://github.com/microlinkhq/microlink/commit/de12223fb26618849f99271ee545dff79be4352c))
+
+## [0.10.5](https://github.com/microlinkhq/microlink/compare/microlink.io%400.10.4...microlink.io%400.10.5) (2026-09-16)
+
+**Note:** Version bump only for package microlink.io
+
 ## [0.10.4](https://github.com/microlinkhq/microlink/compare/microlink.io%400.10.3...microlink.io%400.10.4) (2026-09-13)
 
 ### Bug Fixes

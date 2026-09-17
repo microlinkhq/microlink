@@ -1,4 +1,5 @@
-const DASHBOARD_URL = 'https://dashboard.microlink.io'
+const dashboardUrl = () =>
+  process.env.MICROLINK_DASHBOARD_URL || 'https://dashboard.microlink.io'
 
 class DashboardApiError extends Error {
   constructor (payload) {
@@ -8,7 +9,7 @@ class DashboardApiError extends Error {
 }
 
 async function request (path, options = {}) {
-  const response = await fetch(`${DASHBOARD_URL}${path}`, options)
+  const response = await fetch(`${dashboardUrl()}${path}`, options)
   const body = await response.json().catch(() => ({}))
 
   if (!response.ok) {
