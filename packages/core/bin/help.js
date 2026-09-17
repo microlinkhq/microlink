@@ -197,7 +197,7 @@ const PRODUCTS = {
       ['--optimizeForSpeed', 'Faster encode, larger file'],
       ['--overlay', 'Browser chrome overlay as JSON'],
       ['--codeScheme', 'Syntax theme for code pages'],
-      ['--animated', 'Animated screenshot (GIF/MP4)'],
+      ['--animated', 'Capture a short video (MP4/WebM) instead of a still'],
       ['--palette', 'Also extract dominant colors'],
       ['--quality', 'JPEG quality (0–100)']
     ],

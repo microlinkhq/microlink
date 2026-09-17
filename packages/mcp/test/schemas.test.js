@@ -601,6 +601,17 @@ test('text schema rejects unknown top-level keys', () => {
   )
 })
 
+test('screenshot schema documents fullPage for MCP clients', () => {
+  const { properties } = z.toJSONSchema(screenshotInputSchema)
+  const screenshot = properties.screenshot
+  const fullPage =
+    screenshot.anyOf?.find(entry => entry.properties?.fullPage)?.properties
+      ?.fullPage ?? screenshot.properties?.fullPage
+
+  assert.match(screenshot.description, /fullPage/)
+  assert.match(fullPage.description, /full scrollable page/)
+})
+
 test('PRO parameters are labeled in the JSON Schema shown to MCP clients', () => {
   const { properties } = z.toJSONSchema(screenshotInputSchema)
 
