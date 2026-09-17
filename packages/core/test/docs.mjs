@@ -2,10 +2,15 @@ import { createRequire } from 'module'
 import test from 'ava'
 
 const require = createRequire(import.meta.url)
-const { load, url } = require('../bin/docs')
+const create = require('../src')
+const { load, url, products } = require('../bin/docs')
 
 test('points at the SDK method markdown file', t => {
   t.is(url('markdown'), 'https://microlink.io/docs/sdk/methods/markdown.md')
+})
+
+test('products match the library methods', t => {
+  t.deepEqual([...products].sort(), Object.keys(create()).sort())
 })
 
 test('load fetches the markdown file', async t => {

@@ -16,7 +16,8 @@
       "import": "./bin/cli.mjs",
       "require": "./bin/run.js",
       "default": "./bin/cli.mjs"
-    }
+    },
+    "./docs": "./bin/docs.js"
   },
   "bin": {
     "microlink": "bin/index.js",

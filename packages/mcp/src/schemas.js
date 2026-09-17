@@ -1,3 +1,4 @@
+import { products as DOC_PRODUCTS } from 'microlink.io/docs'
 import { z } from 'zod'
 
 const stringOrStringArraySchema = z.union([
@@ -453,6 +454,16 @@ export const functionInputSchema = baseSchema
   .extend(visualSchema)
   .extend({
     code: z.string().min(1)
+  })
+  .strict()
+
+export const docsInputSchema = z
+  .object({
+    product: z
+      .enum(DOC_PRODUCTS, {
+        error: `Unknown product. Valid products: ${DOC_PRODUCTS.join(', ')}.`
+      })
+      .describe('Microlink product whose canonical parameter docs to fetch.')
   })
   .strict()
 

@@ -1,10 +1,11 @@
 import { z } from 'zod'
 
 // Output schemas for every tool's `structuredContent.data` value.
-// They mirror the TypeScript definitions that ship with the library
-// (packages/core/src/index.d.ts, packages/search/src/index.d.ts), which are
-// the canonical contract for response shapes. Index signatures map to
-// `.catchall(z.unknown())` so forward-compatible API fields always validate.
+// URL-processing schemas mirror the TypeScript definitions that ship with
+// the library (packages/core/src/index.d.ts, packages/search/src/index.d.ts).
+// `docs` is the product markdown string from microlink.io. Index signatures
+// map to `.catchall(z.unknown())` so forward-compatible API fields always
+// validate.
 
 // `Asset` (packages/core/src/index.d.ts).
 const assetSchema = z
@@ -124,6 +125,7 @@ export const outputSchemas = {
   list_plans: plansSchema,
   create_checkout_session: checkoutSessionSchema,
   get_checkout_session: checkoutStatusSchema,
+  docs: z.string(),
   metadata: metadataSchema,
   logo: nullableAssetSchema,
   markdown: stringSchema,

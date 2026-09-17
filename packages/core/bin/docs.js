@@ -1,5 +1,28 @@
 'use strict'
 
+const products = [
+  'metadata',
+  'logo',
+  'markdown',
+  'html',
+  'text',
+  'video',
+  'audio',
+  'emails',
+  'links',
+  'images',
+  'videos',
+  'audios',
+  'extract',
+  'screenshot',
+  'pdf',
+  'embed',
+  'technologies',
+  'lighthouse',
+  'search',
+  'function'
+]
+
 const url = product => `https://microlink.io/docs/sdk/methods/${product}.md`
 
 const load = async (product, fetchFn = fetch) => {
@@ -9,4 +32,4 @@ const load = async (product, fetchFn = fetch) => {
   return res.text()
 }
 
-module.exports = { load, url }
+module.exports = { load, url, products }

@@ -2,6 +2,7 @@ import { audio } from './audio.js'
 import { checkoutCreate } from './create-checkout-session.js'
 import { checkoutStatus } from './get-checkout-session.js'
 import { audios } from './audios.js'
+import { docs } from './docs.js'
 import { emails } from './emails.js'
 import { embed } from './embed.js'
 import { extract } from './extract.js'
@@ -26,6 +27,7 @@ export function tools (server) {
   plans(server)
   checkoutCreate(server)
   checkoutStatus(server)
+  docs(server)
   metadata(server)
   logo(server)
   markdown(server)
