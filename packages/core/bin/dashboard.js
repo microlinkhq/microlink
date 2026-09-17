@@ -20,6 +20,19 @@ const debugResponse = (method, path, status, body) => {
   debug(fields)
 }
 
+const fetchJson = async (path, options = {}) => {
+  const method = options.method || 'GET'
+  const res = await fetch(new URL(path, dashboardUrl()), options)
+  const body = await res.json().catch(() => ({}))
+  debugResponse(method, path, res.status, body)
+  return { res, body }
+}
+
+const end = (res, status) => {
+  res.writeHead(status)
+  res.end()
+}
+
 const listen = state =>
   new Promise((resolve, reject) => {
     let settle
@@ -36,33 +49,21 @@ const listen = state =>
 
     const server = http.createServer((req, res) => {
       cors(res)
-      if (req.method === 'OPTIONS') {
-        res.writeHead(204)
-        res.end()
-        return
-      }
-      if (req.method !== 'POST') {
-        res.writeHead(405)
-        res.end()
-        return
-      }
+      if (req.method === 'OPTIONS') return end(res, 204)
+      if (req.method !== 'POST') return end(res, 405)
       const chunks = []
       req.on('data', chunk => chunks.push(chunk))
       req.on('end', () => {
         try {
           const body = JSON.parse(Buffer.concat(chunks).toString())
           if (body.state !== state || typeof body.token !== 'string') {
-            res.writeHead(400)
-            res.end()
-            return
+            return end(res, 400)
           }
-          res.writeHead(204)
-          res.end()
+          end(res, 204)
           clearTimeout(timer)
           settle.resolve(body)
         } catch {
-          res.writeHead(400)
-          res.end()
+          end(res, 400)
         }
       })
     })
@@ -105,4 +106,4 @@ const authorize = async (query = {}) => {
   }
 }
 
-module.exports = { dashboardUrl, authorize, debugResponse }
+module.exports = { dashboardUrl, authorize, fetchJson }

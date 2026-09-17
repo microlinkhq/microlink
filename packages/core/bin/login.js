@@ -1,17 +1,14 @@
 'use strict'
 
 const { writeConfig, readApiKey, configPathDisplay } = require('./config')
-const { dashboardUrl, authorize, debugResponse } = require('./dashboard')
+const { dashboardUrl, authorize, fetchJson } = require('./dashboard')
 const select = require('./select')
 const { gray } = require('./style')
 
 const fetchKeys = async token => {
-  const path = '/api/v1/connect/keys'
-  const res = await fetch(new URL(path, dashboardUrl()), {
+  const { res, body } = await fetchJson('/api/v1/connect/keys', {
     headers: { authorization: `Bearer ${token}` }
   })
-  const body = await res.json().catch(() => ({}))
-  debugResponse('GET', path, res.status, body)
   if (!res.ok) {
     throw new Error(`Could not load API keys (${res.status})`)
   }

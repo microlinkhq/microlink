@@ -2,7 +2,7 @@
 
 const { randomUUID } = require('crypto')
 const { writeConfig, configPathDisplay } = require('./config')
-const { dashboardUrl, authorize, debugResponse } = require('./dashboard')
+const { authorize, fetchJson } = require('./dashboard')
 const select = require('./select')
 const openUrl = require('./open')
 const { gray } = require('./style')
@@ -11,10 +11,7 @@ const TIMEOUT_MS = 15 * 60 * 1000
 const POLL_MS = 2000
 
 const request = async (path, options) => {
-  const method = options?.method || 'GET'
-  const res = await fetch(new URL(path, dashboardUrl()), options)
-  const body = await res.json().catch(() => ({}))
-  debugResponse(method, path, res.status, body)
+  const { res, body } = await fetchJson(path, options)
   if (!res.ok) {
     throw new Error(body.error || `Dashboard request failed (${res.status})`)
   }
@@ -71,10 +68,11 @@ const buy = async ({ plan: planId } = {}) => {
   planId = await pickPlan(plans, planId)
   const { token, sessionId, checkoutUrl } = await authorize({ plan: planId })
 
-  const reuseSession = sessionId != null && checkoutUrl != null
-  const session = reuseSession
-    ? { sessionId, checkoutUrl }
-    : await request('/api/v1/checkout/sessions', {
+  let session
+  if (sessionId != null && checkoutUrl != null) {
+    session = { sessionId, checkoutUrl }
+  } else {
+    session = await request('/api/v1/checkout/sessions', {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -83,8 +81,6 @@ const buy = async ({ plan: planId } = {}) => {
       },
       body: JSON.stringify({ planId, label: 'default' })
     })
-
-  if (!reuseSession) {
     process.stderr.write(`Opening ${session.checkoutUrl}\n\n`)
     if (process.stderr.isTTY) openUrl(session.checkoutUrl)
   }
