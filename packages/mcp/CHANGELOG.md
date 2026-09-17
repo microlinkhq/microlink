@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.8.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.7.0...%40microlink%2Fmcp%402.8.0) (2026-09-17)
+
+### Features
+
+* expose product docs through MCP ([#60](https://github.com/microlinkhq/microlink/issues/60)) ([cb414bb](https://github.com/microlinkhq/microlink/commit/cb414bb2ceae26abe59416bb97b4719a87e71d45))
+
 ## [2.7.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.6.2...%40microlink%2Fmcp%402.7.0) (2026-09-17)
 
 ### Features

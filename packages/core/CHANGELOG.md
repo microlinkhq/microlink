@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.13.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.12.0...microlink.io%400.13.0) (2026-09-17)
+
+### Features
+
+* expose product docs through MCP ([#60](https://github.com/microlinkhq/microlink/issues/60)) ([cb414bb](https://github.com/microlinkhq/microlink/commit/cb414bb2ceae26abe59416bb97b4719a87e71d45))
+
 ## [0.12.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.11.0...microlink.io%400.12.0) (2026-09-17)
 
 ### Features
