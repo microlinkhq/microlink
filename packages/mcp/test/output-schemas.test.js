@@ -8,11 +8,14 @@ import { outputSchemas } from '../src/output-schemas.js'
 
 function captureAll () {
   const registered = {}
-  tools({
-    registerTool: (name, config, handler) => {
-      registered[name] = { config, handler }
-    }
-  })
+  tools(
+    {
+      registerTool: (name, config, handler) => {
+        registered[name] = { config, handler }
+      }
+    },
+    { onboarding: true, search: true }
+  )
   return registered
 }
 

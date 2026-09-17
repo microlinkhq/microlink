@@ -104,8 +104,15 @@ const viewportSchema = objectLikeSchema(
 const screenshotOverlaySchema = objectLikeSchema(
   z
     .object({
-      browser: z.enum(['light', 'dark']).optional(),
-      background: z.string().min(1).optional()
+      browser: z
+        .enum(['light', 'dark'])
+        .optional()
+        .describe('Browser chrome theme for the overlay.'),
+      background: z
+        .string()
+        .min(1)
+        .optional()
+        .describe('Overlay background color (CSS color).')
     })
     .strict()
 )
@@ -113,16 +120,48 @@ const screenshotOverlaySchema = objectLikeSchema(
 export const screenshotConfigSchema = objectLikeSchema(
   z
     .object({
-      animated: booleanSchema.optional(),
-      codeScheme: z.string().min(1).optional(),
-      element: z.string().min(1).optional(),
-      fullPage: booleanSchema.optional(),
-      omitBackground: booleanSchema.optional(),
-      optimizeForSpeed: booleanSchema.optional(),
-      overlay: screenshotOverlaySchema.optional(),
-      palette: booleanSchema.optional(),
-      quality: z.number().min(0).max(100).optional(),
-      type: z.enum(['jpeg', 'png']).optional()
+      animated: booleanSchema
+        .optional()
+        .describe(
+          'Capture an animated screenshot (GIF/MP4) instead of a still.'
+        ),
+      codeScheme: z
+        .string()
+        .min(1)
+        .optional()
+        .describe(
+          'Syntax-highlight theme for code pages (for example dracula).'
+        ),
+      element: z
+        .string()
+        .min(1)
+        .optional()
+        .describe('CSS selector of the element to capture.'),
+      fullPage: booleanSchema
+        .optional()
+        .describe('Capture the full scrollable page.'),
+      omitBackground: booleanSchema
+        .optional()
+        .describe('Transparent background (png).'),
+      optimizeForSpeed: booleanSchema
+        .optional()
+        .describe('Faster encode, larger file.'),
+      overlay: screenshotOverlaySchema
+        .optional()
+        .describe('Browser chrome overlay.'),
+      palette: booleanSchema
+        .optional()
+        .describe('Also extract dominant colors.'),
+      quality: z
+        .number()
+        .min(0)
+        .max(100)
+        .optional()
+        .describe('JPEG quality (0–100).'),
+      type: z
+        .enum(['jpeg', 'png'])
+        .optional()
+        .describe('Image format. Default png.')
     })
     .strict()
 )
@@ -158,13 +197,24 @@ export const pdfConfigSchema = objectLikeSchema(
           'A5',
           'A6'
         ])
-        .optional(),
-      height: z.string().min(1).optional(),
-      landscape: booleanSchema.optional(),
-      margin: pdfMarginSchema.optional(),
-      pageRanges: z.string().min(1).optional(),
-      scale: z.number().min(0.1).max(2).optional(),
-      width: z.string().min(1).optional()
+        .optional()
+        .describe('Page format. Default A4.'),
+      height: z
+        .string()
+        .min(1)
+        .optional()
+        .describe('Page height (CSS length).'),
+      landscape: booleanSchema.optional().describe('Landscape orientation.'),
+      margin: pdfMarginSchema
+        .optional()
+        .describe('Margin as a CSS length or { top, bottom, left, right }.'),
+      pageRanges: z
+        .string()
+        .min(1)
+        .optional()
+        .describe('Pages to print, for example 1-3.'),
+      scale: z.number().min(0.1).max(2).optional().describe('Scale (0.1–2).'),
+      width: z.string().min(1).optional().describe('Page width (CSS length).')
     })
     .strict()
 )
@@ -254,22 +304,33 @@ const browserSchema = {
     .min(1)
     .optional()
     .describe(`Custom cache key for the request. ${PRO}`),
-  click: stringOrStringArraySchema.optional(),
-  colorScheme: z.enum(['no-preference', 'light', 'dark']).optional(),
-  device: z.string().min(1).optional(),
+  click: stringOrStringArraySchema
+    .optional()
+    .describe('CSS selector(s) to click before capture.'),
+  colorScheme: z
+    .enum(['no-preference', 'light', 'dark'])
+    .optional()
+    .describe('Preferred color scheme.'),
+  device: z
+    .string()
+    .min(1)
+    .optional()
+    .describe('Emulate a device, for example iPhone 12.'),
   filename: z
     .string()
     .min(1)
     .optional()
     .describe(`Custom name for the generated asset. ${PRO}`),
   filter: z.string().min(1).optional(),
-  force: booleanSchema.optional(),
+  force: booleanSchema.optional().describe('Bypass cache.'),
   headers: objectLikeSchema(
     z.record(z.string(), z.union([z.string(), z.number(), booleanSchema]))
   )
     .optional()
     .describe(`Custom HTTP headers sent to the target URL. ${PRO}`),
-  javascript: booleanSchema.optional(),
+  javascript: booleanSchema
+    .optional()
+    .describe('Toggle JavaScript execution on the target page.'),
   mediaType: z.enum(['screen', 'print']).optional(),
   modules: stringOrStringArraySchema.optional(),
   prerender: z.union([z.literal('auto'), booleanSchema]).optional(),
@@ -280,7 +341,11 @@ const browserSchema = {
     ),
   retry: z.number().int().nonnegative().optional(),
   scripts: stringOrStringArraySchema.optional(),
-  scroll: z.string().min(1).optional(),
+  scroll: z
+    .string()
+    .min(1)
+    .optional()
+    .describe('CSS selector to scroll into view before capture.'),
   staleTtl: z
     .union([z.string(), z.number(), booleanSchema])
     .optional()
@@ -291,16 +356,25 @@ const browserSchema = {
   timeout: stringOrNumberSchema.optional(),
   ttl: stringOrNumberSchema.optional(),
   viewport: viewportSchema.optional(),
-  waitForSelector: z.string().min(1).optional(),
+  waitForSelector: z
+    .string()
+    .min(1)
+    .optional()
+    .describe('Wait for this CSS selector before capture.'),
   waitForTimeout: stringOrNumberSchema.optional(),
   waitUntil: z
     .union([waitUntilEventSchema, z.array(waitUntilEventSchema).min(1)])
     .optional()
+    .describe(
+      'Navigation event to wait for: auto, load, domcontentloaded, networkidle0, networkidle2.'
+    )
 }
 
 const visualSchema = {
   ...browserSchema,
-  data: objectLikeSchema(z.record(z.string(), dataRuleSchema)).optional()
+  data: objectLikeSchema(z.record(z.string(), dataRuleSchema))
+    .optional()
+    .describe('Custom MQL data rules (selector, attr, type).')
 }
 
 export const extractInputSchema = baseSchema
@@ -318,14 +392,22 @@ export const extractInputSchema = baseSchema
 export const screenshotInputSchema = baseSchema
   .extend(visualSchema)
   .extend({
-    screenshot: z.union([booleanSchema, screenshotConfigSchema]).optional()
+    screenshot: z
+      .union([booleanSchema, screenshotConfigSchema])
+      .optional()
+      .describe(
+        'true for defaults, or an object (fullPage, element, type, overlay, animated).'
+      )
   })
   .strict()
 
 export const pdfInputSchema = baseSchema
   .extend(visualSchema)
   .extend({
-    pdf: z.union([booleanSchema, pdfConfigSchema]).optional()
+    pdf: z
+      .union([booleanSchema, pdfConfigSchema])
+      .optional()
+      .describe('true for defaults, or an object (format, margin, landscape).')
   })
   .strict()
 
@@ -348,7 +430,9 @@ export const videoInputSchema = baseSchema
 export const logoInputSchema = baseSchema
   .extend(visualSchema)
   .extend({
-    square: booleanSchema.optional(),
+    square: booleanSchema
+      .optional()
+      .describe('Prefer the square (icon-shaped) logo variant.'),
     palette: booleanSchema.optional()
   })
   .strict()
@@ -356,7 +440,12 @@ export const logoInputSchema = baseSchema
 export const metadataInputSchema = baseSchema
   .extend(visualSchema)
   .extend({
-    meta: z.union([booleanSchema, metaConfigSchema]).optional(),
+    meta: z
+      .union([booleanSchema, metaConfigSchema])
+      .optional()
+      .describe(
+        'true to include metadata, false to skip, or an object to include/exclude fields.'
+      ),
     palette: booleanSchema.optional()
   })
   .strict()
@@ -365,7 +454,9 @@ export const metadataInputSchema = baseSchema
 const contentSchema = baseSchema
   .extend(browserSchema)
   .extend({
-    selector: selectorSchema.optional(),
+    selector: selectorSchema
+      .optional()
+      .describe('CSS selector to scope the extracted content.'),
     selectorAll: selectorSchema.optional(),
     type: z.string().min(1).optional()
   })
@@ -376,8 +467,14 @@ const collectionSchema = baseSchema
   .extend(browserSchema)
   .extend({
     selector: selectorSchema.optional(),
-    selectorAll: selectorSchema.optional(),
-    attr: z.string().min(1).optional(),
+    selectorAll: selectorSchema
+      .optional()
+      .describe('CSS selector(s) matching many nodes.'),
+    attr: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('Attribute to read (href, src, ...).'),
     type: z.string().min(1).optional()
   })
   .strict()
@@ -391,8 +488,18 @@ export const textInputSchema = contentSchema
 export const embedInputSchema = baseSchema
   .extend(visualSchema)
   .extend({
-    maxWidth: z.coerce.number().int().positive().optional(),
-    maxHeight: z.coerce.number().int().positive().optional()
+    maxWidth: z.coerce
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .describe('Maximum iframe width in pixels.'),
+    maxHeight: z.coerce
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .describe('Maximum iframe height in pixels.')
   })
   .strict()
 
@@ -411,10 +518,16 @@ export const technologiesInputSchema = baseSchema.extend(visualSchema).strict()
 export const lighthouseInputSchema = baseSchema
   .extend(visualSchema)
   .extend({
-    onlyCategories: z.array(z.string().min(1)).optional(),
+    onlyCategories: z
+      .array(z.string().min(1))
+      .optional()
+      .describe('Limit the report to these Lighthouse categories.'),
     onlyAudits: z.array(z.string().min(1)).optional(),
     skipAudits: z.array(z.string().min(1)).optional(),
-    output: z.union([z.string().min(1), z.array(z.string().min(1))]).optional()
+    output: z
+      .union([z.string().min(1), z.array(z.string().min(1))])
+      .optional()
+      .describe('Report format: json, html, or csv.')
   })
   .strict()
 
@@ -442,18 +555,41 @@ export const searchInputSchema = z
         'patents',
         'autocomplete'
       ])
-      .optional(),
-    limit: z.coerce.number().int().positive().optional(),
-    page: z.coerce.number().int().positive().optional(),
-    location: z.string().min(1).optional(),
-    period: z.enum(['hour', 'day', 'week', 'month', 'year']).optional()
+      .optional()
+      .describe('Search vertical. Default search.'),
+    limit: z.coerce
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .describe('Maximum number of results.'),
+    page: z.coerce
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .describe('Results page. Default 1.'),
+    location: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('Country or locale, for example es.'),
+    period: z
+      .enum(['hour', 'day', 'week', 'month', 'year'])
+      .optional()
+      .describe('Recency filter.')
   })
   .strict()
 
 export const functionInputSchema = baseSchema
   .extend(visualSchema)
   .extend({
-    code: z.string().min(1)
+    code: z
+      .string()
+      .min(1)
+      .describe(
+        'Function source, for example "async ({ page }) => page.title()".'
+      )
   })
   .strict()
 

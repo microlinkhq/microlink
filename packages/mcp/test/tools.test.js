@@ -267,11 +267,14 @@ test('microlink_function sends the function param and returns its value', async 
 
 test('every tool declares a human-friendly title', () => {
   const configs = {}
-  tools({
-    registerTool: (name, config) => {
-      configs[name] = config
-    }
-  })
+  tools(
+    {
+      registerTool: (name, config) => {
+        configs[name] = config
+      }
+    },
+    { onboarding: true, search: true }
+  )
   for (const [name, config] of Object.entries(configs)) {
     assert.ok(
       typeof config.title === 'string' && config.title.length > 0,
@@ -282,11 +285,14 @@ test('every tool declares a human-friendly title', () => {
 
 test('product tool descriptions name the job, not every parameter', () => {
   const configs = {}
-  tools({
-    registerTool: (name, config) => {
-      configs[name] = config
-    }
-  })
+  tools(
+    {
+      registerTool: (name, config) => {
+        configs[name] = config
+      }
+    },
+    { onboarding: true, search: true }
+  )
 
   assert.doesNotMatch(configs.microlink_screenshot.description, /fullPage/)
   assert.doesNotMatch(configs.microlink_pdf.description, /pageRanges/)
@@ -294,6 +300,37 @@ test('product tool descriptions name the job, not every parameter', () => {
   assert.match(configs.microlink_video.description, /microlink_videos/)
   assert.match(configs.microlink_videos.description, /microlink_video/)
   assert.match(configs.microlink_markdown.description, /microlink_extract/)
+})
+
+test('without an API key, checkout is listed and search is not', () => {
+  const names = []
+  tools(
+    {
+      registerTool: name => {
+        names.push(name)
+      }
+    },
+    { apiKey: '' }
+  )
+  assert.ok(names.includes('microlink_list_plans'))
+  assert.ok(names.includes('microlink_create_checkout_session'))
+  assert.equal(names.includes('microlink_search'), false)
+})
+
+test('with an API key, search is listed and checkout is not', () => {
+  const names = []
+  tools(
+    {
+      registerTool: name => {
+        names.push(name)
+      }
+    },
+    { apiKey: 'test-key' }
+  )
+  assert.ok(names.includes('microlink_search'))
+  assert.equal(names.includes('microlink_list_plans'), false)
+  assert.equal(names.includes('microlink_create_checkout_session'), false)
+  assert.ok(names.includes('microlink_screenshot'))
 })
 
 test('errors are surfaced as MCP isError with code/message', async t => {
