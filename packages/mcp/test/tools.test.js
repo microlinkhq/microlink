@@ -280,6 +280,22 @@ test('every tool declares a human-friendly title', () => {
   }
 })
 
+test('product tool descriptions name the job, not every parameter', () => {
+  const configs = {}
+  tools({
+    registerTool: (name, config) => {
+      configs[name] = config
+    }
+  })
+
+  assert.doesNotMatch(configs.microlink_screenshot.description, /fullPage/)
+  assert.doesNotMatch(configs.microlink_pdf.description, /pageRanges/)
+  assert.doesNotMatch(configs.microlink_extract.description, /selectorAll/)
+  assert.match(configs.microlink_video.description, /microlink_videos/)
+  assert.match(configs.microlink_videos.description, /microlink_video/)
+  assert.match(configs.microlink_markdown.description, /microlink_extract/)
+})
+
 test('errors are surfaced as MCP isError with code/message', async t => {
   const handlers = captureTool(metadata)
   await withStubbedRequest(
