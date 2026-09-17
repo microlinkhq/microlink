@@ -23,28 +23,10 @@ import { text } from './text.js'
 import { video } from './video.js'
 import { videos } from './videos.js'
 
-// Search needs a key. Checkout is how you get one. Default: show checkout
-// without MICROLINK_API_KEY, show search when the key is set.
-export function resolveToolset ({
-  apiKey = process.env.MICROLINK_API_KEY,
-  onboarding,
-  search: includeSearch
-} = {}) {
-  const hasKey = Boolean(apiKey)
-  return {
-    onboarding: onboarding ?? !hasKey,
-    search: includeSearch ?? hasKey
-  }
-}
-
-export function tools (server, options) {
-  const { onboarding, search: includeSearch } = resolveToolset(options)
-
-  if (onboarding) {
-    plans(server)
-    checkoutCreate(server)
-    checkoutStatus(server)
-  }
+export function tools (server) {
+  plans(server)
+  checkoutCreate(server)
+  checkoutStatus(server)
   docs(server)
   metadata(server)
   logo(server)
@@ -63,7 +45,7 @@ export function tools (server, options) {
   emails(server)
   technologies(server)
   lighthouse(server)
-  if (includeSearch) search(server)
+  search(server)
   fn(server)
   extract(server)
 }

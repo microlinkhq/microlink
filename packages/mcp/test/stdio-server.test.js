@@ -15,14 +15,10 @@ test('createMicrolinkServer returns MCP server instance', () => {
 })
 
 test('createMicrolinkServer sets default instructions and honors overrides', () => {
-  const withoutKey = createMicrolinkServer({ apiKey: '' })
-  assert.match(withoutKey.server._instructions, /microlink_docs/)
-  assert.match(withoutKey.server._instructions, /Checkout tools/)
-  assert.doesNotMatch(withoutKey.server._instructions, /search takes a query/)
-
-  const withKey = createMicrolinkServer({ apiKey: 'test-key' })
-  assert.match(withKey.server._instructions, /search takes a query/)
-  assert.doesNotMatch(withKey.server._instructions, /Checkout tools/)
+  const withDefaults = createMicrolinkServer()
+  assert.match(withDefaults.server._instructions, /microlink_docs/)
+  assert.match(withDefaults.server._instructions, /requires an API key/)
+  assert.match(withDefaults.server._instructions, /checkout tools/)
 
   const custom = createMicrolinkServer({ instructions: 'Custom.' })
   assert.equal(custom.server._instructions, 'Custom.')
