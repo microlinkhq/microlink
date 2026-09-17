@@ -389,4 +389,3 @@ module.exports = command => {
   if (COMMANDS[command]) return render(command, COMMANDS[command])
   return PRODUCTS[command] ? render(command, PRODUCTS[command]) : global
 }
-
