@@ -4,6 +4,7 @@ const { readFileSync } = require('fs')
 const path = require('path')
 const { readApiKey, clearConfig } = require('./config')
 const login = require('./login')
+const buy = require('./buy')
 
 module.exports = {
   stdout: process.stdout,
@@ -21,6 +22,7 @@ module.exports = {
   readApiKey,
   clearConfig,
   login,
+  buy,
   exit (code) {
     process.exit(code)
   },
