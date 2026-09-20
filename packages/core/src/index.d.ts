@@ -149,7 +149,7 @@ interface ExtractRule {
 }
 
 interface ExtractRules {
-  [field: string]: ExtractRule
+  [field: string]: ExtractRule | ExtractRule[]
 }
 
 interface Embed {
