@@ -1,6 +1,3 @@
-import type { HTTPResponse, Page } from 'puppeteer-core' with {
-  'resolution-mode': 'import'
-}
 import createGoogleClient from '@microlink/google'
 
 type GoogleClient = ReturnType<typeof createGoogleClient>
@@ -158,11 +155,69 @@ interface Embed {
   [key: string]: unknown
 }
 
-export type FunctionArgs = {
-  page: Page & {
-    metadata(): Promise<Metadata>
-    extract(rules: ExtractRules): Promise<Record<string, unknown>>
+export interface HTTPResponse {
+  status(): number
+  statusText(): string
+  url(): string
+  ok(): boolean
+  headers(): Record<string, string>
+  text(): Promise<string>
+  json(): Promise<unknown>
+}
+
+/** Page handed to `microlink.function` callbacks. */
+export interface Page {
+  title(): Promise<string>
+  url(): string
+  content(): Promise<string>
+  $(selector: string): Promise<unknown>
+  $$(selector: string): Promise<unknown[]>
+  $eval<T>(selector: string, fn: (el: Element) => T): Promise<Awaited<T>>
+  $$eval<T>(selector: string, fn: (els: Element[]) => T): Promise<Awaited<T>>
+  evaluate<T>(
+    fn: string | ((...args: any[]) => T),
+    ...args: any[]
+  ): Promise<Awaited<T>>
+  click(selector: string): Promise<void>
+  type(selector: string, text: string): Promise<void>
+  hover(selector: string): Promise<void>
+  focus(selector: string): Promise<void>
+  select(selector: string, ...values: string[]): Promise<string[]>
+  waitForSelector(
+    selector: string,
+    options?: { visible?: boolean; hidden?: boolean; timeout?: number }
+  ): Promise<unknown>
+  waitForFunction(
+    fn: string | ((...args: any[]) => unknown),
+    options?: { timeout?: number }
+  ): Promise<unknown>
+  waitForNavigation(options?: {
+    waitUntil?: string
+    timeout?: number
+  }): Promise<HTTPResponse | null>
+  waitForNetworkIdle(options?: {
+    idleTime?: number
+    timeout?: number
+  }): Promise<void>
+  goto(
+    url: string,
+    options?: { waitUntil?: string; timeout?: number }
+  ): Promise<HTTPResponse | null>
+  cookies(): Promise<unknown[]>
+  keyboard: {
+    type(text: string): Promise<void>
+    press(key: string): Promise<void>
   }
+  mouse: {
+    click(x: number, y: number): Promise<void>
+    move(x: number, y: number): Promise<void>
+  }
+  metadata(): Promise<Metadata>
+  extract(rules: ExtractRules): Promise<Record<string, unknown>>
+}
+
+export type FunctionArgs = {
+  page: Page
   response: HTTPResponse
   headers: Record<string, string>
   url: string

@@ -1,5 +1,6 @@
 import { expectAssignable, expectType } from 'tsd'
 import create, { MicrolinkError } from '../src/index.js'
+import type { FunctionArgs, Page } from '../src/index.js'
 
 type Asset = Awaited<ReturnType<ReturnType<typeof create>['screenshot']>>
 
@@ -83,7 +84,10 @@ async function assertions (): Promise<void> {
   const title = await client.function(
     'https://example.com',
     async ({ page, response, headers, url }) => {
+      expectType<Page>(page)
+      expectType<FunctionArgs['page']>(page)
       expectType<Promise<string>>(page.title())
+      expectType<Promise<string>>(page.content())
       expectType<boolean>(response.ok())
       expectType<Record<string, string>>(headers)
       expectType<string>(url)
