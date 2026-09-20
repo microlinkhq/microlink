@@ -111,7 +111,45 @@ interface Metadata {
   title?: string | null
   description?: string | null
   url?: string | null
+  author?: string | null
+  lang?: string | null
+  publisher?: string | null
+  date?: string | null
+  image?: Asset | null
+  logo?: Asset | null
   [key: string]: unknown
+}
+
+/** Same shape as `?data=` / `microlink.extract` rules. */
+interface ExtractRule {
+  attr?: string | string[] | ExtractRules
+  evaluate?: string | (() => unknown)
+  selector?: string | string[]
+  selectorAll?: string | string[]
+  type?:
+    | 'audio'
+    | 'author'
+    | 'auto'
+    | 'boolean'
+    | 'date'
+    | 'description'
+    | 'email'
+    | 'image'
+    | 'ip'
+    | 'lang'
+    | 'logo'
+    | 'number'
+    | 'object'
+    | 'publisher'
+    | 'regexp'
+    | 'string'
+    | 'title'
+    | 'url'
+    | 'video'
+}
+
+interface ExtractRules {
+  [field: string]: ExtractRule
 }
 
 interface Embed {
@@ -121,7 +159,10 @@ interface Embed {
 }
 
 export type FunctionArgs = {
-  page: Page
+  page: Page & {
+    metadata(): Promise<Metadata>
+    extract(rules: ExtractRules): Promise<Record<string, unknown>>
+  }
   response: HTTPResponse
   headers: Record<string, string>
   url: string
@@ -163,7 +204,7 @@ interface MicrolinkClient {
   audios (url: string, options?: CollectionOptions): Promise<string[]>
   extract (
     url: string,
-    rules: Record<string, unknown>,
+    rules: ExtractRules,
     options?: Options
   ): Promise<Record<string, unknown>>
   screenshot (url: string, options?: ScreenshotOptions): Promise<Asset>

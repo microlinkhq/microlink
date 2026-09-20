@@ -79,6 +79,13 @@ async function assertions (): Promise<void> {
       expectType<boolean>(response.ok())
       expectType<Record<string, string>>(headers)
       expectType<string>(url)
+      const metadata = await page.metadata()
+      expectType<string | null | undefined>(metadata.title)
+      expectType<Record<string, unknown>>(
+        await page.extract({
+          title: { selector: 'h1', type: 'string' }
+        })
+      )
       return page.title()
     }
   )
