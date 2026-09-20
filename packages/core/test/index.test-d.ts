@@ -62,6 +62,14 @@ async function assertions (): Promise<void> {
     avatar: { selector: 'img', attr: 'src', type: 'image' }
   })
   expectAssignable<Record<string, unknown>>(data)
+  expectAssignable<Record<string, unknown>>(
+    await client.extract('https://example.com', {
+      avatar: [
+        { selector: 'meta[property="og:image"]', attr: 'content', type: 'image' },
+        { selector: 'img', attr: 'src', type: 'image' }
+      ]
+    })
+  )
 
   const news = await client.search('coffee', { type: 'news', limit: 3 })
   expectAssignable<{ results: Array<{ publisher: string }> }>(news)
@@ -79,6 +87,17 @@ async function assertions (): Promise<void> {
       expectType<boolean>(response.ok())
       expectType<Record<string, string>>(headers)
       expectType<string>(url)
+      const metadata = await page.metadata()
+      expectType<string | null | undefined>(metadata.title)
+      expectType<Record<string, unknown>>(
+        await page.extract({
+          title: { selector: 'h1', type: 'string' },
+          avatar: [
+            { selector: 'meta[property="og:image"]', attr: 'content', type: 'image' },
+            { selector: 'img', attr: 'src', type: 'image' }
+          ]
+        })
+      )
       return page.title()
     }
   )
