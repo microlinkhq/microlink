@@ -1,5 +1,6 @@
-import { readFile, access, constants } from 'fs/promises'
+import { readFile, access, constants, mkdtemp, readdir, rm } from 'fs/promises'
 import { fileURLToPath } from 'url'
+import { tmpdir } from 'os'
 import $ from 'tinyspawn'
 import test from 'ava'
 import path from 'path'
@@ -88,4 +89,18 @@ test('published files include every bin entry', t => {
       pkg.files.some(entry => target.startsWith(entry))
     )
   )
+})
+
+test('ships puppeteer-core types next to the package dts', async t => {
+  t.is(pkg.exports['./src/puppeteer-core.d.ts'], './src/puppeteer-core.d.ts')
+  const dts = await readFile(path.join(root, 'src/puppeteer-core.d.ts'), 'utf8')
+  t.true(dts.includes('export declare abstract class Page'))
+  t.true(dts.includes('export declare abstract class HTTPResponse'))
+
+  const dest = await mkdtemp(path.join(tmpdir(), 'microlink-pack-'))
+  t.teardown(() => rm(dest, { recursive: true, force: true }))
+  await $('pnpm', ['pack', '--pack-destination', dest], { cwd: root })
+  const [tarball] = (await readdir(dest)).filter(name => name.endsWith('.tgz'))
+  const { stdout } = await $('tar', ['-tzf', path.join(dest, tarball)])
+  t.true(stdout.includes('package/src/puppeteer-core.d.ts'))
 })

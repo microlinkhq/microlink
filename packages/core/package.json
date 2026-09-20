@@ -17,7 +17,8 @@
       "require": "./bin/run.js",
       "default": "./bin/cli.mjs"
     },
-    "./docs": "./bin/docs.js"
+    "./docs": "./bin/docs.js",
+    "./src/puppeteer-core.d.ts": "./src/puppeteer-core.d.ts"
   },
   "bin": {
     "microlink": "bin/index.js",
@@ -72,7 +73,8 @@
     "src"
   ],
   "scripts": {
-    "test": "ava && tsd"
+    "prepack": "node scripts/copy-puppeteer-dts.js",
+    "test": "node scripts/copy-puppeteer-dts.js && ava && tsd"
   },
   "preferGlobal": true,
   "license": "MIT",

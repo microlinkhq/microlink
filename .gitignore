@@ -39,3 +39,4 @@ stats.html
 packages/function/dist
 packages/mql/dist/index.js
 packages/mql/dist/index.umd.js
+packages/core/src/puppeteer-core.d.ts
