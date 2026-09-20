@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.15.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.14.0...microlink.io%400.15.0) (2026-09-20)
+
+### Features
+
+* **core:** re-export puppeteer Page types ([#66](https://github.com/microlinkhq/microlink/issues/66)) ([1d408a9](https://github.com/microlinkhq/microlink/commit/1d408a968c2ad8cc27d2b670a543ec41efd0f9cd))
+
 ## [0.14.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.13.1...microlink.io%400.14.0) (2026-09-20)
 
 ### Features
