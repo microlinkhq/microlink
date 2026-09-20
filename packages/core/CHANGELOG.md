@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.14.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.13.1...microlink.io%400.14.0) (2026-09-20)
+
+### Features
+
+* **core:** type page.metadata and page.extract ([#65](https://github.com/microlinkhq/microlink/issues/65)) ([c12d8bf](https://github.com/microlinkhq/microlink/commit/c12d8bf1caa995dd1a24518867e1a63f71c0619d))
+
 ## [0.13.1](https://github.com/microlinkhq/microlink/compare/microlink.io%400.13.0...microlink.io%400.13.1) (2026-09-17)
 
 **Note:** Version bump only for package microlink.io
