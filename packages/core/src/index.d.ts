@@ -3,6 +3,8 @@ import type { HTTPResponse, Page } from 'puppeteer-core' with {
 }
 import createGoogleClient from '@microlink/google'
 
+export type { HTTPResponse, Page }
+
 type GoogleClient = ReturnType<typeof createGoogleClient>
 
 /**
