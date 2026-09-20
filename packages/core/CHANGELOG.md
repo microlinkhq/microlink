@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.16.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.15.0...microlink.io%400.16.0) (2026-09-20)
+
+### Features
+
+* **core:** ship puppeteer-core types ([#67](https://github.com/microlinkhq/microlink/issues/67)) ([0f1dbdc](https://github.com/microlinkhq/microlink/commit/0f1dbdc8af5ad8a88b30f7b25b9d0264f47106c7))
+
 ## [0.15.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.14.0...microlink.io%400.15.0) (2026-09-20)
 
 ### Features
