@@ -89,3 +89,9 @@ test('published files include every bin entry', t => {
     )
   )
 })
+
+test('ships puppeteer-core types next to the package dts', async t => {
+  const dts = await readFile(path.join(root, 'src/puppeteer-core.d.ts'), 'utf8')
+  t.true(dts.includes('export declare abstract class Page'))
+  t.true(dts.includes('export declare abstract class HTTPResponse'))
+})

@@ -72,7 +72,8 @@
     "src"
   ],
   "scripts": {
-    "test": "ava && tsd"
+    "prepublishOnly": "node scripts/copy-puppeteer-dts.js",
+    "test": "node scripts/copy-puppeteer-dts.js && ava && tsd"
   },
   "preferGlobal": true,
   "license": "MIT",
