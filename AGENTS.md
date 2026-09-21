@@ -7,7 +7,7 @@ When a change here would change how an agent calls Microlink, update the matchin
 | Change in | Update |
 | --- | --- |
 | `packages/core`, `packages/function`, `packages/search`, root `README.md` | `microlink/SKILL.md` |
-| `packages/mcp` | `microlink-mcp/SKILL.md` |
+| `packages/mcp` | `microlink-mcp/SKILL.md` (runtime sheet) and the "In the assistant" section of `microlink/SKILL.md` |
 | HTTP query params, embed URLs, extract/function grammar | `microlink-api/SKILL.md` and `microlink-api/api-reference.md` |
 
 That includes product methods, options, return types (including nullability), CLI commands/flags, MCP tools/config/errors, auth, and plan limits.
