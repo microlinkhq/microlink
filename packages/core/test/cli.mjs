@@ -8,7 +8,9 @@ import {
   existsSync,
   readFileSync,
   lstatSync,
-  readlinkSync
+  readlinkSync,
+  realpathSync,
+  symlinkSync
 } from 'fs'
 import { tmpdir } from 'os'
 import http from 'http'
@@ -783,7 +785,7 @@ test('setup installs the skill and connects detected agents', async t => {
   t.true(stderr.includes('Cursor connected'))
   t.true(stderr.includes('OpenCode connected'))
   t.false(stderr.includes('GitHub Copilot'))
-  t.true(stderr.includes('Installed! use /microlink to start using it'))
+  t.true(stderr.includes('Start by typing /microlink to use it.'))
   t.false(stderr.includes('Step 1'))
 
   const again = setupHost(home, {
@@ -796,6 +798,20 @@ test('setup installs the skill and connects detected agents', async t => {
   t.is(await run(['setup'], again), 0)
   t.true(readFileSync(canonical, 'utf8').includes('# updated'))
   t.is(readlinkSync(claude), path.join('..', '..', '.agents', 'skills', 'microlink'))
+})
+
+test('setup links through a symlinked agent directory', async t => {
+  const home = mkdtempSync(path.join(tmpdir(), 'microlink-setup-'))
+  const real = mkdtempSync(path.join(tmpdir(), 'microlink-dotfiles-'))
+  symlinkSync(real, path.join(home, '.claude'))
+  const host = setupHost(home)
+  t.is(await run(['setup'], host), 0)
+  const link = path.join(real, 'skills', 'microlink')
+  t.true(lstatSync(link).isSymbolicLink())
+  t.is(
+    realpathSync(link),
+    realpathSync(path.join(home, '.agents', 'skills', 'microlink'))
+  )
 })
 
 test('setup links an agent found by its binary', async t => {
@@ -815,7 +831,7 @@ test('setup installs the shared skill when no agent is installed', async t => {
   t.is(await run(['setup'], host), 0)
   t.true(existsSync(path.join(home, '.agents', 'skills', 'microlink', 'SKILL.md')))
   t.true(host.stderrText().includes('No coding agents detected.'))
-  t.true(host.stderrText().includes('Installed! use /microlink to start using it'))
+  t.true(host.stderrText().includes('Start by typing /microlink to use it.'))
 })
 
 test('setup refuses to overwrite a skill it did not write', async t => {

@@ -135,10 +135,14 @@ const installSkill = (home, body) => {
 }
 
 const linkSkill = (skillsDir, canonicalDir) => {
-  if (path.resolve(skillsDir) === path.dirname(path.resolve(canonicalDir))) { return }
+  if (path.resolve(skillsDir) === path.dirname(path.resolve(canonicalDir))) {
+    return
+  }
   fs.mkdirSync(skillsDir, { recursive: true })
   const link = path.join(skillsDir, SKILL_NAME)
-  const target = path.relative(skillsDir, canonicalDir) || canonicalDir
+  const target =
+    path.relative(fs.realpathSync(skillsDir), fs.realpathSync(canonicalDir)) ||
+    canonicalDir
   let info
   try {
     info = fs.lstatSync(link)
@@ -150,7 +154,9 @@ const linkSkill = (skillsDir, canonicalDir) => {
       claim(link)
       for (const name of ['SKILL.md', MARKER]) {
         const from = path.join(canonicalDir, name)
-        if (fs.existsSync(from)) { writeRegular(path.join(link, name), fs.readFileSync(from)) }
+        if (fs.existsSync(from)) {
+          writeRegular(path.join(link, name), fs.readFileSync(from))
+        }
       }
     }
     return
@@ -164,7 +170,9 @@ const linkSkill = (skillsDir, canonicalDir) => {
   if (info.isDirectory() && owned(link)) {
     for (const name of ['SKILL.md', MARKER]) {
       const from = path.join(canonicalDir, name)
-      if (fs.existsSync(from)) { writeRegular(path.join(link, name), fs.readFileSync(from)) }
+      if (fs.existsSync(from)) {
+        writeRegular(path.join(link, name), fs.readFileSync(from))
+      }
     }
     return
   }
@@ -193,7 +201,10 @@ const fetchSkill = async fetchFn => {
 
 const finish = stderr => {
   writeLine(stderr, '')
-  writeLine(stderr, green('Installed! use /microlink to start using it'))
+  writeLine(
+    stderr,
+    gray('Start by typing ') + '/microlink' + gray(' to use it.')
+  )
 }
 
 const setup = async ({
@@ -203,7 +214,8 @@ const setup = async ({
   fetch: fetchFn = fetch,
   which: find = name => which(name, env)
 } = {}) => {
-  writeLine(stderr, "Let's get you set up. It'll only take a moment")
+  writeLine(stderr, '')
+  writeLine(stderr, gray("Let's get you set up. It'll only take a moment"))
   writeLine(stderr, '')
 
   const agents = detect({ home, env, find })
@@ -226,8 +238,10 @@ const setup = async ({
 
   for (const agent of agents) {
     try {
-      if (agent.skillsDir) { linkSkill(agent.skillsDir(agent.dir({ home, env })), dir) }
-      writeLine(stderr, green(`✓ ${agent.name} connected`))
+      if (agent.skillsDir) {
+        linkSkill(agent.skillsDir(agent.dir({ home, env })), dir)
+      }
+      writeLine(stderr, `${green('✓')} ${agent.name} ${gray('connected')}`)
     } catch (error) {
       issues.push(error.message)
       writeLine(stderr, red(`✗ ${agent.name}`))
