@@ -342,11 +342,12 @@ try {
 
 ## CLI
 
-Every product is a `microlink` subcommand — `npx microlink.io` works without a global install. Run `microlink buy` to purchase an API key, then `microlink login` to save it.
+Every product is a `microlink` subcommand — `npx microlink.io` works without a global install. Run `microlink buy` to purchase an API key, then `microlink login` to save it. `microlink setup` detects the coding agents on this machine and installs the Microlink skill for them.
 
 ```bash
 npx microlink.io buy
 npx microlink.io login
+npx microlink.io setup
 npx microlink.io markdown https://example.com
 npx microlink.io screenshot https://example.com --fullPage
 npx microlink.io logo https://github.com --square

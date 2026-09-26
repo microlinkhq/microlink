@@ -1,7 +1,15 @@
 import { createRequire } from 'module'
 import { fileURLToPath } from 'url'
 import { spawn } from 'child_process'
-import { mkdirSync, mkdtempSync, writeFileSync, existsSync, readFileSync } from 'fs'
+import {
+  mkdirSync,
+  mkdtempSync,
+  writeFileSync,
+  existsSync,
+  readFileSync,
+  lstatSync,
+  readlinkSync
+} from 'fs'
 import { tmpdir } from 'os'
 import http from 'http'
 import path from 'path'
@@ -24,6 +32,7 @@ test('prints help with no arguments', async t => {
   t.true(stdout.includes('buy'))
   t.true(stdout.includes('login'))
   t.true(stdout.includes('logout'))
+  t.true(stdout.includes('setup'))
   t.true(stdout.includes('<product> docs'))
 })
 
@@ -719,6 +728,112 @@ test('run reports missing --file through the host', async t => {
   const host = memoryHost()
   t.is(await run(['function', 'https://example.com'], host), 1)
   t.true(host.stderrText().includes('Missing `--file`'))
+})
+
+const skillBody = '---\nname: microlink\n---\n# microlink\n'
+
+const setupHost = (home, overrides = {}) =>
+  memoryHost({
+    home,
+    env: { PATH: '' },
+    fetch: async url => {
+      if (!url.endsWith('/microlink/SKILL.md')) {
+        throw new Error(`unexpected skill url ${url}`)
+      }
+      return { ok: true, status: 200, text: async () => skillBody }
+    },
+    ...overrides
+  })
+
+test('prints command help for setup', async t => {
+  const { stdout } = await $('node', [bin, 'setup', '--help'])
+  t.true(stdout.includes('setup'))
+  t.true(stdout.includes('Install the Microlink skill'))
+  t.false(stdout.includes('Products'))
+})
+
+test('setup installs the skill and connects detected agents', async t => {
+  const home = mkdtempSync(path.join(tmpdir(), 'microlink-setup-'))
+  mkdirSync(path.join(home, '.claude'))
+  mkdirSync(path.join(home, '.codex'))
+  mkdirSync(path.join(home, '.cursor'))
+  mkdirSync(path.join(home, '.config', 'opencode'), { recursive: true })
+  const host = setupHost(home)
+  t.is(await run(['setup'], host), 0)
+
+  const canonical = path.join(home, '.agents', 'skills', 'microlink', 'SKILL.md')
+  t.is(readFileSync(canonical, 'utf8'), skillBody)
+  t.true(
+    lstatSync(path.join(home, '.agents', 'skills', 'microlink', '.managed-by-microlink')).isFile()
+  )
+
+  const claude = path.join(home, '.claude', 'skills', 'microlink')
+  t.true(lstatSync(claude).isSymbolicLink())
+  t.is(readlinkSync(claude), path.join('..', '..', '.agents', 'skills', 'microlink'))
+
+  const opencode = path.join(home, '.config', 'opencode', 'skills', 'microlink')
+  t.true(lstatSync(opencode).isSymbolicLink())
+
+  t.false(existsSync(path.join(home, '.codex', 'skills', 'microlink')))
+  t.false(existsSync(path.join(home, '.cursor', 'skills', 'microlink')))
+
+  const stderr = host.stderrText()
+  t.true(stderr.includes('Claude Code connected'))
+  t.true(stderr.includes('Codex connected'))
+  t.true(stderr.includes('Cursor connected'))
+  t.true(stderr.includes('OpenCode connected'))
+  t.false(stderr.includes('GitHub Copilot'))
+  t.true(stderr.includes('Installed! use /microlink to start using it'))
+  t.false(stderr.includes('Step 1'))
+
+  const again = setupHost(home, {
+    fetch: async () => ({
+      ok: true,
+      status: 200,
+      text: async () => skillBody.replace('# microlink', '# updated')
+    })
+  })
+  t.is(await run(['setup'], again), 0)
+  t.true(readFileSync(canonical, 'utf8').includes('# updated'))
+  t.is(readlinkSync(claude), path.join('..', '..', '.agents', 'skills', 'microlink'))
+})
+
+test('setup links an agent found by its binary', async t => {
+  const home = mkdtempSync(path.join(tmpdir(), 'microlink-setup-'))
+  const host = setupHost(home, {
+    which: name => (name === 'claude' ? '/usr/local/bin/claude' : '')
+  })
+  t.is(await run(['setup'], host), 0)
+  t.true(lstatSync(path.join(home, '.claude', 'skills', 'microlink')).isSymbolicLink())
+  t.true(host.stderrText().includes('Claude Code connected'))
+  t.false(host.stderrText().includes('Codex connected'))
+})
+
+test('setup installs the shared skill when no agent is installed', async t => {
+  const home = mkdtempSync(path.join(tmpdir(), 'microlink-setup-'))
+  const host = setupHost(home)
+  t.is(await run(['setup'], host), 0)
+  t.true(existsSync(path.join(home, '.agents', 'skills', 'microlink', 'SKILL.md')))
+  t.true(host.stderrText().includes('No coding agents detected.'))
+  t.true(host.stderrText().includes('Installed! use /microlink to start using it'))
+})
+
+test('setup refuses to overwrite a skill it did not write', async t => {
+  const home = mkdtempSync(path.join(tmpdir(), 'microlink-setup-'))
+  const dir = path.join(home, '.agents', 'skills', 'microlink')
+  mkdirSync(dir, { recursive: true })
+  writeFileSync(path.join(dir, 'SKILL.md'), 'mine')
+  const host = setupHost(home)
+  t.is(await run(['setup'], host), 1)
+  t.is(readFileSync(path.join(dir, 'SKILL.md'), 'utf8'), 'mine')
+  t.true(host.stderrText().includes('was not written by microlink'))
+  t.false(host.stderrText().includes('Installed!'))
+})
+
+test('setup rejects extra arguments', async t => {
+  const host = memoryHost()
+  t.is(await run(['setup', 'claude'], host), 1)
+  t.true(host.stderrText().includes('does not take arguments'))
 })
 
 test('run unsubscribes interrupt after the request finishes', async t => {

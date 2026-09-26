@@ -106,6 +106,15 @@ const COMMANDS = {
     flags: [],
     cli: [],
     examples: [['logout', 'forget the saved API key']]
+  },
+  setup: {
+    usage: 'setup',
+    desc: 'Install the Microlink skill for detected coding agents',
+    flags: [],
+    cli: [],
+    examples: [
+      ['setup', 'detect coding agents and install the Microlink skill']
+    ]
   }
 }
 
@@ -316,6 +325,7 @@ ${cmd('help')}
 ${cmd('buy')}
 ${cmd('login')}
 ${cmd('logout')}
+${cmd('setup')}
 
 Commands
 ${commandList}
@@ -329,6 +339,7 @@ ${rows(CLI)}
 Examples
 ${cmd('buy', 'buy an API key')}
 ${cmd('login', 'save an API key from your account')}
+${cmd('setup', 'install the Microlink skill for detected coding agents')}
 ${cmd('markdown docs', 'print the markdown docs page')}
 ${cmd('https://example.com', 'unified metadata (default)')}
 ${cmd(
