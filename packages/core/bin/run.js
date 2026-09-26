@@ -7,6 +7,7 @@ const parseArgv = require('./argv')
 const helpText = require('./help')
 const { asUrl } = require('./url')
 const docs = require('./docs')
+const setup = require('./setup')
 const create = require('../src')
 
 const run = async (argvInput, host) => {
@@ -63,6 +64,30 @@ const run = async (argvInput, host) => {
     } catch (error) {
       writeLine(stderr, error.message)
       return finish(error.code === 'ABORT' ? 130 : 1)
+    }
+  }
+
+  if (command === 'setup') {
+    if (help) return showHelp(command)
+    if (target) {
+      writeLine(
+        stderr,
+        '`setup` does not take arguments. Run `microlink setup`.'
+      )
+      return finish(1)
+    }
+    try {
+      await setup({
+        stderr,
+        env,
+        home: host.home,
+        fetch: host.fetch,
+        which: host.which
+      })
+      return finish(0)
+    } catch (error) {
+      writeLine(stderr, error.message)
+      return finish(1)
     }
   }
 
