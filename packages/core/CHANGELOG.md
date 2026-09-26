@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.17.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.16.0...microlink.io%400.17.0) (2026-09-26)
+
+### Features
+
+* **core:** add setup to install the Microlink skill ([#71](https://github.com/microlinkhq/microlink/issues/71)) ([9a69844](https://github.com/microlinkhq/microlink/commit/9a6984489995e173272029d2d3b235227a002be6))
+
 ## [0.16.0](https://github.com/microlinkhq/microlink/compare/microlink.io%400.15.0...microlink.io%400.16.0) (2026-09-20)
 
 ### Features
