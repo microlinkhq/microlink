@@ -59,7 +59,7 @@
     "lint": "standard-markdown README.md && standard",
     "prepublishOnly": "pnpm --recursive --if-present run prepublishOnly",
     "pretest": "pnpm run lint",
-    "release": "lerna publish --yes --sort --conventional-commits --changelog-preset conventionalcommits --create-release github -m \"chore(release): publish\"",
+    "release": "lerna publish 1.0.0 --yes --scope microlink.io --exclude-dependents --force-publish=microlink.io --sort --conventional-commits --changelog-preset conventionalcommits --create-release github -m \"chore(release): publish\"",
     "test": "c8 pnpm --recursive --workspace-concurrency=1 test"
   },
   "private": true,
