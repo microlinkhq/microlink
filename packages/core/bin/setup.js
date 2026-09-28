@@ -201,7 +201,7 @@ const fetchSkill = async fetchFn => {
 
 const finish = stderr => {
   writeLine(stderr, '')
-  writeLine(stderr, gray('Prompt with') + '/microlink' + gray(' to use it.'))
+  writeLine(stderr, gray('Prompt with ') + '/microlink' + gray(' to use it.'))
 }
 
 const setup = async ({
