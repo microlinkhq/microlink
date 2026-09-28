@@ -785,7 +785,7 @@ test('setup installs the skill and connects detected agents', async t => {
   t.true(stderr.includes('Cursor connected'))
   t.true(stderr.includes('OpenCode connected'))
   t.false(stderr.includes('GitHub Copilot'))
-  t.true(stderr.includes('Start by typing /microlink to use it.'))
+  t.true(stderr.includes('Prompt with /microlink to use it.'))
   t.false(stderr.includes('Step 1'))
 
   const again = setupHost(home, {
@@ -831,7 +831,7 @@ test('setup installs the shared skill when no agent is installed', async t => {
   t.is(await run(['setup'], host), 0)
   t.true(existsSync(path.join(home, '.agents', 'skills', 'microlink', 'SKILL.md')))
   t.true(host.stderrText().includes('No coding agents detected.'))
-  t.true(host.stderrText().includes('Start by typing /microlink to use it.'))
+  t.true(host.stderrText().includes('Prompt with /microlink to use it.'))
 })
 
 test('setup refuses to overwrite a skill it did not write', async t => {
