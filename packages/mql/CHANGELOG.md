@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.19.1](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmql%400.19.0...%40microlink%2Fmql%400.19.1) (2026-09-28)
+
+**Note:** Version bump only for package @microlink/mql
+
 ## [0.19.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmql%400.18.1...%40microlink%2Fmql%400.19.0) (2026-08-31)
 
 ### Features
