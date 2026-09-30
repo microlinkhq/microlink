@@ -30,78 +30,29 @@ export async function listPlans () {
   return request('/api/v1/plans')
 }
 
-export async function createCheckoutSession ({
-  email,
-  planId,
-  label = 'default',
-  idempotencyKey = crypto.randomUUID()
-}) {
+// Public guest Sign up. `/api/v1/checkout/sessions` now requires a connect
+// token (CLI `microlink buy`); MCP has no local /connect handshake.
+export async function createCheckoutSession () {
   try {
-    const session = await request('/api/v1/checkout/sessions', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'idempotency-key': idempotencyKey
-      },
-      body: JSON.stringify({ email, planId, label })
-    })
-
-    return { ...session, idempotencyKey }
+    return await request('/api/v1/checkout/signup', { method: 'POST' })
   } catch (error) {
-    if (
-      error instanceof DashboardApiError &&
-      error.payload.statusCode === 400 &&
-      /unknown plan/i.test(error.message)
-    ) {
-      try {
-        const { plans } = await listPlans()
-        throw new DashboardApiError({
-          message: `Unknown planId \`${planId}\`.`,
-          reason: 'unknown_plan',
-          statusCode: error.payload.statusCode,
-          availablePlans: plans,
-          idempotencyKey,
-          hint: 'Choose an `id` from `availablePlans` and call this tool again with that `planId` and the same `idempotencyKey`.'
-        })
-      } catch (plansError) {
-        if (
-          plansError instanceof DashboardApiError &&
-          plansError.payload.availablePlans
-        ) {
-          throw plansError
-        }
-        throw new DashboardApiError({
-          message: `Unknown planId \`${planId}\`; the plan catalog could not be loaded.`,
-          reason: 'unknown_plan',
-          statusCode: error.payload.statusCode,
-          idempotencyKey,
-          hint: 'Call `microlink_list_plans`, then retry with an available `planId` and the same `idempotencyKey`.'
-        })
-      }
-    }
-
-    const payload =
-      error instanceof DashboardApiError
-        ? error.payload
-        : {
-            message: error?.message || String(error),
-            reason: 'dashboard_request_failed',
-            hint: 'Check network access before retrying this logical checkout call.'
-          }
-
+    if (error instanceof DashboardApiError) throw error
     throw new DashboardApiError({
-      ...payload,
-      idempotencyKey,
-      hint: `${payload.hint} Reuse \`idempotencyKey\` when retrying this logical checkout call.`
+      message: error?.message || String(error),
+      reason: 'dashboard_request_failed',
+      hint: 'Check network access before retrying this logical checkout call.'
     })
   }
 }
 
 export async function getCheckoutSession ({ sessionId }) {
   try {
-    return await request(
+    const body = await request(
       `/api/v1/checkout/sessions/${encodeURIComponent(sessionId)}`
     )
+    if (body == null || typeof body !== 'object') return body
+    const { apiKey: _secret, ...safe } = body
+    return safe
   } catch (error) {
     if (
       error instanceof DashboardApiError &&
