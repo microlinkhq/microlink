@@ -31,7 +31,7 @@ const builds = [
   build({
     compress: false,
     input: 'src/index.js',
-    output: { file: 'dist/index.js', format: 'es' },
+    output: { file: 'dist/index.js', format: 'es', inlineDynamicImports: true },
     plugins: [
       nodeResolve({
         mainFields: ['browser', 'module', 'main']
@@ -42,7 +42,12 @@ const builds = [
   build({
     compress: false,
     input: 'src/index.js',
-    output: { name: 'mql', file: 'dist/index.umd.js', format: 'umd' },
+    output: {
+      name: 'mql',
+      file: 'dist/index.umd.js',
+      format: 'umd',
+      inlineDynamicImports: true
+    },
     plugins: [
       nodeResolve({
         mainFields: ['browser', 'module', 'main']

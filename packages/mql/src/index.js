@@ -1,7 +1,6 @@
 'use strict'
 
 const { flattie: flatten } = require('flattie')
-const { default: ky } = require('ky')
 
 const {
   VERSION,
@@ -17,13 +16,21 @@ const ENDPOINT = {
 
 const STREAM_RESPONSE_TYPE = 'arrayBuffer'
 
-const kyInstance = ky.extend({
-  headers: { 'user-agent': USER_AGENT },
-  retry: {
-    statusCodes: RETRY_STATUS_CODES,
-    afterStatusCodes: RETRY_AFTER_STATUS_CODES
+let kyInstance
+
+const getKy = async () => {
+  if (!kyInstance) {
+    const { default: ky } = await import('ky')
+    kyInstance = ky.extend({
+      headers: { 'user-agent': USER_AGENT },
+      retry: {
+        statusCodes: RETRY_STATUS_CODES,
+        afterStatusCodes: RETRY_AFTER_STATUS_CODES
+      }
+    })
   }
-})
+  return kyInstance
+}
 
 const isObject = input => input !== null && typeof input === 'object'
 
@@ -101,7 +108,8 @@ const mapRules = rules => {
 
 const doFetch = async (apiUrl, { responseType, ...opts }) => {
   if (opts.timeout === undefined) opts.timeout = false
-  const response = await kyInstance(apiUrl, opts)
+  const ky = await getKy()
+  const response = await ky(apiUrl, opts)
   const body = await response[responseType]()
   const { headers, status: statusCode } = response
   return { url: response.url, body, headers, statusCode }
@@ -196,7 +204,10 @@ mql.getApiUrl = getApiUrl
 mql.fetchFromApi = fetchFromApi
 mql.mapRules = mapRules
 mql.version = VERSION
-mql.stream = (...args) => kyInstance(...args).then(res => res.body)
+mql.stream = async (...args) => {
+  const ky = await getKy()
+  return ky(...args).then(res => res.body)
+}
 
 module.exports = mql
 module.exports.arrayBuffer = mql.extend({ responseType: STREAM_RESPONSE_TYPE })

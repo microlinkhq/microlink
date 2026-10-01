@@ -31,7 +31,7 @@ const builds = [
   build({
     compress: false,
     input: 'src/index.js',
-    output: { file: 'dist/index.js', format: 'es' },
+    output: { file: 'dist/index.js', format: 'es', inlineDynamicImports: true },
     plugins: [
       nodeResolve({
         mainFields: ['browser', 'module', 'main']
