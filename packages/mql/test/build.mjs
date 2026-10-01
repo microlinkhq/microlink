@@ -33,6 +33,24 @@ test('esm', async t => {
   t.is((await evalScript.esm("import {getApiUrl} from '@microlink/mql'; console.log(typeof getApiUrl)")), 'function')
 })
 
+test('cjs loads and fetches without require(esm) support', async t => {
+  const code = `
+    const http = require('http')
+    const mql = require('@microlink/mql')
+    const server = http.createServer((req, res) => {
+      res.setHeader('content-type', 'application/json')
+      res.end(JSON.stringify({ status: 'success', data: { title: 'ok' } }))
+    }).listen(0, async () => {
+      const endpoint = 'http://localhost:' + server.address().port
+      const { data } = await mql('https://example.com', { endpoint })
+      console.log(data.title)
+      server.close()
+    })
+  `
+  const { stdout } = await $('node', ['--no-experimental-require-module', '--eval', code])
+  t.is(stdout, 'ok')
+})
+
 test('cjs', async t => {
   t.is((await evalScript("const mql = require('@microlink/mql'); console.log(typeof mql)")), 'function')
   t.is((await evalScript("const mql = require('@microlink/mql'); console.log(typeof mql.default)")), 'undefined')
