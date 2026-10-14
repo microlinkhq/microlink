@@ -6,7 +6,7 @@ export function plans (server) {
   register(
     server,
     'microlink_list_plans',
-    'List the Microlink plans available to a new customer. Use an `id` from this result as `planId` in `microlink_create_checkout_session`.',
+    'List the Microlink plans available to a new customer. Share these with the human before they pay. `microlink_create_checkout_session` opens guest Sign up for the starter creatable plan.',
     listPlansInputSchema,
     () => listPlans()
   )

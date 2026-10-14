@@ -47,7 +47,35 @@ test('microlink_list_plans returns the sellable plan catalog', async t => {
   assert.deepEqual(result.structuredContent.data, catalog)
 })
 
-test('microlink_create_checkout_session generates and returns an idempotency key', async t => {
+test('microlink_create_checkout_session posts the public signup endpoint', async t => {
+  let request
+  stubFetch(t, async (input, options) => {
+    request = { input, options }
+    return jsonResponse({
+      sessionId: 'cs_test_123',
+      checkoutUrl: 'https://checkout.stripe.com/c/pay/test',
+      expiresAt: 1_700_000_000
+    })
+  })
+
+  const result = await captureTool(
+    checkoutCreate
+  ).microlink_create_checkout_session({}, {})
+
+  assert.equal(
+    request.input,
+    'https://dashboard.microlink.io/api/v1/checkout/signup'
+  )
+  assert.equal(request.options.method, 'POST')
+  assert.equal(request.options.body, undefined)
+  assert.deepEqual(result.structuredContent.data, {
+    sessionId: 'cs_test_123',
+    checkoutUrl: 'https://checkout.stripe.com/c/pay/test',
+    expiresAt: 1_700_000_000
+  })
+})
+
+test('microlink_create_checkout_session ignores leftover email and planId fields', async t => {
   let request
   stubFetch(t, async (input, options) => {
     request = { input, options }
@@ -60,93 +88,42 @@ test('microlink_create_checkout_session generates and returns an idempotency key
   const result = await captureTool(
     checkoutCreate
   ).microlink_create_checkout_session(
-    { email: 'agent@example.com', planId: 'pro' },
+    { email: 'agent@example.com', planId: 'pro', idempotencyKey: 'logical-call-123' },
     {}
   )
 
-  const key = request.options.headers['idempotency-key']
-  assert.match(
-    key,
-    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+  assert.equal(
+    request.input,
+    'https://dashboard.microlink.io/api/v1/checkout/signup'
   )
-  assert.equal(result.structuredContent.data.idempotencyKey, key)
-  assert.equal(request.options.method, 'POST')
-  assert.deepEqual(JSON.parse(request.options.body), {
-    email: 'agent@example.com',
-    planId: 'pro',
-    label: 'default'
-  })
+  assert.equal(request.options.headers, undefined)
+  assert.equal(result.isError, false)
+  assert.equal(result.structuredContent.data.sessionId, 'cs_test_123')
 })
 
-test('microlink_create_checkout_session forwards a caller idempotency key', async t => {
-  stubFetch(t, async (_input, options) => {
-    assert.equal(options.headers['idempotency-key'], 'logical-call-123')
-    return jsonResponse({
-      sessionId: 'cs_test_123',
-      checkoutUrl: 'https://checkout.stripe.com/c/pay/test'
-    })
-  })
+test('signup errors surface the dashboard message', async t => {
+  stubFetch(t, async () => jsonResponse({ error: 'No plans available' }, 503))
 
   const result = await captureTool(
     checkoutCreate
-  ).microlink_create_checkout_session(
-    {
-      email: 'agent@example.com',
-      planId: 'pro',
-      label: 'production',
-      idempotencyKey: 'logical-call-123'
-    },
-    {}
-  )
-
-  assert.equal(result.structuredContent.data.idempotencyKey, 'logical-call-123')
-})
-
-test('unknown plan error includes available plans and a retry hint', async t => {
-  let calls = 0
-  stubFetch(t, async () => {
-    calls++
-    if (calls === 1) return jsonResponse({ error: 'Unknown plan' }, 400)
-    return jsonResponse({
-      plans: [{ id: 'pro', limit: 100000, price: 20, currency: 'usd' }]
-    })
-  })
-
-  const result = await captureTool(
-    checkoutCreate
-  ).microlink_create_checkout_session(
-    {
-      email: 'agent@example.com',
-      planId: 'unknown',
-      idempotencyKey: 'logical-call-123'
-    },
-    {}
-  )
+  ).microlink_create_checkout_session({}, {})
   const error = JSON.parse(result.content[0].text)
 
   assert.equal(result.isError, true)
   assert.equal(result.structuredContent, undefined)
-  assert.equal(error.reason, 'unknown_plan')
-  assert.equal(error.idempotencyKey, 'logical-call-123')
-  assert.equal(error.availablePlans[0].id, 'pro')
-  assert.match(error.hint, /same `idempotencyKey`/)
+  assert.equal(error.reason, 'dashboard_request_failed')
+  assert.equal(error.statusCode, 503)
+  assert.equal(error.message, 'No plans available')
 })
 
-test('microlink_get_checkout_session returns ready state and key id', async t => {
-  const status = {
-    state: 'ready',
-    sessionId: 'cs_test_123',
-    email: 'agent@example.com',
-    planId: 'pro',
-    sessionStatus: 'complete',
-    paymentStatus: 'paid',
-    subscriptionId: 'sub_123',
-    keyId: 'key_123'
-  }
+test('microlink_get_checkout_session returns ready state without the API secret', async t => {
   let requestUrl
   stubFetch(t, async input => {
     requestUrl = input
-    return jsonResponse(status)
+    return jsonResponse({
+      state: 'ready',
+      apiKey: 'ml_secret'
+    })
   })
 
   const result = await captureTool(
@@ -157,7 +134,8 @@ test('microlink_get_checkout_session returns ready state and key id', async t =>
     requestUrl,
     'https://dashboard.microlink.io/api/v1/checkout/sessions/cs_test_123'
   )
-  assert.deepEqual(result.structuredContent.data, status)
+  assert.deepEqual(result.structuredContent.data, { state: 'ready' })
+  assert.equal(result.content[0].text.includes('ml_secret'), false)
 })
 
 test('unknown checkout session explains how to recover', async t => {
@@ -212,47 +190,18 @@ test('onboarding tools expose MCP titles, output schemas and safe annotations', 
   )
 })
 
-test('transport errors preserve the generated idempotency key', async t => {
+test('transport errors stay recoverable without an idempotency key', async t => {
   stubFetch(t, async () => {
     throw new TypeError('fetch failed')
   })
 
   const result = await captureTool(
     checkoutCreate
-  ).microlink_create_checkout_session(
-    { email: 'agent@example.com', planId: 'pro' },
-    {}
-  )
+  ).microlink_create_checkout_session({}, {})
   const error = JSON.parse(result.content[0].text)
 
   assert.equal(result.isError, true)
-  assert.match(error.idempotencyKey, /^[0-9a-f-]{36}$/)
   assert.equal(error.reason, 'dashboard_request_failed')
-  assert.match(error.hint, /Reuse `idempotencyKey`/)
-})
-
-test('unknown plan keeps idempotency key when catalog lookup fails', async t => {
-  let calls = 0
-  stubFetch(t, async () => {
-    calls++
-    if (calls === 1) return jsonResponse({ error: 'Unknown plan' }, 400)
-    throw new TypeError('fetch failed')
-  })
-
-  const result = await captureTool(
-    checkoutCreate
-  ).microlink_create_checkout_session(
-    {
-      email: 'agent@example.com',
-      planId: 'unknown',
-      idempotencyKey: 'logical-call-123'
-    },
-    {}
-  )
-  const error = JSON.parse(result.content[0].text)
-
-  assert.equal(error.reason, 'unknown_plan')
-  assert.equal(error.idempotencyKey, 'logical-call-123')
-  assert.match(error.hint, /microlink_list_plans/)
-  assert.match(error.hint, /same `idempotencyKey`/)
+  assert.match(error.hint, /network access/)
+  assert.equal(error.idempotencyKey, undefined)
 })
