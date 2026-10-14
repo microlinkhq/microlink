@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.8.9](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.8.8...%40microlink%2Fmcp%402.8.9) (2026-10-14)
+
+### Bug Fixes
+
+* **mcp:** open guest signup instead of authenticated checkout ([#73](https://github.com/microlinkhq/microlink/issues/73)) ([a807b1c](https://github.com/microlinkhq/microlink/commit/a807b1cc54dd7276d9de6bdf474f50333e6538c7))
+
 ## [2.8.8](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.8.7...%40microlink%2Fmcp%402.8.8) (2026-10-01)
 
 **Note:** Version bump only for package @microlink/mcp
