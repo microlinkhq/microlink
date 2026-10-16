@@ -1,6 +1,7 @@
 import { createServer } from 'node:http'
 
 const MAX_BODY_BYTES = 4096
+const CLOSE_MS = 2000
 
 function reply (res, status) {
   if (res.writableEnded || res.headersSent) return
@@ -60,7 +61,7 @@ export function listenForConnect ({ state, timeoutMs, onToken, onTimeout }) {
 
         let accepted = false
         try {
-          accepted = onToken(token) === true
+          accepted = onToken(body) === true
         } catch {
           return reply(res, 500)
         }
@@ -68,7 +69,9 @@ export function listenForConnect ({ state, timeoutMs, onToken, onTimeout }) {
         if (!accepted) return reply(res, 409)
 
         reply(res, 204)
-        close()
+        clearTimeout(clock.timer)
+        clock.linger = setTimeout(close, CLOSE_MS)
+        clock.linger.unref()
       })
     })
 
@@ -76,6 +79,7 @@ export function listenForConnect ({ state, timeoutMs, onToken, onTimeout }) {
       if (clock.closed) return
       clock.closed = true
       clearTimeout(clock.timer)
+      clearTimeout(clock.linger)
       server.close()
     }
 

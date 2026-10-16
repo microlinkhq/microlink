@@ -290,6 +290,39 @@ serial(
   }
 )
 
+serial(
+  'a connect payload that already has a checkout session is not posted again',
+  async t => {
+    let posts = 0
+    stubFetch(t, async (_input, options) => {
+      if (options?.method === 'POST') posts++
+      return jsonResponse({ state: 'open' })
+    })
+
+    const created = await create({ planId: 'pro' })
+    const callback = await postConnect(
+      created.structuredContent.data.connectUrl,
+      {
+        token: 'connect_secret',
+        sessionId: 'cs_from_connect',
+        checkoutUrl: 'https://checkout.stripe.com/c/pay/from-connect'
+      }
+    )
+    const polled = await status({
+      sessionId: created.structuredContent.data.sessionId
+    })
+
+    assert.equal(callback.status, 204)
+    assert.equal(posts, 0)
+    assert.equal(polled.structuredContent.data.state, 'open')
+    assert.equal(
+      polled.structuredContent.data.checkoutUrl,
+      'https://checkout.stripe.com/c/pay/from-connect'
+    )
+    assert.equal(polled.content[0].text.includes('connect_secret'), false)
+  }
+)
+
 serial('a mismatched connect state does not open checkout', async t => {
   let calls = 0
   stubFetch(t, async () => {

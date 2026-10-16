@@ -217,10 +217,21 @@ export async function createCheckoutSession ({
     const listener = await listenForConnect({
       state,
       timeoutMs,
-      onToken: token => {
+      onToken: body => {
         if (record.phase !== 'waiting') return false
         record.phase = 'authorizing'
-        openStripeSession(record, token, timeoutMs).catch(error => {
+        if (
+          typeof body.sessionId === 'string' &&
+          body.sessionId !== '' &&
+          typeof body.checkoutUrl === 'string' &&
+          body.checkoutUrl !== ''
+        ) {
+          record.stripeSessionId = body.sessionId
+          record.checkoutUrl = body.checkoutUrl
+          record.phase = 'checkout'
+          return true
+        }
+        openStripeSession(record, body.token, timeoutMs).catch(error => {
           if (record.phase !== 'authorizing') return
           record.error = failurePayload(error, record)
           record.phase = 'error'
