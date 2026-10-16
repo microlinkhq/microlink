@@ -182,6 +182,29 @@ serial(
 )
 
 serial(
+  'concurrent creates with one idempotency key share a handshake',
+  async t => {
+    stubFetch(t, async () => jsonResponse({}))
+
+    const [first, second] = await Promise.all([
+      create({ planId: 'pro', idempotencyKey: 'logical-call-123' }),
+      create({ planId: 'pro', idempotencyKey: 'logical-call-123' })
+    ])
+
+    assert.equal(first.isError, false)
+    assert.equal(second.isError, false)
+    assert.equal(
+      second.structuredContent.data.connectUrl,
+      first.structuredContent.data.connectUrl
+    )
+    assert.equal(
+      second.structuredContent.data.sessionId,
+      first.structuredContent.data.sessionId
+    )
+  }
+)
+
+serial(
   'connect callback posts checkout with the token and strips the API secret',
   async t => {
     const requests = []

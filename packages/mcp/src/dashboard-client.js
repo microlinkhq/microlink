@@ -37,7 +37,9 @@ async function request (path, options = {}) {
 }
 
 function withoutApiKey (body) {
-  if (body == null || typeof body !== 'object' || Array.isArray(body)) { return body }
+  if (body == null || typeof body !== 'object' || Array.isArray(body)) {
+    return body
+  }
   const safe = { ...body }
   delete safe.apiKey
   return safe
@@ -96,10 +98,13 @@ function present (record) {
   }
 }
 
-async function openStripeSession (record, token) {
+async function openStripeSession (record, token, timeoutMs) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
   try {
     const session = await request('/api/v1/checkout/sessions', {
       method: 'POST',
+      signal: controller.signal,
       headers: {
         'content-type': 'application/json',
         'idempotency-key': record.idempotencyKey,
@@ -125,11 +130,21 @@ async function openStripeSession (record, token) {
 
     record.stripeSessionId = session.sessionId
     record.checkoutUrl = session.checkoutUrl
-    if (typeof session.expiresAt === 'number') { record.expiresAt = session.expiresAt }
+    if (typeof session.expiresAt === 'number') {
+      record.expiresAt = session.expiresAt
+    }
     record.phase = 'checkout'
   } catch (error) {
-    record.error = failurePayload(error, record)
+    const failure =
+      error?.name === 'AbortError'
+        ? Object.assign(error, {
+          message: 'Dashboard checkout request timed out.'
+        })
+        : error
+    record.error = failurePayload(failure, record)
     record.phase = 'error'
+  } finally {
+    clearTimeout(timer)
   }
 }
 
@@ -167,12 +182,19 @@ export async function createCheckoutSession ({
         hint: 'Retry with a new `idempotencyKey`, or reuse the original `planId` and `label`.'
       })
     }
-    return present(existing)
+    if (existing.connectUrl) return present(existing)
+    return existing.ready
   }
   if (existing) forget(existing)
 
   const state = randomBytes(16).toString('hex')
   const timeoutMs = connectTimeoutMs()
+  let resolveReady
+  let rejectReady
+  const ready = new Promise((resolve, reject) => {
+    resolveReady = resolve
+    rejectReady = reject
+  })
   const record = {
     id: `hs_${randomUUID()}`,
     planId,
@@ -184,38 +206,47 @@ export async function createCheckoutSession ({
     stripeSessionId: null,
     error: null,
     expiresAt: Math.floor((Date.now() + timeoutMs) / 1000),
-    close: () => {}
+    close: () => {},
+    ready
   }
-
-  const listener = await listenForConnect({
-    state,
-    timeoutMs,
-    onToken: token => {
-      if (record.phase !== 'waiting') return false
-      record.phase = 'authorizing'
-      openStripeSession(record, token).catch(error => {
-        if (record.phase !== 'authorizing') return
-        record.error = failurePayload(error, record)
-        record.phase = 'error'
-      })
-      return true
-    },
-    onTimeout: () => {
-      if (record.phase !== 'waiting') return
-      record.phase = 'expired'
-    }
-  })
-
-  record.close = listener.close
-  const url = new URL('/connect', dashboardUrl())
-  url.searchParams.set('port', String(listener.port))
-  url.searchParams.set('state', state)
-  url.searchParams.set('plan', planId)
-  record.connectUrl = url.toString()
 
   handshakes.set(record.id, record)
   byIdempotencyKey.set(idempotencyKey, record)
-  return present(record)
+
+  try {
+    const listener = await listenForConnect({
+      state,
+      timeoutMs,
+      onToken: token => {
+        if (record.phase !== 'waiting') return false
+        record.phase = 'authorizing'
+        openStripeSession(record, token, timeoutMs).catch(error => {
+          if (record.phase !== 'authorizing') return
+          record.error = failurePayload(error, record)
+          record.phase = 'error'
+        })
+        return true
+      },
+      onTimeout: () => {
+        if (record.phase !== 'waiting') return
+        record.phase = 'expired'
+      }
+    })
+
+    record.close = listener.close
+    const url = new URL('/connect', dashboardUrl())
+    url.searchParams.set('port', String(listener.port))
+    url.searchParams.set('state', state)
+    url.searchParams.set('plan', planId)
+    record.connectUrl = url.toString()
+    const result = present(record)
+    resolveReady(result)
+    return result
+  } catch (error) {
+    forget(record)
+    rejectReady(error)
+    throw error
+  }
 }
 
 async function pollHandshake (sessionId) {
@@ -232,7 +263,9 @@ async function pollHandshake (sessionId) {
       `/api/v1/checkout/sessions/${encodeURIComponent(record.stripeSessionId)}`
     )
     const safe = withoutApiKey(body)
-    if (safe == null || typeof safe !== 'object' || Array.isArray(safe)) { return safe }
+    if (safe == null || typeof safe !== 'object' || Array.isArray(safe)) {
+      return safe
+    }
     return record.checkoutUrl
       ? { ...safe, checkoutUrl: record.checkoutUrl }
       : safe
