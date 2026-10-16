@@ -36,10 +36,12 @@ async function request (path, options = {}) {
   return body
 }
 
+function isRecord (value) {
+  return value != null && typeof value === 'object' && !Array.isArray(value)
+}
+
 function withoutApiKey (body) {
-  if (body == null || typeof body !== 'object' || Array.isArray(body)) {
-    return body
-  }
+  if (!isRecord(body)) return body
   const safe = { ...body }
   delete safe.apiKey
   return safe
@@ -52,6 +54,27 @@ function unknownSession (sessionId) {
     statusCode: 404,
     hint: 'Use the exact `sessionId` returned by `microlink_create_checkout_session`; create a new session if it is unavailable.'
   })
+}
+
+function isUnknownCheckout (error) {
+  return (
+    error instanceof DashboardApiError &&
+    error.payload.statusCode === 404 &&
+    /unknown checkout session/i.test(error.message)
+  )
+}
+
+async function fetchCheckout (sessionId, reportId = sessionId) {
+  try {
+    return withoutApiKey(
+      await request(
+        `/api/v1/checkout/sessions/${encodeURIComponent(sessionId)}`
+      )
+    )
+  } catch (error) {
+    if (isUnknownCheckout(error)) throw unknownSession(reportId)
+    throw error
+  }
 }
 
 function failurePayload (error, { idempotencyKey, planId }) {
@@ -135,17 +158,40 @@ async function openStripeSession (record, token, timeoutMs) {
     }
     record.phase = 'checkout'
   } catch (error) {
-    const failure =
-      error?.name === 'AbortError'
-        ? Object.assign(error, {
-          message: 'Dashboard checkout request timed out.'
-        })
-        : error
-    record.error = failurePayload(failure, record)
+    if (error?.name === 'AbortError') {
+      error.message = 'Dashboard checkout request timed out.'
+    }
+    record.error = failurePayload(error, record)
     record.phase = 'error'
   } finally {
     clearTimeout(timer)
   }
+}
+
+function hasCheckout (body) {
+  return (
+    typeof body.sessionId === 'string' &&
+    body.sessionId !== '' &&
+    typeof body.checkoutUrl === 'string' &&
+    body.checkoutUrl !== ''
+  )
+}
+
+function acceptConnect (record, body, timeoutMs) {
+  if (record.phase !== 'waiting') return false
+  record.phase = 'authorizing'
+  if (hasCheckout(body)) {
+    record.stripeSessionId = body.sessionId
+    record.checkoutUrl = body.checkoutUrl
+    record.phase = 'checkout'
+    return true
+  }
+  openStripeSession(record, body.token, timeoutMs).catch(error => {
+    if (record.phase !== 'authorizing') return
+    record.error = failurePayload(error, record)
+    record.phase = 'error'
+  })
+  return true
 }
 
 function forget (record) {
@@ -220,27 +266,7 @@ export async function createCheckoutSession ({
     const listener = await listen({
       state,
       timeoutMs,
-      onToken: body => {
-        if (record.phase !== 'waiting') return false
-        record.phase = 'authorizing'
-        if (
-          typeof body.sessionId === 'string' &&
-          body.sessionId !== '' &&
-          typeof body.checkoutUrl === 'string' &&
-          body.checkoutUrl !== ''
-        ) {
-          record.stripeSessionId = body.sessionId
-          record.checkoutUrl = body.checkoutUrl
-          record.phase = 'checkout'
-          return true
-        }
-        openStripeSession(record, body.token, timeoutMs).catch(error => {
-          if (record.phase !== 'authorizing') return
-          record.error = failurePayload(error, record)
-          record.phase = 'error'
-        })
-        return true
-      },
+      onToken: body => acceptConnect(record, body, timeoutMs),
       onTimeout: () => {
         if (record.phase !== 'waiting') return
         record.phase = 'expired'
@@ -272,48 +298,16 @@ async function pollHandshake (sessionId) {
     return { state: 'open', connectUrl: record.connectUrl }
   }
 
-  try {
-    const body = await request(
-      `/api/v1/checkout/sessions/${encodeURIComponent(record.stripeSessionId)}`
-    )
-    const safe = withoutApiKey(body)
-    if (safe == null || typeof safe !== 'object' || Array.isArray(safe)) {
-      return safe
-    }
-    return record.checkoutUrl
-      ? { ...safe, checkoutUrl: record.checkoutUrl }
-      : safe
-  } catch (error) {
-    if (
-      error instanceof DashboardApiError &&
-      error.payload.statusCode === 404 &&
-      /unknown checkout session/i.test(error.message)
-    ) {
-      throw unknownSession(sessionId)
-    }
-    throw error
-  }
+  const safe = await fetchCheckout(record.stripeSessionId, sessionId)
+  if (!isRecord(safe)) return safe
+  return record.checkoutUrl
+    ? { ...safe, checkoutUrl: record.checkoutUrl }
+    : safe
 }
 
 export async function getCheckoutSession ({ sessionId }) {
   if (typeof sessionId === 'string' && sessionId.startsWith('hs_')) {
     return pollHandshake(sessionId)
   }
-
-  try {
-    return withoutApiKey(
-      await request(
-        `/api/v1/checkout/sessions/${encodeURIComponent(sessionId)}`
-      )
-    )
-  } catch (error) {
-    if (
-      error instanceof DashboardApiError &&
-      error.payload.statusCode === 404 &&
-      /unknown checkout session/i.test(error.message)
-    ) {
-      throw unknownSession(sessionId)
-    }
-    throw error
-  }
+  return fetchCheckout(sessionId)
 }

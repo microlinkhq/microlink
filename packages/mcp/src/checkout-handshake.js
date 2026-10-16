@@ -14,7 +14,8 @@ function reply (res, status) {
 // to this loopback server. The token is passed to `onToken` and is not stored here.
 export function listenForConnect ({ state, timeoutMs, onToken, onTimeout }) {
   return new Promise((resolve, reject) => {
-    const clock = {}
+    let closed = false
+    let linger
 
     const server = createServer((req, res) => {
       res.setHeader('Access-Control-Allow-Origin', '*')
@@ -69,21 +70,21 @@ export function listenForConnect ({ state, timeoutMs, onToken, onTimeout }) {
         if (!accepted) return reply(res, 409)
 
         reply(res, 204)
-        clearTimeout(clock.timer)
-        clock.linger = setTimeout(close, CLOSE_MS)
-        clock.linger.unref()
+        clearTimeout(timer)
+        linger = setTimeout(close, CLOSE_MS)
+        linger.unref()
       })
     })
 
     const close = () => {
-      if (clock.closed) return
-      clock.closed = true
-      clearTimeout(clock.timer)
-      clearTimeout(clock.linger)
+      if (closed) return
+      closed = true
+      clearTimeout(timer)
+      clearTimeout(linger)
       server.close()
     }
 
-    clock.timer = setTimeout(() => {
+    const timer = setTimeout(() => {
       close()
       onTimeout()
     }, timeoutMs)
