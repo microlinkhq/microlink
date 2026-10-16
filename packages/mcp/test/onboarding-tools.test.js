@@ -1,7 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-import { resetCheckoutHandshakes } from '../src/dashboard-client.js'
+import {
+  createCheckoutSession,
+  resetCheckoutHandshakes
+} from '../src/dashboard-client.js'
 import { outputSchemas } from '../src/output-schemas.js'
 import { checkoutCreate } from '../src/tools/create-checkout-session.js'
 import { checkoutStatus } from '../src/tools/get-checkout-session.js'
@@ -547,5 +550,59 @@ serial(
       registered.microlink_create_checkout_session.annotations.readOnlyHint,
       false
     )
+  }
+)
+
+function flush () {
+  return new Promise(resolve => setImmediate(resolve))
+}
+
+serial(
+  'a failed connect listener does not leave an unhandled rejection',
+  async () => {
+    const unhandled = []
+    const onUnhandled = error => {
+      unhandled.push(error)
+    }
+    process.on('unhandledRejection', onUnhandled)
+    try {
+      await assert.rejects(
+        () =>
+          createCheckoutSession({
+            planId: 'plan_test',
+            idempotencyKey: 'idem-listen-fail',
+            listen: () => Promise.reject(new Error('listen failed'))
+          }),
+        /listen failed/
+      )
+      await flush()
+      assert.equal(unhandled.length, 0)
+    } finally {
+      process.off('unhandledRejection', onUnhandled)
+    }
+  }
+)
+
+serial(
+  'a failed connect listener still rejects a waiter on the same key',
+  async () => {
+    let rejectListen
+    const key = 'idem-listen-wait'
+    const first = createCheckoutSession({
+      planId: 'plan_test',
+      idempotencyKey: key,
+      listen: () =>
+        new Promise((_resolve, reject) => {
+          rejectListen = reject
+        })
+    })
+    const second = createCheckoutSession({
+      planId: 'plan_test',
+      idempotencyKey: key
+    })
+
+    rejectListen(new Error('listen failed'))
+    await assert.rejects(first, /listen failed/)
+    await assert.rejects(second, /listen failed/)
   }
 )

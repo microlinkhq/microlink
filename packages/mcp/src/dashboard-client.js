@@ -169,7 +169,8 @@ export async function listPlans () {
 export async function createCheckoutSession ({
   planId,
   label = 'default',
-  idempotencyKey = randomUUID()
+  idempotencyKey = randomUUID(),
+  listen = listenForConnect
 }) {
   const existing = byIdempotencyKey.get(idempotencyKey)
   if (existing && existing.phase !== 'expired' && existing.phase !== 'error') {
@@ -195,6 +196,8 @@ export async function createCheckoutSession ({
     resolveReady = resolve
     rejectReady = reject
   })
+  // A lone caller throws this same error. Handle the copy so it cannot crash the process.
+  ready.catch(() => {})
   const record = {
     id: `hs_${randomUUID()}`,
     planId,
@@ -214,7 +217,7 @@ export async function createCheckoutSession ({
   byIdempotencyKey.set(idempotencyKey, record)
 
   try {
-    const listener = await listenForConnect({
+    const listener = await listen({
       state,
       timeoutMs,
       onToken: body => {
