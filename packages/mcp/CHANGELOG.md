@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.8.10](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.8.9...%40microlink%2Fmcp%402.8.10) (2026-10-16)
+
+### Bug Fixes
+
+* **mcp:** open checkout through the connect handshake ([#75](https://github.com/microlinkhq/microlink/issues/75)) ([6e69cd0](https://github.com/microlinkhq/microlink/commit/6e69cd00022878df481295204eff90de999e1f69))
+
 ## [2.8.9](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.8.8...%40microlink%2Fmcp%402.8.9) (2026-10-14)
 
 ### Bug Fixes
