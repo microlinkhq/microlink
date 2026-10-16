@@ -7,10 +7,12 @@ export function checkoutStatus (server) {
     server,
     'microlink_get_checkout_session',
     [
-      'Get the current state of a Microlink Checkout Session: `open`, `expired`, `paid`, or `ready`.',
-      'After giving the human the `checkoutUrl`, poll this tool at a reasonable interval until `ready`; stop if it becomes `expired`.',
+      'Poll a checkout started by `microlink_create_checkout_session`: `open`, `expired`, `paid`, or `ready`.',
+      'While the human has not finished Connect, `state` is `open` and `connectUrl` is set.',
+      'When `checkoutUrl` appears, give that to the human to pay; do not open or complete it.',
+      'Keep polling until `ready`, or stop on `expired`.',
       '`paid` means payment succeeded while provisioning is still linking the API key.',
-      '`ready` means payment succeeded and the key is provisioned.',
+      '`ready` means the key is provisioned.',
       'These tools never return the API key secret; the human receives it via welcome email or the dashboard.'
     ].join(' '),
     getCheckoutSessionInputSchema,

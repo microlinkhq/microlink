@@ -142,11 +142,11 @@ Tools can also be invoked directly. URL-processing tools take a `url`; onboardin
 
 ### Capabilities at a glance
 
-URL-processing tools are thin wrappers over a [`microlink.io`](https://github.com/microlinkhq/microlink/tree/master/packages/core) library method — same inputs, same result, one source of truth. Onboarding tools call the public dashboard Checkout API instead. `microlink_docs` loads canonical product markdown from microlink.io (the same source as `microlink <product> docs`).
+URL-processing tools are thin wrappers over a [`microlink.io`](https://github.com/microlinkhq/microlink/tree/master/packages/core) library method — same inputs, same result, one source of truth. Onboarding tools call the dashboard Checkout API. Creating a session listens on localhost for the same Connect handshake as `microlink buy`. `microlink_docs` loads canonical product markdown from microlink.io (the same source as `microlink <product> docs`).
 
 - `microlink_list_plans`: list plans available to a new customer.
-- `microlink_create_checkout_session`: open guest Sign up Checkout (starter creatable plan; Stripe collects the email). Give its `checkoutUrl` to the human.
-- `microlink_get_checkout_session`: poll checkout state until `ready` or `expired`. The API key secret is not returned here (welcome email / dashboard).
+- `microlink_create_checkout_session`: start paid Checkout for a `planId`. Give its `connectUrl` to the human on this machine. A free development key is [dashboard Sign up](https://dashboard.microlink.io/signup), not this tool.
+- `microlink_get_checkout_session`: poll until `checkoutUrl` appears (give that to the human to pay), then until `ready` or `expired`. The API key secret is not returned here (welcome email / dashboard).
 - `microlink_docs`: canonical parameter docs for a product. Call this before a product tool whose parameters you do not know well.
 - `microlink_metadata`: normalized metadata extraction with include/exclude config.
 - `microlink_logo`: brand logo extraction.

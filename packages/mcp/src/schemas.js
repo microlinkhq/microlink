@@ -605,15 +605,31 @@ export const docsInputSchema = z
 
 export const listPlansInputSchema = z.object({}).strict()
 
-export const createCheckoutSessionInputSchema = z.object({}).passthrough()
+export const createCheckoutSessionInputSchema = z
+  .object({
+    planId: z.string().min(1).describe('Plan id from `microlink_list_plans`.'),
+    label: z
+      .string()
+      .min(1)
+      .optional()
+      .default('default')
+      .describe('Label for the API key that checkout creates.'),
+    idempotencyKey: z
+      .string()
+      .min(1)
+      .max(255)
+      .optional()
+      .describe(
+        'Stable idempotency key for this logical checkout call. Omit on the first call to generate one; reuse the returned value so a retry does not open a second Connect handshake.'
+      )
+  })
+  .strict()
 
 export const getCheckoutSessionInputSchema = z
   .object({
     sessionId: z
       .string()
       .min(1)
-      .describe(
-        'Checkout session id returned by `microlink_create_checkout_session`.'
-      )
+      .describe('Handshake id returned by `microlink_create_checkout_session`.')
   })
   .strict()
