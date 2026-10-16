@@ -103,14 +103,18 @@ const plansSchema = z
 const checkoutSessionSchema = z
   .object({
     sessionId: z.string(),
-    checkoutUrl: z.string().url(),
-    expiresAt: z.number().optional()
+    connectUrl: z.string().url(),
+    idempotencyKey: z.string(),
+    expiresAt: z.number().optional(),
+    checkoutUrl: z.string().url().optional()
   })
   .catchall(z.unknown())
 
 const checkoutStatusSchema = z
   .object({
-    state: z.enum(['open', 'expired', 'paid', 'ready'])
+    state: z.enum(['open', 'expired', 'paid', 'ready']),
+    connectUrl: z.string().url().optional(),
+    checkoutUrl: z.string().url().optional()
   })
   .catchall(z.unknown())
 
