@@ -6,6 +6,7 @@ import {
   shutdown,
   startStdioServer
 } from '../src/index.js'
+import { KEYLESS_REQUESTS_PER_DAY } from '../src/free-tier.js'
 
 test('createMicrolinkServer returns MCP server instance', () => {
   const server = createMicrolinkServer()
@@ -19,6 +20,11 @@ test('createMicrolinkServer sets default instructions and honors overrides', () 
   assert.match(withDefaults.server._instructions, /microlink_docs/)
   assert.match(withDefaults.server._instructions, /requires an API key/)
   assert.match(withDefaults.server._instructions, /checkout tools/)
+  assert.ok(
+    withDefaults.server._instructions.includes(
+      `free endpoint (${KEYLESS_REQUESTS_PER_DAY} requests/day)`
+    )
+  )
 
   const custom = createMicrolinkServer({ instructions: 'Custom.' })
   assert.equal(custom.server._instructions, 'Custom.')

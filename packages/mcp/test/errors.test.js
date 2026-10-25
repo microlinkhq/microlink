@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 
 import { asErrorResult, MicrolinkError } from '../src/microlink-client.js'
+import { KEYLESS_REQUESTS_PER_DAY } from '../src/free-tier.js'
 import { metadata } from '../src/tools/metadata.js'
 
 const GENERIC_API_MESSAGE =
@@ -156,6 +157,7 @@ test('429 keeps the quota hint and exposes a machine-readable reason', () => {
   assert.equal(error.message, 'Rate limit exceeded.')
   assert.equal(error.reason, 'quota_exceeded')
   assert.match(error.hint, /Free daily quota reached/)
+  assert.ok(error.hint.includes(`${KEYLESS_REQUESTS_PER_DAY} requests/day`))
   assert.match(error.hint, /https:\/\/microlink\.io\/#pricing/)
 })
 
