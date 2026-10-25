@@ -10,6 +10,7 @@ on:
 
 env:
   SKIP_INSTALL_SIMPLE_GIT_HOOKS: true
+  MICROLINK_API_KEY: ${{ secrets.MICROLINK_API_KEY }}
 
 jobs:
   matrix:
