@@ -40,7 +40,7 @@ npm install -g @microlink/mcp
 microlink-mcp
 ```
 
-During installation, the package prints a console reminder about the free Microlink plan (`50 requests/day`) and where to get an API key for higher/unlimited usage at [microlink.io/#pricing](https://microlink.io/#pricing).
+During installation, the package prints a console reminder about the free Microlink plan (`5 requests/day`) and where to get an API key for higher/unlimited usage at [microlink.io/#pricing](https://microlink.io/#pricing).
 
 ## MCP client configuration
 

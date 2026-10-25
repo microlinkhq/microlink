@@ -1,8 +1,9 @@
 import createClient, { MicrolinkError } from 'microlink.io'
+import { KEYLESS_REQUESTS_PER_DAY } from './free-tier.js'
 
 const UPGRADE_URL = 'https://microlink.io/#pricing'
 
-const FREE_QUOTA_EXCEEDED_HINT = `Free daily quota reached. Extend your limit by getting an API key at ${UPGRADE_URL}.`
+const FREE_QUOTA_EXCEEDED_HINT = `Free daily quota reached (${KEYLESS_REQUESTS_PER_DAY} requests/day). Extend your limit by getting an API key at ${UPGRADE_URL}.`
 
 // Actionable guidance for capability errors that retrying cannot fix:
 // what happened, why, and how to continue. `reason` and `capability` are

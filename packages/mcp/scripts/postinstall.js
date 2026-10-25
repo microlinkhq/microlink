@@ -1,3 +1,5 @@
+import { KEYLESS_REQUESTS_PER_DAY } from '../src/free-tier.js'
+
 const WIDTH = 74
 
 // eslint-disable-next-line no-control-regex
@@ -41,7 +43,7 @@ const lines = [
   contentLine(`${colors.bold}MICROLINK MCP${colors.reset}`),
   contentLine(),
   contentLine(
-    `${colors.bold}Free plan:${colors.reset} 50 requests/day included.`
+    `${colors.bold}Free plan:${colors.reset} ${KEYLESS_REQUESTS_PER_DAY} requests/day included.`
   ),
   contentLine(`${colors.yellow}Need more or unlimited usage?${colors.reset}`),
   contentLine(
