@@ -260,12 +260,12 @@ console.log(result.profiling)
 
 ### Plan limits
 
-| | Free | Pro |
-| --- | --- | --- |
-| Timeout | 10 seconds | Up to 60 seconds |
-| Memory | 16 MB | 32 MB |
-| Code size | 1024 bytes | Unlimited |
-| Concurrency | 1 per IP | Unlimited |
+| | Keyless | Free API key | Paid plans |
+| --- | --- | --- | --- |
+| Timeout | 15 seconds | Up to 60 seconds | Up to 60 seconds |
+| Memory | 64 MB | 128 MB | 128 MB |
+| Code size | 1024 bytes | Unlimited | Unlimited |
+| Concurrency | 2 per IP | 2 concurrent requests | Unlimited |
 
 The free plan is enough to prototype workflows. For production workloads that need more time, memory, or parameters such as `headers`, `proxy`, `ttl`, or `staleTtl`, use a [pro plan](https://microlink.io/#pricing).
 
@@ -328,7 +328,7 @@ When a function exceeds its plan limits, the API returns a descriptive error:
 | `CpuTimeError` | CPU time exceeded the plan limit. |
 | `MemoryError` | Memory usage exceeded the plan limit. |
 | `CodeSizeError` | Code exceeds the 1024 bytes free plan limit. |
-| `ConcurrencyError` | Too many concurrent executions for the free plan (1 per IP). |
+| `ConcurrencyError` | Too many concurrent executions without an API key (2 per IP). |
 | `OutgoingRequestError` | Cross-origin network request on the free plan. |
 
 ### Function-specific errors
