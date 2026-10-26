@@ -130,17 +130,19 @@ export function register (
         })
       }
 
+      let apiKey
+
       try {
         const headerApiKey = getApiKeyFromRequestHeaders(
           extra?.requestInfo?.headers
         )
-        const apiKey = resolveApiKey(parsed.data.apiKey, headerApiKey)
+        apiKey = resolveApiKey(parsed.data.apiKey, headerApiKey)
         const params = apiKey ? { ...parsed.data, apiKey } : parsed.data
 
         const value = await invoke(client, params)
         return asToolResult(value)
       } catch (error) {
-        return asErrorResult(error)
+        return asErrorResult(error, { hasApiKey: Boolean(apiKey) })
       }
     }
   )

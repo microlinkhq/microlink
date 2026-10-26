@@ -168,7 +168,7 @@ URL-processing tools are thin wrappers over a [`microlink.io`](https://github.co
 - URL-processing tools return the library's **direct result** under `structuredContent.data` (and the same value as pretty-printed JSON text). For example `microlink_markdown` → `{ data: "# Title\n..." }`, `microlink_screenshot` → `{ data: { url, type, width, height, size } }`, `microlink_links` → `{ data: ["https://...", ...] }`. Onboarding tools return dashboard Checkout payloads under the same envelope. `microlink_docs` returns the product markdown string.
 - Every tool also declares an MCP `outputSchema` describing its `structuredContent.data`. URL-processing schemas mirror the TypeScript types shipped by the library (`Asset`, `Metadata`, `Embed`, `FunctionResult`, ...); onboarding schemas mirror the dashboard Checkout API; `docs` is a markdown string. Error results are exempt from output validation. Fields that can legitimately be absent are nullable (for example `logo` when no brand logo is detected, or `markdown` when the selector matches nothing).
 - Tools are annotated `readOnlyHint: true` when they only read remote state. `microlink_function` executes user-supplied code and `microlink_create_checkout_session` creates remote Checkout state, so they are not annotated read-only.
-- On failure the tool sets MCP `isError` and returns `{ error: { message, code?, status?, statusCode?, url?, more?, details? } }`, where `message` carries the specific cause reported by the API. Capability errors that retrying cannot fix (for example `EPROXYNEEDED` or `EINTEGRATION`) also include machine-readable `reason` (`upgrade_required`), `capability`, an `upgrade` object with the plan and pricing URL, and an agent-facing `hint` with the next step. A `429` includes `reason: "quota_exceeded"` and a free-quota `hint`.
+- On failure the tool sets MCP `isError` and returns `{ error: { message, code?, status?, statusCode?, url?, more?, details? } }`, where `message` carries the specific cause reported by the API. Capability errors that retrying cannot fix (for example `EPROXYNEEDED` or `EINTEGRATION`) also include machine-readable `reason` (`upgrade_required`), `capability`, an `upgrade` object with the plan and pricing URL, and an agent-facing `hint` with the next step. A `429` includes `reason: "quota_exceeded"` and a `hint`: the keyless daily quota without an API key, or the quota on your key with one.
 
 Parameters that require a paid plan are labeled `PRO` in their own schema descriptions, mirroring the official Microlink docs.
 For compatibility with some MCP clients:
@@ -543,7 +543,7 @@ The `MICROLINK_API_KEY` environment variable is the recommended approach for mos
 
 If an API key is present, requests are sent to `https://pro.microlink.io`; otherwise they go to `https://api.microlink.io` (free endpoint).
 
-When the free endpoint returns `429`, this MCP adds a clear hint in the tool error message: free daily quota reached, plus upgrade/API key guidance at [microlink.io/#pricing](https://microlink.io/#pricing).
+When the free endpoint returns `429`, this MCP adds a clear hint in the tool error message: free daily quota reached, plus upgrade/API key guidance at [microlink.io/#pricing](https://microlink.io/#pricing). With an API key, the hint points at the quota on that key instead: wait a second and retry once (too many concurrent requests), and if it fails again, wait for the reset or upgrade.
 
 ## License
 
