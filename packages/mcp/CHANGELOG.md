@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.8.11](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.8.10...%40microlink%2Fmcp%402.8.11) (2026-10-26)
+
+### Bug Fixes
+
+* **mcp:** keyed 429s get the API key quota hint, not the keyless one ([#79](https://github.com/microlinkhq/microlink/issues/79)) ([bf2cb67](https://github.com/microlinkhq/microlink/commit/bf2cb67cfaad406fc3c8f6a78c986967da24e0e0))
+* **mcp:** the keyless endpoint gives 5 requests per day ([#77](https://github.com/microlinkhq/microlink/issues/77)) ([94c321c](https://github.com/microlinkhq/microlink/commit/94c321cfcf931f23ca49a3ddb8eec100786b7cc1))
+
 ## [2.8.10](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.8.9...%40microlink%2Fmcp%402.8.10) (2026-10-16)
 
 ### Bug Fixes
