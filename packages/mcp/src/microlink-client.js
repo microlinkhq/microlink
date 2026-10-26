@@ -1,9 +1,12 @@
 import createClient, { MicrolinkError } from 'microlink.io'
-import { KEYLESS_REQUESTS_PER_DAY } from './free-tier.js'
+import {
+  FREE_PLAN_REQUESTS_PER_DAY,
+  KEYLESS_REQUESTS_PER_DAY
+} from './free-tier.js'
 
 const UPGRADE_URL = 'https://microlink.io/#pricing'
 
-const FREE_QUOTA_EXCEEDED_HINT = `Free daily quota reached (${KEYLESS_REQUESTS_PER_DAY} requests/day). Extend your limit by getting an API key at ${UPGRADE_URL}.`
+const FREE_QUOTA_EXCEEDED_HINT = `Free daily quota reached (${KEYLESS_REQUESTS_PER_DAY} requests/day). A free API key gives ${FREE_PLAN_REQUESTS_PER_DAY} requests/day; get one, or a paid plan, at ${UPGRADE_URL}.`
 
 const API_KEY_QUOTA_EXCEEDED_HINT = `Rate limit reached on your API key. Too many concurrent requests clear in a second: wait a second and retry once. If it fails again, the quota on your key is spent: wait for the reset or upgrade at ${UPGRADE_URL}.`
 
