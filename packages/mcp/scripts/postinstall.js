@@ -1,4 +1,7 @@
-import { KEYLESS_REQUESTS_PER_DAY } from '../src/free-tier.js'
+import {
+  FREE_PLAN_REQUESTS_PER_DAY,
+  KEYLESS_REQUESTS_PER_DAY
+} from '../src/free-tier.js'
 
 const WIDTH = 74
 
@@ -43,7 +46,7 @@ const lines = [
   contentLine(`${colors.bold}MICROLINK MCP${colors.reset}`),
   contentLine(),
   contentLine(
-    `${colors.bold}Free plan:${colors.reset} ${KEYLESS_REQUESTS_PER_DAY} requests/day included.`
+    `${colors.bold}Free plan:${colors.reset} ${KEYLESS_REQUESTS_PER_DAY} requests/day without a key, ${FREE_PLAN_REQUESTS_PER_DAY}/day with a free API key.`
   ),
   contentLine(`${colors.yellow}Need more or unlimited usage?${colors.reset}`),
   contentLine(

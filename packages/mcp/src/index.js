@@ -4,7 +4,10 @@ import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 
 import { tools } from './tools/index.js'
-import { KEYLESS_REQUESTS_PER_DAY } from './free-tier.js'
+import {
+  FREE_PLAN_REQUESTS_PER_DAY,
+  KEYLESS_REQUESTS_PER_DAY
+} from './free-tier.js'
 
 const require = createRequire(import.meta.url)
 const { version: pkgVersion } = require('../package.json')
@@ -14,7 +17,7 @@ const DEFAULT_INSTRUCTIONS = [
   "Call microlink_docs({ product }) for a product tool's parameters; do not guess nested options.",
   'video/audio return the primary playable asset; videos/audios/links/images collect every match on the page.',
   'extract is custom MQL rules, not full-page markdown/html/text. search takes a query and requires an API key; if the key is missing, use checkout tools so the human can buy one.',
-  `Without an API key, requests use the free endpoint (${KEYLESS_REQUESTS_PER_DAY} requests/day); pass apiKey or set MICROLINK_API_KEY for PRO.`,
+  `Without an API key, requests use the free endpoint (${KEYLESS_REQUESTS_PER_DAY} requests/day); a free API key gives ${FREE_PLAN_REQUESTS_PER_DAY} requests/day. Pass apiKey or set MICROLINK_API_KEY.`,
   'On failure, read the error message and the hint/reason fields and adjust the request instead of retrying blindly.'
 ].join(' ')
 
