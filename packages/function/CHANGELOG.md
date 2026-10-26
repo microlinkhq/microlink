@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.4](https://github.com/microlinkhq/microlink/compare/%40microlink%2Ffunction%400.4.3...%40microlink%2Ffunction%400.4.4) (2026-10-26)
+
+### Bug Fixes
+
+* state the keyless and free key limits ([#76](https://github.com/microlinkhq/microlink/issues/76)) ([6916de9](https://github.com/microlinkhq/microlink/commit/6916de92aec97a91945e206b8831f57a91211d8f))
+
 ## [0.4.3](https://github.com/microlinkhq/microlink/compare/%40microlink%2Ffunction%400.4.2...%40microlink%2Ffunction%400.4.3) (2026-10-26)
 
 **Note:** Version bump only for package @microlink/function

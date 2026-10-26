@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.8.12](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.8.11...%40microlink%2Fmcp%402.8.12) (2026-10-26)
+
+### Bug Fixes
+
+* state the keyless and free key limits ([#76](https://github.com/microlinkhq/microlink/issues/76)) ([6916de9](https://github.com/microlinkhq/microlink/commit/6916de92aec97a91945e206b8831f57a91211d8f))
+
 ## [2.8.11](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.8.10...%40microlink%2Fmcp%402.8.11) (2026-10-26)
 
 ### Bug Fixes
