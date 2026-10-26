@@ -11,12 +11,13 @@ const TARGET_URL = 'https://edge-ping.vercel.app'
 
 const API_KEY = process.env.MICROLINK_API_KEY
 const PRO_GOT_OPTS = API_KEY ? { headers: { 'x-api-key': API_KEY } } : undefined
+const MQL_OPTS = API_KEY ? { apiKey: API_KEY } : { endpoint: ENDPOINT }
 const proTest = API_KEY ? test : test.skip
 
 test('return a computed value', async t => {
   const fn = () => 40 + 2
 
-  const myFn = microlink(fn, { endpoint: ENDPOINT })
+  const myFn = microlink(fn, MQL_OPTS)
 
   const result = await myFn(TARGET_URL, { force: true })
 
@@ -28,7 +29,7 @@ test('return a computed value', async t => {
 test('return a complex value', async t => {
   const fn = () => ({ title: 'hello', count: 42 })
 
-  const myFn = microlink(fn, { endpoint: ENDPOINT })
+  const myFn = microlink(fn, MQL_OPTS)
 
   const result = await myFn(TARGET_URL, { force: true })
 
@@ -40,7 +41,7 @@ test('return a complex value', async t => {
 test('interact with user specific parameters', async t => {
   const getGreetings = ({ greetings }) => greetings
 
-  const myFn = microlink(getGreetings, { endpoint: ENDPOINT })
+  const myFn = microlink(getGreetings, MQL_OPTS)
 
   const result = await myFn(TARGET_URL, {
     greetings: 'hello world',
@@ -58,7 +59,7 @@ test('async function execution', async t => {
     return value * 2
   }
 
-  const myFn = microlink(fn, { endpoint: ENDPOINT })
+  const myFn = microlink(fn, MQL_OPTS)
 
   const result = await myFn(TARGET_URL, { force: true })
 
@@ -70,7 +71,7 @@ test('async function execution', async t => {
 test('profiling includes phase timings', async t => {
   const fn = () => 420
 
-  const myFn = microlink(fn, { endpoint: ENDPOINT })
+  const myFn = microlink(fn, MQL_OPTS)
 
   const result = await myFn(TARGET_URL, { force: true })
 
@@ -83,7 +84,7 @@ test('profiling includes phase timings', async t => {
 test('handle execution errors', async t => {
   const fn = () => { throw new Error('test error') }
 
-  const myFn = microlink(fn, { endpoint: ENDPOINT })
+  const myFn = microlink(fn, MQL_OPTS)
 
   const result = await myFn(TARGET_URL, { force: true })
 
@@ -96,7 +97,7 @@ test('handle execution errors', async t => {
 test('turn non-Error throws into errors', async t => {
   const fn = () => { throw 'oh no' } // eslint-disable-line
 
-  const myFn = microlink(fn, { endpoint: ENDPOINT })
+  const myFn = microlink(fn, MQL_OPTS)
 
   const result = await myFn(TARGET_URL, { force: true })
 
