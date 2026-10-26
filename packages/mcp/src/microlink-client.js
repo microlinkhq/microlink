@@ -5,7 +5,7 @@ const UPGRADE_URL = 'https://microlink.io/#pricing'
 
 const FREE_QUOTA_EXCEEDED_HINT = `Free daily quota reached (${KEYLESS_REQUESTS_PER_DAY} requests/day). Extend your limit by getting an API key at ${UPGRADE_URL}.`
 
-const API_KEY_QUOTA_EXCEEDED_HINT = `Rate limit reached on your API key. With quota left (x-rate-limit-remaining above zero), wait a second and retry; otherwise wait for the reset in x-rate-limit-reset or upgrade at ${UPGRADE_URL}.`
+const API_KEY_QUOTA_EXCEEDED_HINT = `Rate limit reached on your API key. Too many concurrent requests clear in a second: wait a second and retry once. If it fails again, the quota on your key is spent: wait for the reset or upgrade at ${UPGRADE_URL}.`
 
 // Actionable guidance for capability errors that retrying cannot fix:
 // what happened, why, and how to continue. `reason` and `capability` are
