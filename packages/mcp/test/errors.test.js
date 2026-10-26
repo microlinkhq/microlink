@@ -161,6 +161,24 @@ test('429 keeps the quota hint and exposes a machine-readable reason', () => {
   assert.match(error.hint, /https:\/\/microlink\.io\/#pricing/)
 })
 
+test('429 with an API key points at the key quota instead of the keyless one', () => {
+  const result = asErrorResult(
+    apiError({
+      statusCode: 429,
+      status: 'fail',
+      code: 'ERATE',
+      message: 'Rate limit exceeded.'
+    }),
+    { hasApiKey: true }
+  )
+  const error = JSON.parse(result.content[0].text)
+
+  assert.equal(error.reason, 'quota_exceeded')
+  assert.match(error.hint, /Rate limit reached on your API key/)
+  assert.doesNotMatch(error.hint, /Free daily quota/)
+  assert.ok(!error.hint.includes(`${KEYLESS_REQUESTS_PER_DAY} requests/day`))
+})
+
 test('non-Microlink errors only expose the message', () => {
   const result = asErrorResult(new Error('fetch failed'))
 

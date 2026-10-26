@@ -5,6 +5,8 @@ const UPGRADE_URL = 'https://microlink.io/#pricing'
 
 const FREE_QUOTA_EXCEEDED_HINT = `Free daily quota reached (${KEYLESS_REQUESTS_PER_DAY} requests/day). Extend your limit by getting an API key at ${UPGRADE_URL}.`
 
+const API_KEY_QUOTA_EXCEEDED_HINT = `Rate limit reached on your API key. With quota left (x-rate-limit-remaining above zero), wait a second and retry; otherwise wait for the reset in x-rate-limit-reset or upgrade at ${UPGRADE_URL}.`
+
 // Actionable guidance for capability errors that retrying cannot fix:
 // what happened, why, and how to continue. `reason` and `capability` are
 // machine-readable so clients can react programmatically; `hint` is the
@@ -64,7 +66,7 @@ export function asToolResult (value) {
 // auxiliary strings in `data`.
 const GENERIC_API_MESSAGE = 'The request has been not processed.'
 
-function toErrorPayload (error) {
+function toErrorPayload (error, { hasApiKey = false } = {}) {
   const isMql = error instanceof MicrolinkError
   const statusCode = isMql ? error.statusCode : undefined
   const description = isMql ? error.description : undefined
@@ -107,20 +109,22 @@ function toErrorPayload (error) {
 
   if (statusCode === 429) {
     payload.reason = 'quota_exceeded'
-    payload.hint = FREE_QUOTA_EXCEEDED_HINT
+    payload.hint = hasApiKey
+      ? API_KEY_QUOTA_EXCEEDED_HINT
+      : FREE_QUOTA_EXCEEDED_HINT
   }
 
   return payload
 }
 
-export function asErrorResult (error) {
+export function asErrorResult (error, context) {
   const payload = isPlainObject(error?.payload)
     ? error.payload
     : isPlainObject(error) &&
       !(error instanceof Error) &&
       typeof error.message === 'string'
       ? error
-      : toErrorPayload(error)
+      : toErrorPayload(error, context)
 
   return toToolResponse(true, 'error', payload)
 }

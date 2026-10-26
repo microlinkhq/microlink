@@ -140,3 +140,50 @@ test('uses x-api-key header when authorization bearer token is not present', asy
 
   assert.equal(result.isError, false)
 })
+
+function mockRateLimitedFetch (t) {
+  const originalFetch = globalThis.fetch
+  t.after(() => {
+    globalThis.fetch = originalFetch
+  })
+
+  globalThis.fetch = async () =>
+    makeJsonResponse(
+      { status: 'fail', code: 'ERATE', message: 'Rate limit exceeded.' },
+      { status: 429 }
+    )
+}
+
+function withoutEnvApiKey (t) {
+  const original = process.env.MICROLINK_API_KEY
+  delete process.env.MICROLINK_API_KEY
+  t.after(() => {
+    if (original !== undefined) process.env.MICROLINK_API_KEY = original
+  })
+}
+
+test('a keyless 429 carries the keyless daily quota hint', async t => {
+  withoutEnvApiKey(t)
+  mockRateLimitedFetch(t)
+
+  const handler = createRegisteredHandler(inputSchema)
+  const result = await handler({ url: 'https://example.com' })
+  const error = JSON.parse(result.content[0].text)
+
+  assert.equal(result.isError, true)
+  assert.equal(error.reason, 'quota_exceeded')
+  assert.match(error.hint, /Free daily quota reached/)
+})
+
+test('a keyed 429 carries the API key quota hint', async t => {
+  withoutEnvApiKey(t)
+  mockRateLimitedFetch(t)
+
+  const handler = createRegisteredHandler(inputSchema)
+  const result = await handler({ url: 'https://example.com', apiKey: 'my-key' })
+  const error = JSON.parse(result.content[0].text)
+
+  assert.equal(result.isError, true)
+  assert.equal(error.reason, 'quota_exceeded')
+  assert.match(error.hint, /Rate limit reached on your API key/)
+})
