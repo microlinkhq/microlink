@@ -182,7 +182,7 @@ const getApiUrl = (
 
   const headers = isPro ? { ...reqHeaders, 'x-api-key': apiKey } : reqHeaders
 
-  if (opts.stream) responseType = STREAM_RESPONSE_TYPE
+  if (opts.stream || opts.embed) responseType = STREAM_RESPONSE_TYPE
 
   return [apiUrl, { ...gotOpts, responseType, headers }]
 }

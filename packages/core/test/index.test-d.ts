@@ -1,4 +1,4 @@
-import { expectAssignable, expectType } from 'tsd'
+import { expectAssignable, expectError, expectType } from 'tsd'
 import create, { MicrolinkError } from '../src/index.js'
 import type { Page } from '../src/index.js'
 
@@ -104,6 +104,31 @@ async function assertions (): Promise<void> {
     }
   )
   expectType<boolean>(title.isFulfilled)
+
+  const payload = await client.request<{ screenshot: { url: string } }>(
+    'https://example.com',
+    { screenshot: true }
+  )
+  expectType<'success' | 'fail' | 'error'>(payload.status)
+  expectType<string>(payload.data.screenshot.url)
+  expectType<number | undefined>(payload.statusCode)
+  expectType<Headers>(payload.response.headers)
+  expectType<string | null>(payload.response.headers.get('x-request-id'))
+  expectType<string>(payload.response.body.data.screenshot.url)
+
+  const image = await client.request('https://example.com', {
+    screenshot: true,
+    embed: 'screenshot.url'
+  })
+  expectType<ArrayBuffer>(image.body)
+  expectType<Headers>(image.headers)
+
+  expectError(
+    client.request<{ title: string }>('https://example.com', {
+      embed: 'screenshot.url'
+    })
+  )
+  expectType<string>(client.apiUrl('https://example.com', { screenshot: true }))
 }
 
 void assertions()

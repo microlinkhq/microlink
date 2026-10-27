@@ -55,6 +55,15 @@ import type { MqlError } from '@microlink/mql'
   console.log(response.statusCode)
 })()
 
+;(async () => {
+  const response = await mql('https://example.com', {
+    embed: 'screenshot.url',
+    screenshot: true
+  })
+  console.log(response.body.byteLength)
+  console.log(response.headers.get('content-type'))
+})()
+
 /** data */
 
 mql('https://example.com', {

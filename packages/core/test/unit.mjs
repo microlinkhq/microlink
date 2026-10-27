@@ -30,10 +30,15 @@ const setup = () => {
     calls.push({ url, mqlOpts, gotOpts })
     return Promise.resolve({ status: 'success', data: DATA })
   }
-  mqlStub.getApiUrl = (url, opts, gotOpts = {}) => [
-    `https://api.microlink.io/?url=${url}`,
-    { responseType: 'json', headers: gotOpts.headers ?? {} }
-  ]
+  const apiUrlCalls = []
+  mqlStub.getApiUrl = (url, opts = {}, gotOpts = {}) => {
+    apiUrlCalls.push({ url, mqlOpts: opts, gotOpts })
+    const host = opts.apiKey ? 'pro' : 'api'
+    return [
+      `https://${host}.microlink.io/?url=${url}`,
+      { responseType: 'json', headers: gotOpts.headers ?? {} }
+    ]
+  }
   mqlStub.MicrolinkError = class MicrolinkError extends Error {}
 
   const fnCalls = []
@@ -66,7 +71,7 @@ const setup = () => {
     '@microlink/google': googleStub
   })
 
-  return { create, calls, fnCalls, googleCalls }
+  return { create, calls, fnCalls, googleCalls, apiUrlCalls }
 }
 
 const URL = 'https://example.com'
@@ -316,6 +321,44 @@ test('search next() keeps last.response in sync', async t => {
   t.is(client.last.response.headers['content-length'], '128')
   await page.next()
   t.is(client.last.response.headers['content-length'], '256')
+})
+
+test('request sends the options verbatim and resolves the full payload', async t => {
+  const { create, calls } = setup()
+  const options = { iframe: true, palette: true, meta: true }
+  const result = await create().request(URL, options)
+  t.deepEqual(calls[0].mqlOpts, options)
+  t.deepEqual(result, { status: 'success', data: DATA })
+})
+
+test('request threads the factory context and routes headers', async t => {
+  const { create, calls } = setup()
+  const headers = { 'x-api-header-cookie': 'auth=1' }
+  await create({ apiKey: 'secret' }).request(URL, { screenshot: true, headers })
+  t.deepEqual(calls[0].mqlOpts, { apiKey: 'secret', screenshot: true })
+  t.deepEqual(calls[0].gotOpts, { headers })
+})
+
+test('apiUrl resolves the URL a request would call', t => {
+  const { create, apiUrlCalls } = setup()
+  t.is(
+    create().apiUrl(URL, { screenshot: true }),
+    `https://api.microlink.io/?url=${URL}`
+  )
+  t.deepEqual(apiUrlCalls[0].mqlOpts, { screenshot: true })
+  t.is(
+    create({ apiKey: 'secret' }).apiUrl(URL),
+    `https://pro.microlink.io/?url=${URL}`
+  )
+})
+
+test('request and apiUrl are not products', t => {
+  const { create } = setup()
+  const client = create()
+  t.false(Object.keys(client).includes('request'))
+  t.false(Object.keys(client).includes('apiUrl'))
+  t.is(typeof client.request, 'function')
+  t.is(typeof client.apiUrl, 'function')
 })
 
 test('MicrolinkError is re-exported', async t => {
