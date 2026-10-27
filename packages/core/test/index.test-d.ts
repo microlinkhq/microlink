@@ -104,6 +104,15 @@ async function assertions (): Promise<void> {
     }
   )
   expectType<boolean>(title.isFulfilled)
+
+  const payload = await client.request<{ screenshot: { url: string } }>(
+    'https://example.com',
+    { screenshot: true }
+  )
+  expectType<string>(payload.status)
+  expectType<string>(payload.data.screenshot.url)
+  expectType<number | undefined>(payload.statusCode)
+  expectType<string>(client.apiUrl('https://example.com', { screenshot: true }))
 }
 
 void assertions()

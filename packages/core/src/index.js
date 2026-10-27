@@ -198,7 +198,21 @@ const create = (ctx = {}) => {
     }
   }
 
-  Object.defineProperty(client, 'last', { value: last })
+  Object.defineProperties(client, {
+    last: { value: last },
+    request: {
+      value: (url, options) => {
+        const { top, got } = route(options)
+        return request(url, top, got)
+      }
+    },
+    apiUrl: {
+      value: (url, options) => {
+        const { top, got } = route(options)
+        return mql.getApiUrl(url, top, got)[0]
+      }
+    }
+  })
   return client
 }
 

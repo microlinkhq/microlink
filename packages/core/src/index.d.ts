@@ -191,7 +191,22 @@ export declare class MicrolinkError extends Error {
   constructor (props: Record<string, unknown>)
 }
 
+export interface MicrolinkResponse<T = Record<string, unknown>> {
+  status: string
+  data: T
+  statusCode?: number
+  redirects?: Array<{ statusCode: number; url: string }>
+  headers?: Record<string, string>
+  response: Record<string, unknown>
+  [key: string]: unknown
+}
+
 interface MicrolinkClient {
+  request<T = Record<string, unknown>> (
+    url: string,
+    options?: Options
+  ): Promise<MicrolinkResponse<T>>
+  apiUrl (url: string, options?: Options): string
   metadata (url: string, options?: Options): Promise<Metadata>
   logo (url: string, options?: LogoOptions): Promise<Asset | null>
   markdown (url: string, options?: ContentOptions): Promise<string | null>
