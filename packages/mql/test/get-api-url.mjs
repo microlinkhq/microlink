@@ -50,3 +50,19 @@ test('undefined', t => {
     })
   )
 })
+
+test('embed resolves the response as binary', t => {
+  const [, fetchOpts] = mql.getApiUrl('https://kikobeats.com', {
+    screenshot: true,
+    embed: 'screenshot.url'
+  })
+  t.is(fetchOpts.responseType, 'arrayBuffer')
+})
+
+test('stream resolves the response as binary', t => {
+  const [, fetchOpts] = mql.getApiUrl('https://kikobeats.com', {
+    screenshot: true,
+    stream: 'screenshot'
+  })
+  t.is(fetchOpts.responseType, 'arrayBuffer')
+})

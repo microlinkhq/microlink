@@ -191,17 +191,29 @@ export declare class MicrolinkError extends Error {
   constructor (props: Record<string, unknown>)
 }
 
+export interface MicrolinkHTTPResponse<Body = unknown> {
+  url: string
+  statusCode: number
+  headers: Headers
+  body: Body
+}
+
 export interface MicrolinkResponse<T = Record<string, unknown>> {
-  status: string
+  status: 'success' | 'fail' | 'error'
   data: T
   statusCode?: number
   redirects?: Array<{ statusCode: number; url: string }>
   headers?: Record<string, string>
-  response: Record<string, unknown>
-  [key: string]: unknown
+  response: MicrolinkHTTPResponse<Omit<MicrolinkResponse<T>, 'response'>>
 }
 
+type BinaryOptions = Options & ({ embed: string } | { stream: string })
+
 interface MicrolinkClient {
+  request (
+    url: string,
+    options: BinaryOptions
+  ): Promise<MicrolinkHTTPResponse<ArrayBuffer>>
   request<T = Record<string, unknown>> (
     url: string,
     options?: Options

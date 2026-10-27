@@ -240,7 +240,7 @@ export const version: string
 interface mql {
   (
     url: string,
-    opts?: MqlOptions & { stream: string },
+    opts: MqlOptions & ({ stream: string } | { embed: string }),
     gotOpts?: object
   ): Promise<HTTPResponseRaw>
   (url: string, opts?: MqlOptions, gotOpts?: object): Promise<MqlResponse>

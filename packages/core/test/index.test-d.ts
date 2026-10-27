@@ -109,9 +109,19 @@ async function assertions (): Promise<void> {
     'https://example.com',
     { screenshot: true }
   )
-  expectType<string>(payload.status)
+  expectType<'success' | 'fail' | 'error'>(payload.status)
   expectType<string>(payload.data.screenshot.url)
   expectType<number | undefined>(payload.statusCode)
+  expectType<Headers>(payload.response.headers)
+  expectType<string | null>(payload.response.headers.get('x-request-id'))
+  expectType<string>(payload.response.body.data.screenshot.url)
+
+  const image = await client.request('https://example.com', {
+    screenshot: true,
+    embed: 'screenshot.url'
+  })
+  expectType<ArrayBuffer>(image.body)
+  expectType<Headers>(image.headers)
   expectType<string>(client.apiUrl('https://example.com', { screenshot: true }))
 }
 
