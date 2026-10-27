@@ -1,4 +1,4 @@
-import { expectAssignable, expectType } from 'tsd'
+import { expectAssignable, expectError, expectType } from 'tsd'
 import create, { MicrolinkError } from '../src/index.js'
 import type { Page } from '../src/index.js'
 
@@ -122,6 +122,12 @@ async function assertions (): Promise<void> {
   })
   expectType<ArrayBuffer>(image.body)
   expectType<Headers>(image.headers)
+
+  expectError(
+    client.request<{ title: string }>('https://example.com', {
+      embed: 'screenshot.url'
+    })
+  )
   expectType<string>(client.apiUrl('https://example.com', { screenshot: true }))
 }
 

@@ -209,6 +209,8 @@ export interface MicrolinkResponse<T = Record<string, unknown>> {
 
 type BinaryOptions = Options & ({ embed: string } | { stream: string })
 
+type JsonOptions = Options & { embed?: never; stream?: never }
+
 interface MicrolinkClient {
   request (
     url: string,
@@ -216,7 +218,7 @@ interface MicrolinkClient {
   ): Promise<MicrolinkHTTPResponse<ArrayBuffer>>
   request<T = Record<string, unknown>> (
     url: string,
-    options?: Options
+    options?: JsonOptions
   ): Promise<MicrolinkResponse<T>>
   apiUrl (url: string, options?: Options): string
   metadata (url: string, options?: Options): Promise<Metadata>

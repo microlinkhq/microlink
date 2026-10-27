@@ -312,7 +312,7 @@ When the code throws, the promise still resolves: `isFulfilled` is `false` and `
 
 ## Raw requests
 
-When a product method is not enough, `request` sends the options verbatim as API query params and resolves the full payload: `status`, `data`, `statusCode`, `redirects`, `headers` and the HTTP `response`. `apiUrl` returns the URL that same call would hit, without sending it:
+When a product method is not enough, `request` sends the options verbatim as API query params, routes `headers` as HTTP request headers, and resolves the full payload: `status`, `data`, `statusCode`, `redirects`, `headers` and the HTTP `response`. `apiUrl` returns the URL that same call would hit, without sending it:
 
 ```mjs
 import createClient from 'microlink.io'
@@ -329,7 +329,7 @@ console.log(createClient().apiUrl('https://github.com', { screenshot: true }))
 
 A keyed client points `apiUrl` at `pro.microlink.io`. The key itself travels as a header, never in the URL.
 
-With `embed`, the API answers with the asset itself, so `request` resolves the HTTP response instead: `statusCode`, `headers` and the binary `body` as an `ArrayBuffer`.
+With `embed` or `stream`, the API answers with the asset itself as binary content, so `request` resolves the HTTP response instead: `statusCode`, `headers` and the binary `body` as an `ArrayBuffer`.
 
 ## Authenticated requests
 
