@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.0](https://github.com/microlinkhq/microlink/compare/microlink.io%401.0.4...microlink.io%401.1.0) (2026-10-27)
+
+### Features
+
+* **core:** add raw request and apiUrl to the client ([#80](https://github.com/microlinkhq/microlink/issues/80)) ([0c261c6](https://github.com/microlinkhq/microlink/commit/0c261c6b3f360af589022056c95a772a44d43bbf))
+
 ## [1.0.4](https://github.com/microlinkhq/microlink/compare/microlink.io%401.0.3...microlink.io%401.0.4) (2026-10-26)
 
 **Note:** Version bump only for package microlink.io

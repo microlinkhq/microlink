@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.20.0](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmql%400.19.2...%40microlink%2Fmql%400.20.0) (2026-10-27)
+
+### Features
+
+* **core:** add raw request and apiUrl to the client ([#80](https://github.com/microlinkhq/microlink/issues/80)) ([0c261c6](https://github.com/microlinkhq/microlink/commit/0c261c6b3f360af589022056c95a772a44d43bbf))
+
 ## [0.19.2](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmql%400.19.1...%40microlink%2Fmql%400.19.2) (2026-10-01)
 
 ### Bug Fixes
