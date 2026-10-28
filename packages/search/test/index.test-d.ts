@@ -2,6 +2,7 @@ import { expectType } from 'tsd'
 import createGoogleClient from '../src/index.js'
 
 const google = createGoogleClient({ apiKey: 'MyApiToken' })
+expectType<typeof google>(createGoogleClient())
 
 async function search (): Promise<void> {
   const page = await google('coffee')
