@@ -3,6 +3,7 @@
   "description": "Structured Google data from 10 verticals through Microlink API",
   "homepage": "https://github.com/microlinkhq/microlink",
   "version": "1.2.5",
+  "types": "./src/index.d.ts",
   "exports": {
     "types": "./src/index.d.ts",
     "require": "./src/index.js",
@@ -50,7 +51,8 @@
     "postcss-focus": "latest",
     "proxyquire": "latest",
     "tinyrun": "latest",
-    "tinyspawn": "latest"
+    "tinyspawn": "latest",
+    "tsd": "latest"
   },
   "engines": {
     "node": ">= 24"
@@ -63,7 +65,10 @@
     "dev": "tinyrun \"pnpm dev:src\" \"pnpm dev:server\"",
     "dev:server": "browser-sync start --server docs --files \"docs/index.html, docs/README.md, docs/static/**/*.(css|js)\"",
     "dev:src": "gulp",
-    "test": "exit 0"
+    "test": "tsd"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "tsd": {
+    "directory": "test"
+  }
 }
