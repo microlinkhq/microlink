@@ -40,10 +40,10 @@ async function request (): Promise<void> {
   expectType<MqlResponse | HTTPResponseRaw>(
     await mql.fetchFromApi(...mql.getApiUrl('https://example.com', opts, gotOpts))
   )
-  expectType<MqlResponse | HTTPResponseRaw>(
+  expectType<MqlResponse>(
     await mql.fetchFromApi('https://example.com', { responseType: 'json' })
   )
-  expectType<MqlResponse | HTTPResponseRaw>(
+  expectType<HTTPResponseRaw>(
     await mql.fetchFromApi('https://example.com', { responseType: 'arrayBuffer' })
   )
 }

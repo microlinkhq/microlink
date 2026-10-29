@@ -292,10 +292,15 @@ declare namespace mql {
 
   function fetchFromApi(
     apiUrl: string,
-    opts: {
-      responseType: string
-      [key: string]: unknown
-    }
+    opts: { responseType: 'arrayBuffer'; [key: string]: unknown }
+  ): Promise<HTTPResponseRaw>
+  function fetchFromApi(
+    apiUrl: string,
+    opts: { responseType: 'json'; [key: string]: unknown }
+  ): Promise<MqlResponse>
+  function fetchFromApi(
+    apiUrl: string,
+    opts: { responseType: string; [key: string]: unknown }
   ): Promise<MqlResponse | HTTPResponseRaw>
 
   function mapRules(rules?: MqlQuery): Record<string, string> | undefined
