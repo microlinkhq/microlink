@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.3](https://github.com/microlinkhq/microlink/compare/microlink.io%401.1.2...microlink.io%401.1.3) (2026-10-29)
+
+### Bug Fixes
+
+* **types:** make puppeteer-core an optional peer for Page typing ([#83](https://github.com/microlinkhq/microlink/issues/83)) ([f9d1fa0](https://github.com/microlinkhq/microlink/commit/f9d1fa086430962295becd268d6ca74b00ccd856))
+
 ## [1.1.2](https://github.com/microlinkhq/microlink/compare/microlink.io%401.1.1...microlink.io%401.1.2) (2026-10-29)
 
 **Note:** Version bump only for package microlink.io
