@@ -1,5 +1,6 @@
 import { expectAssignable, expectType } from 'tsd'
 import microlinkFn = require('@microlink/function')
+import mql = require('@microlink/mql')
 import type {
   FunctionArgs,
   FunctionFulfilled,
@@ -27,4 +28,4 @@ void run()
 expectType<Promise<string>>(microlinkFn.compress(code))
 expectType<Promise<string>>(microlinkFn.compress('() => 1'))
 expectType<string>(microlinkFn.version)
-expectType<typeof import('@microlink/mql').default>(microlinkFn.mql)
+expectType<typeof mql>(microlinkFn.mql)
