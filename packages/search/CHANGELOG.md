@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.6](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fgoogle%401.2.5...%40microlink%2Fgoogle%401.2.6) (2026-10-29)
+
+### Bug Fixes
+
+* **types:** describe the CommonJS export with export = ([#81](https://github.com/microlinkhq/microlink/issues/81)) ([8ea5b31](https://github.com/microlinkhq/microlink/commit/8ea5b314ec4317120da328a1643939a49ae9193c))
+
 ## [1.2.5](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fgoogle%401.2.4...%40microlink%2Fgoogle%401.2.5) (2026-10-27)
 
 **Note:** Version bump only for package @microlink/google
