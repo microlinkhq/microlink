@@ -1,9 +1,5 @@
-import type {
-  HTTPResponse as PuppeteerHTTPResponse,
-  Page as PuppeteerPage
-} from 'puppeteer-core' with {
-  'resolution-mode': 'import'
-}
+// @ts-ignore puppeteer-core is an optional peer dependency: without it, Page and HTTPResponse are any
+import type { HTTPResponse as PuppeteerHTTPResponse, Page as PuppeteerPage } from 'puppeteer-core' with { 'resolution-mode': 'import' }
 import createGoogleClient = require('@microlink/google')
 
 type GoogleClient = ReturnType<typeof createGoogleClient>

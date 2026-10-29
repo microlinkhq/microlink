@@ -273,6 +273,8 @@ const { value } = await microlink.function('https://example.com', async ({ page 
 console.log(value) // → 'Example Domain'
 ```
 
+The function runs on Microlink, so `puppeteer-core` is not needed at runtime. For TypeScript to type `page` and `response` as Puppeteer's `Page` and `HTTPResponse`, install `puppeteer-core` and `@types/node` (Puppeteer's types reference Node.js) as dev dependencies. Without `puppeteer-core` they are typed `any`.
+
 Any extra option you pass is forwarded into the function scope — the simplest way to make one function reusable across requests ([custom parameters](https://microlink.io/docs/guides/function/writing-functions)):
 
 ```mjs
