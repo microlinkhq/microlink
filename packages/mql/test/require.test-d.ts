@@ -84,4 +84,8 @@ const error = new mql.MicrolinkError({
 expectAssignable<Error>(error)
 expectType<MqlError['description']>(error.description)
 expectType<string>(error.code)
+expectType<string>(error.name)
+expectType<string>(error.message)
+expectError((error.name = 'changed'))
+expectError((error.message = 'changed'))
 expectType<typeof mql.MicrolinkError>(mql.MicrolinkError)
