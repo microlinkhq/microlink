@@ -1,17 +1,15 @@
-import type { MqlOptions } from '@microlink/mql' with {
-  'resolution-mode': 'import'
-}
+import microlinkMql = require('@microlink/mql')
 import type { HTTPResponse, Page } from 'puppeteer-core' with {
   'resolution-mode': 'import'
 }
 
 declare function microlinkFunction(
   fn: microlinkFunction.FunctionInput,
-  mqlOpts?: MqlOptions,
+  mqlOpts?: microlinkMql.MqlOptions,
   gotOpts?: object
 ): (
   url: string,
-  mqlOpts?: MqlOptions,
+  mqlOpts?: microlinkMql.MqlOptions,
   gotOpts?: object
 ) => Promise<microlinkFunction.FunctionResponse>
 
@@ -65,9 +63,7 @@ declare namespace microlinkFunction {
   type FunctionInput = (args: FunctionArgs) => any
 
   function compress(code: FunctionInput | string): Promise<string>
-  const mql: typeof import('@microlink/mql', {
-    with: { 'resolution-mode': 'import' }
-  }).default
+  const mql: typeof microlinkMql
   const version: string
 }
 
