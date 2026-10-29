@@ -35,10 +35,14 @@ const compile = async (t, { puppeteer, consumer }) => {
   return $(tsc, ['-p', cwd], { cwd }).then(() => '', error => error.stdout)
 }
 
-test('types compile without puppeteer-core installed', async t => {
+test('page and response are any when puppeteer-core is not installed', async t => {
   const consumer = `
 import microlink = require('microlink.io')
-microlink().function('https://example.com', async ({ page, response }) => [await page.title(), response.status()])
+microlink().function('https://example.com', async ({ page, response }) => {
+  page.notAPageMethod()
+  response.notAResponseMethod()
+  return [await page.title(), response.status()]
+})
 `
   t.is(await compile(t, { puppeteer: false, consumer }), '')
 })
@@ -59,4 +63,10 @@ microlink().function('https://example.com', async ({ page, response }) => {
 })
 `
   t.is(await compile(t, { puppeteer: true, consumer }), '')
+})
+
+test('puppeteer-core is an optional peer dependency', t => {
+  const pkg = require(path.join(root, 'package.json'))
+  t.is(pkg.peerDependencies['puppeteer-core'], '*')
+  t.is(pkg.peerDependenciesMeta['puppeteer-core'].optional, true)
 })
