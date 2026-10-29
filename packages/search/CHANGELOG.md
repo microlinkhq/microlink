@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.7](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fgoogle%401.2.6...%40microlink%2Fgoogle%401.2.7) (2026-10-29)
+
+**Note:** Version bump only for package @microlink/google
+
 ## [1.2.6](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fgoogle%401.2.5...%40microlink%2Fgoogle%401.2.6) (2026-10-29)
 
 ### Bug Fixes

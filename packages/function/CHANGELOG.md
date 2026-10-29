@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.7](https://github.com/microlinkhq/microlink/compare/%40microlink%2Ffunction%400.4.6...%40microlink%2Ffunction%400.4.7) (2026-10-29)
+
+### Bug Fixes
+
+* **types:** describe the mql CommonJS export with export = ([#82](https://github.com/microlinkhq/microlink/issues/82)) ([850cf4e](https://github.com/microlinkhq/microlink/commit/850cf4ec9de4aef39fed76a8208af4115c9b742e))
+
 ## [0.4.6](https://github.com/microlinkhq/microlink/compare/%40microlink%2Ffunction%400.4.5...%40microlink%2Ffunction%400.4.6) (2026-10-29)
 
 ### Bug Fixes
