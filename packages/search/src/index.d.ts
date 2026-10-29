@@ -303,29 +303,23 @@ interface ContextOptions {
   timeout?: number
 }
 
-export declare const DOMAIN: string
+declare function createGoogleClient(options?: ContextOptions): GoogleClient
 
-export declare function buildPath(
-  query: string,
-  limit?: number,
-  location?: string
-): string
+declare namespace createGoogleClient {
+  const DOMAIN: string
 
-export declare function buildUrl(
-  query: string,
-  options?: {
-    limit?: number
-    location?: string
-    type?: Type
-    period?: Period
-    page?: number
-  }
-): URL
+  function buildPath(query: string, limit?: number, location?: string): string
 
-interface createGoogleClient {
-  (options?: ContextOptions): GoogleClient
+  function buildUrl(
+    query: string,
+    options?: {
+      limit?: number
+      location?: string
+      type?: Type
+      period?: Period
+      page?: number
+    }
+  ): URL
 }
 
-declare const createGoogleClient: createGoogleClient
-
-export default createGoogleClient
+export = createGoogleClient

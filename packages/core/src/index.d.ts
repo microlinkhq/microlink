@@ -1,9 +1,10 @@
-import type { HTTPResponse, Page } from 'puppeteer-core' with {
+import type {
+  HTTPResponse as PuppeteerHTTPResponse,
+  Page as PuppeteerPage
+} from 'puppeteer-core' with {
   'resolution-mode': 'import'
 }
-import createGoogleClient from '@microlink/google'
-
-export type { HTTPResponse, Page }
+import createGoogleClient = require('@microlink/google')
 
 type GoogleClient = ReturnType<typeof createGoogleClient>
 
@@ -160,51 +161,11 @@ interface Embed {
   [key: string]: unknown
 }
 
-export type FunctionArgs = {
-  page: Page & {
-    metadata(): Promise<Metadata>
-    extract(rules: ExtractRules): Promise<Record<string, unknown>>
-  }
-  response: HTTPResponse
-  headers: Record<string, string>
-  url: string
-  [key: string]: any
-}
-
-export type FunctionInput = (args: FunctionArgs) => any
-
 interface FunctionResult<T = unknown> {
   isFulfilled: boolean
   value: T
   profiling: Record<string, unknown>
   logging: Record<string, unknown>
-}
-
-export declare class MicrolinkError extends Error {
-  status?: string
-  code?: string
-  statusCode?: number
-  description?: string
-  url?: string
-  headers?: Record<string, string>
-  more?: string
-  constructor (props: Record<string, unknown>)
-}
-
-export interface MicrolinkHTTPResponse<Body = unknown> {
-  url: string
-  statusCode: number
-  headers: Headers
-  body: Body
-}
-
-export interface MicrolinkResponse<T = Record<string, unknown>> {
-  status: 'success' | 'fail' | 'error'
-  data: T
-  statusCode?: number
-  redirects?: Array<{ statusCode: number; url: string }>
-  headers?: Record<string, string>
-  response: MicrolinkHTTPResponse<Omit<MicrolinkResponse<T>, 'response'>>
 }
 
 type BinaryOptions = Options & ({ embed: string } | { stream: string })
@@ -215,11 +176,11 @@ interface MicrolinkClient {
   request (
     url: string,
     options: BinaryOptions
-  ): Promise<MicrolinkHTTPResponse<ArrayBuffer>>
+  ): Promise<create.MicrolinkHTTPResponse<ArrayBuffer>>
   request<T = Record<string, unknown>> (
     url: string,
     options?: JsonOptions
-  ): Promise<MicrolinkResponse<T>>
+  ): Promise<create.MicrolinkResponse<T>>
   apiUrl (url: string, options?: Options): string
   metadata (url: string, options?: Options): Promise<Metadata>
   logo (url: string, options?: LogoOptions): Promise<Asset | null>
@@ -249,7 +210,7 @@ interface MicrolinkClient {
   search: GoogleClient
   function<T = unknown> (
     url: string,
-    code: FunctionInput,
+    code: create.FunctionInput,
     options?: Options
   ): Promise<FunctionResult<T>>
   function<T = unknown> (
@@ -259,11 +220,51 @@ interface MicrolinkClient {
   ): Promise<FunctionResult<T>>
 }
 
-interface create {
-  (options?: Options): MicrolinkClient
-  MicrolinkError: typeof MicrolinkError
+declare function create (options?: Options): MicrolinkClient
+
+declare namespace create {
+  type HTTPResponse = PuppeteerHTTPResponse
+  type Page = PuppeteerPage
+
+  type FunctionArgs = {
+    page: Page & {
+      metadata(): Promise<Metadata>
+      extract(rules: ExtractRules): Promise<Record<string, unknown>>
+    }
+    response: HTTPResponse
+    headers: Record<string, string>
+    url: string
+    [key: string]: any
+  }
+
+  type FunctionInput = (args: FunctionArgs) => any
+
+  class MicrolinkError extends Error {
+    status?: string
+    code?: string
+    statusCode?: number
+    description?: string
+    url?: string
+    headers?: Record<string, string>
+    more?: string
+    constructor (props: Record<string, unknown>)
+  }
+
+  interface MicrolinkHTTPResponse<Body = unknown> {
+    url: string
+    statusCode: number
+    headers: Headers
+    body: Body
+  }
+
+  interface MicrolinkResponse<T = Record<string, unknown>> {
+    status: 'success' | 'fail' | 'error'
+    data: T
+    statusCode?: number
+    redirects?: Array<{ statusCode: number; url: string }>
+    headers?: Record<string, string>
+    response: MicrolinkHTTPResponse<Omit<MicrolinkResponse<T>, 'response'>>
+  }
 }
 
-declare const create: create
-
-export default create
+export = create
