@@ -1,7 +1,6 @@
 import microlinkMql = require('@microlink/mql')
-import type { HTTPResponse, Page } from 'puppeteer-core' with {
-  'resolution-mode': 'import'
-}
+// @ts-ignore puppeteer-core is an optional peer dependency: without it, Page and HTTPResponse are any
+import type { HTTPResponse, Page } from 'puppeteer-core' with { 'resolution-mode': 'import' }
 
 declare function microlinkFunction(
   fn: microlinkFunction.FunctionInput,

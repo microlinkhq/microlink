@@ -59,11 +59,21 @@
     "mri": "~1.2.0"
   },
   "devDependencies": {
+    "@types/node": "latest",
     "ava": "latest",
     "proxyquire": "latest",
     "puppeteer-core": "25",
     "tinyspawn": "latest",
-    "tsd": "latest"
+    "tsd": "latest",
+    "typescript": "latest"
+  },
+  "peerDependencies": {
+    "puppeteer-core": "*"
+  },
+  "peerDependenciesMeta": {
+    "puppeteer-core": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">= 24"

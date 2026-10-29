@@ -41,6 +41,7 @@
     "@rollup/plugin-node-resolve": "latest",
     "@rollup/plugin-replace": "latest",
     "@rollup/plugin-terser": "latest",
+    "@types/node": "latest",
     "async-listen": "latest",
     "ava": "latest",
     "cheerio": "latest",
@@ -49,7 +50,16 @@
     "rollup": "latest",
     "rollup-plugin-filesize": "latest",
     "tinyspawn": "latest",
-    "tsd": "latest"
+    "tsd": "latest",
+    "typescript": "latest"
+  },
+  "peerDependencies": {
+    "puppeteer-core": "*"
+  },
+  "peerDependenciesMeta": {
+    "puppeteer-core": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">= 24"

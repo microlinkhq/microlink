@@ -180,6 +180,8 @@ Start with the high-level helpers before reaching for lower-level APIs:
 
 Any [Puppeteer Page method](https://pptr.dev/api/puppeteer.page) is available.
 
+The function runs on Microlink, so `puppeteer-core` is not needed at runtime. For TypeScript to type `page` and `response` as Puppeteer's `Page` and `HTTPResponse`, install `puppeteer-core` and `@types/node` (Puppeteer's types reference Node.js) as dev dependencies. Without `puppeteer-core` they are typed `any`.
+
 ### What your function receives
 
 | Property | Description |
