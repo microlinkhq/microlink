@@ -132,18 +132,27 @@ type MqlErrorGeneratedProps = {
   name: string
 }
 
+type EmptyBodyOpts = mql.MqlOptions & (
+  | { stream: ''; embed?: '' }
+  | { embed: ''; stream?: '' }
+)
+
+type RawBodyOpts = mql.MqlOptions & ({ stream: string } | { embed: string })
+
 interface MqlClient {
-  (
-    url: string,
-    opts: mql.MqlOptions & ({ stream: string } | { embed: string }),
-    gotOpts?: object
-  ): Promise<mql.HTTPResponseRaw>
+  (url: string, opts: EmptyBodyOpts, gotOpts?: object): Promise<mql.MqlResponse>
+  (url: string, opts: RawBodyOpts, gotOpts?: object): Promise<mql.HTTPResponseRaw>
   (url: string, opts?: mql.MqlOptions, gotOpts?: object): Promise<mql.MqlResponse>
 }
 
 declare function mql(
   url: string,
-  opts: mql.MqlOptions & ({ stream: string } | { embed: string }),
+  opts: EmptyBodyOpts,
+  gotOpts?: object
+): Promise<mql.MqlResponse>
+declare function mql(
+  url: string,
+  opts: RawBodyOpts,
   gotOpts?: object
 ): Promise<mql.HTTPResponseRaw>
 declare function mql(
@@ -283,7 +292,10 @@ declare namespace mql {
 
   function fetchFromApi(
     apiUrl: string,
-    opts?: object
+    opts: {
+      responseType: string
+      [key: string]: unknown
+    }
   ): Promise<MqlResponse | HTTPResponseRaw>
 
   function mapRules(rules?: MqlQuery): Record<string, string> | undefined
