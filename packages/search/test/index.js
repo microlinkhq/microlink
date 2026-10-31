@@ -1,6 +1,6 @@
 'use strict'
 
-const test = require('ava')
+const { default: test } = require('ava')
 const proxyquire = require('proxyquire').noCallThru()
 
 const createModule = mqlFn => proxyquire('../src', { '@microlink/mql': mqlFn })
