@@ -65,7 +65,7 @@
     "dev": "tinyrun \"pnpm dev:src\" \"pnpm dev:server\"",
     "dev:server": "browser-sync start --server docs --files \"docs/index.html, docs/README.md, docs/static/**/*.(css|js)\"",
     "dev:src": "gulp",
-    "test": "ava --verbose && tsd"
+    "test": "ava && tsd"
   },
   "license": "MIT",
   "ava": {
