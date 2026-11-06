@@ -134,6 +134,8 @@ for (const result of results) {
 }
 ```
 
+Right after a search, Google holds some result links for about a minute. When that happens the API answers `EGOOGLELINK` with a `Retry-After`, and `.html()` and `.markdown()` wait and ask again, up to three times, so they return the destination page. That is why they can take a minute or two on fresh results. Any other error surfaces right away.
+
 ### Pagination
 
 Jump to a page with `page` (1 default), matching the API query param:

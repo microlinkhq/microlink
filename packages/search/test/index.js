@@ -293,3 +293,155 @@ test('extra data fields are forwarded to page', async t => {
   t.deepEqual(page.knowledgeGraph, { title: 'Test', type: 'Thing' })
   t.deepEqual(page.peopleAlsoAsk, [{ question: 'What?' }])
 })
+
+const heldLinkError = retryAfter =>
+  Object.assign(new Error('EGOOGLELINK'), {
+    code: 'EGOOGLELINK',
+    headers: retryAfter === undefined ? {} : { 'retry-after': retryAfter }
+  })
+
+const SERP_URL = 'https://www.google.com/search?q=coffee'
+
+const realSetTimeout = setTimeout
+const settleTimers = () => new Promise(resolve => realSetTimeout(resolve, 50))
+
+const googleAnswering = contentByUrl => {
+  const calls = []
+  const mqlFn = async (url, opts) => {
+    if (!opts?.data) {
+      return {
+        data: {
+          results: Object.keys(contentByUrl)
+            .filter(u => u !== SERP_URL)
+            .map(u => ({ url: u }))
+        }
+      }
+    }
+    calls.push(url)
+    const queue = contentByUrl[url]
+    const next = queue.length > 1 ? queue.shift() : queue[0]
+    if (next instanceof Error) throw next
+    return { data: { markdown: next, content: next } }
+  }
+  return { calls, google: createModule(mqlFn)({}) }
+}
+
+const recordWaits = t => {
+  const waits = []
+  const { setTimeout: originalSetTimeout } = global
+  global.setTimeout = (fn, ms) => {
+    waits.push(ms)
+    return originalSetTimeout(fn, 0)
+  }
+  t.teardown(() => {
+    global.setTimeout = originalSetTimeout
+  })
+  return waits
+}
+
+const HELD = 'https://www.google.com/goto?url=HELD'
+const READY = 'https://www.google.com/goto?url=READY'
+
+test.serial(
+  'a held result is fetched again after the time the api asks for',
+  async t => {
+    const waits = recordWaits(t)
+    const { calls, google } = googleAnswering({
+      [HELD]: [heldLinkError('60'), '# destination']
+    })
+
+    const page = await google('coffee')
+
+    t.is(await page.results[0].markdown(), '# destination')
+    t.deepEqual(calls, [HELD, HELD])
+    t.is(waits.length, 1)
+    t.true(waits[0] >= 60000 && waits[0] <= 72000)
+  }
+)
+
+for (const [retryAfter, min, max] of [
+  [undefined, 60000, 72000],
+  ['soon', 60000, 72000],
+  ['-5', 0, 0],
+  ['9999999', 120000, 120000]
+]) {
+  test.serial(
+    `a retry-after of ${retryAfter} waits between ${min} and ${max}ms`,
+    async t => {
+      const waits = recordWaits(t)
+      const { google } = googleAnswering({
+        [HELD]: [heldLinkError(retryAfter), '# destination']
+      })
+
+      const page = await google('coffee')
+      await page.results[0].html()
+
+      t.true(waits[0] >= min && waits[0] <= max)
+    }
+  )
+}
+
+test.serial(
+  'markdown: true resolves every result while google holds some',
+  async t => {
+    recordWaits(t)
+    const { google } = googleAnswering({
+      [SERP_URL]: ['# serp'],
+      [HELD]: [heldLinkError('60'), '# held destination'],
+      [READY]: ['# ready destination']
+    })
+
+    const page = await google('coffee', { markdown: true })
+
+    t.is(page.markdown, '# serp')
+    t.deepEqual(
+      page.results.map(result => result.markdown),
+      ['# held destination', '# ready destination']
+    )
+  }
+)
+
+test.serial('markdown: true sends nothing more once it has failed', async t => {
+  recordWaits(t)
+  const failure = Object.assign(new Error('EFATAL'), {
+    code: 'EFATAL',
+    headers: {}
+  })
+  const { calls, google } = googleAnswering({
+    [SERP_URL]: ['# serp'],
+    [READY]: [failure],
+    [HELD]: [heldLinkError('60'), heldLinkError('60'), '# held destination']
+  })
+
+  await t.throwsAsync(google('coffee', { markdown: true }), { code: 'EFATAL' })
+  const sent = calls.length
+  await settleTimers()
+
+  t.is(calls.length, sent)
+})
+
+test.serial(
+  'a result google keeps holding fails after three attempts',
+  async t => {
+    recordWaits(t)
+    const { calls, google } = googleAnswering({ [HELD]: [heldLinkError('60')] })
+
+    const page = await google('coffee')
+
+    await t.throwsAsync(page.results[0].html(), { code: 'EGOOGLELINK' })
+    t.is(calls.length, 3)
+  }
+)
+
+test('other failures are not retried', async t => {
+  const failure = Object.assign(new Error('EFATAL'), {
+    code: 'EFATAL',
+    headers: {}
+  })
+  const { calls, google } = googleAnswering({ [HELD]: [failure] })
+
+  const page = await google('coffee')
+
+  await t.throwsAsync(page.results[0].markdown(), { code: 'EFATAL' })
+  t.is(calls.length, 1)
+})

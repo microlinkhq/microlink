@@ -19,12 +19,40 @@ const buildUrl = (query, { limit, location, type, period, page } = {}) => {
 
 const resultUrl = result => result.url
 
-const fetchDataField = async (url, mqlOpts, field, attr) => {
-  const { data } = await mql(url, {
-    ...mqlOpts,
-    data: { [field]: { attr } }
-  })
-  return data[field]
+const HELD_LINK = 'EGOOGLELINK'
+const HELD_LINK_ATTEMPTS = 3
+const HELD_LINK_RETRY_AFTER_SECONDS = 60
+const HELD_LINK_MAX_WAIT_MS = 120000
+const HELD_LINK_JITTER = 0.2
+
+const retryAfterMs = error => {
+  const seconds = Number.parseInt(error.headers?.['retry-after'], 10)
+  const waitMs =
+    (Number.isFinite(seconds) ? seconds : HELD_LINK_RETRY_AFTER_SECONDS) * 1000
+  const spreadMs = Math.max(waitMs, 0) * (1 + Math.random() * HELD_LINK_JITTER)
+  return Math.min(spreadMs, HELD_LINK_MAX_WAIT_MS)
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+
+const fetchDataField = async (
+  url,
+  mqlOpts,
+  field,
+  attr,
+  attemptsLeft = HELD_LINK_ATTEMPTS
+) => {
+  try {
+    const { data } = await mql(url, {
+      ...mqlOpts,
+      data: { [field]: { attr } }
+    })
+    return data[field]
+  } catch (error) {
+    if (error.code !== HELD_LINK || attemptsLeft <= 1) throw error
+    await sleep(retryAfterMs(error))
+    return fetchDataField(url, mqlOpts, field, attr, attemptsLeft - 1)
+  }
 }
 
 const fetchPage = async (url, mqlOpts, page, query, last) => {
@@ -69,6 +97,15 @@ const resolve = async (item, key) => {
   if (typeof item[key] === 'function') item[key] = await item[key]()
 }
 
+const resolveAll = async (page, key) => {
+  await resolve(page, key)
+  const settled = await Promise.allSettled(
+    page.results.map(item => resolve(item, key))
+  )
+  const failure = settled.find(({ status }) => status === 'rejected')
+  if (failure) throw failure.reason
+}
+
 const createGoogleClient = ctxOpts => {
   const last = {}
   const client = async (
@@ -83,14 +120,8 @@ const createGoogleClient = ctxOpts => {
       query,
       last
     )
-    if (html) {
-      await resolve(result, 'html')
-      await Promise.all(result.results.map(item => resolve(item, 'html')))
-    }
-    if (markdown) {
-      await resolve(result, 'markdown')
-      await Promise.all(result.results.map(item => resolve(item, 'markdown')))
-    }
+    if (html) await resolveAll(result, 'html')
+    if (markdown) await resolveAll(result, 'markdown')
     return result
   }
   Object.defineProperty(client, 'last', { value: last })
