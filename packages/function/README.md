@@ -338,6 +338,20 @@ When a function exceeds its plan limits, the API returns a descriptive error:
 - **EINVALFUNCTION** — invalid JavaScript syntax in the function string.
 - **EINVALEVAL** — the function executed but threw at runtime.
 
+### When the URL does not respond
+
+A function that uses `page` runs on the page Microlink loads for `url`, unless the request sets `prerender: false`. When the target sends no response in the time Microlink waits for it, there is no page, so the function never runs and the call throws a `MicrolinkError` with code `EUNREACHABLE` and HTTP status `424`. The client does not retry it. The `Retry-After` header says how many seconds to wait before asking again:
+
+```js
+try {
+  const result = await fn('https://example.com')
+} catch (error) {
+  if (error.code !== 'EUNREACHABLE') throw error
+  const retryAfter = Number(error.headers['retry-after'] ?? 60)
+  // queue the url again in `retryAfter` seconds
+}
+```
+
 ### Debugging tips
 
 1. Start simple — reduce the function to `({ page }) => page.title()` to isolate the problem.
