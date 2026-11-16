@@ -264,9 +264,9 @@ console.log(result.profiling)
 
 | | Keyless | Free API key | Paid plans |
 | --- | --- | --- | --- |
-| Timeout | 15 seconds | Up to 60 seconds | Up to 60 seconds |
-| Memory | 64 MB | 128 MB | 128 MB |
-| Code size | 5120 bytes | Unlimited | Unlimited |
+| Timeout | 15 seconds | 15 seconds | Up to 60 seconds |
+| Memory | 64 MB | 64 MB | 128 MB |
+| Code size | 5120 bytes | 5120 bytes | Unlimited |
 | Concurrency | 2 per IP | 2 concurrent requests | Unlimited |
 
 The free plan is enough to prototype workflows. For production workloads that need more time, memory, or parameters such as `headers`, `proxy`, `ttl`, or `staleTtl`, use a [pro plan](https://microlink.io/#pricing).
