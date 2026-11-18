@@ -7,6 +7,7 @@ const openUrl = require('./open')
 
 const TIMEOUT_MS = 5 * 60 * 1000
 const CLOSE_MS = 2000
+const OPAQUE_ORIGIN = 'null'
 
 const dashboardUrl = () =>
   process.env.MICROLINK_DASHBOARD_URL || 'https://dashboard.microlink.io'
@@ -33,7 +34,7 @@ const end = (res, status) => {
   res.end()
 }
 
-const listen = state =>
+const listen = ({ state, origin }) =>
   new Promise((resolve, reject) => {
     let settle
     const handshake = new Promise((resolve, reject) => {
@@ -41,13 +42,15 @@ const listen = state =>
     })
 
     const cors = res => {
-      res.setHeader('Access-Control-Allow-Origin', '*')
+      res.setHeader('Access-Control-Allow-Origin', origin)
       res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
       res.setHeader('Access-Control-Allow-Headers', 'content-type')
       res.setHeader('Access-Control-Allow-Private-Network', 'true')
     }
 
     const server = http.createServer((req, res) => {
+      res.setHeader('Vary', 'Origin')
+      if (req.headers.origin !== origin) return end(res, 403)
       cors(res)
       if (req.method === 'OPTIONS') return end(res, 204)
       if (req.method !== 'POST') return end(res, 405)
@@ -90,8 +93,11 @@ const authorize = async (query = {}) => {
   }
 
   const state = randomBytes(16).toString('hex')
-  const { port, handshake, close } = await listen(state)
   const url = new URL('/connect', dashboardUrl())
+  if (url.origin === OPAQUE_ORIGIN) {
+    throw new TypeError('MICROLINK_DASHBOARD_URL must be an http or https URL.')
+  }
+  const { port, handshake, close } = await listen({ state, origin: url.origin })
   url.searchParams.set('port', String(port))
   url.searchParams.set('state', state)
   for (const [key, value] of Object.entries(query)) {

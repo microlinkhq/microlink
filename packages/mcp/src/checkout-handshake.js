@@ -2,6 +2,7 @@ import { createServer } from 'node:http'
 
 const MAX_BODY_BYTES = 4096
 const CLOSE_MS = 2000
+const OPAQUE_ORIGIN = 'null'
 
 function reply (res, status) {
   if (res.writableEnded || res.headersSent) return
@@ -12,13 +13,28 @@ function reply (res, status) {
 // Local half of the dashboard Connect handshake used by `microlink buy`.
 // The human opens `connectUrl`; the signed-in dashboard POSTs `{ state, token }`
 // to this loopback server. The token is passed to `onToken` and is not stored here.
-export function listenForConnect ({ state, timeoutMs, onToken, onTimeout }) {
+export function listenForConnect ({
+  state,
+  origin,
+  timeoutMs,
+  onToken,
+  onTimeout
+}) {
+  if (origin === OPAQUE_ORIGIN) {
+    return Promise.reject(
+      new TypeError('The dashboard URL must be an http or https URL.')
+    )
+  }
+
   return new Promise((resolve, reject) => {
     let closed = false
     let linger
 
     const server = createServer((req, res) => {
-      res.setHeader('Access-Control-Allow-Origin', '*')
+      res.setHeader('Vary', 'Origin')
+      if (req.headers.origin !== origin) return reply(res, 403)
+
+      res.setHeader('Access-Control-Allow-Origin', origin)
       res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
       res.setHeader('Access-Control-Allow-Headers', 'content-type')
       res.setHeader('Access-Control-Allow-Private-Network', 'true')

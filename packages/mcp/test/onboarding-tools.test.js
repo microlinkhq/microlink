@@ -74,12 +74,12 @@ function status (input) {
   return captureTool(checkoutStatus).microlink_get_checkout_session(input, {})
 }
 
-function postConnect (connectUrl, body) {
+function postConnect (connectUrl, body, origin = new URL(connectUrl).origin) {
   const url = new URL(connectUrl)
   const port = url.searchParams.get('port')
   return fetch(`http://127.0.0.1:${port}/`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', origin },
     body: JSON.stringify({
       state: url.searchParams.get('state'),
       ...body
@@ -354,6 +354,34 @@ serial('a mismatched connect state does not open checkout', async t => {
   )
   assert.equal(polled.content[0].text.includes('connect_secret'), false)
 })
+
+serial(
+  'a page off the dashboard origin cannot inject a connect token',
+  async t => {
+    let calls = 0
+    stubFetch(t, async () => {
+      calls++
+      return jsonResponse({})
+    })
+
+    const created = await create({ planId: 'pro' })
+    const { connectUrl, sessionId } = created.structuredContent.data
+    const callback = await postConnect(
+      connectUrl,
+      { token: 'attacker_token' },
+      'https://evil.example'
+    )
+    const polled = await status({ sessionId })
+
+    assert.equal(callback.status, 403)
+    assert.equal(callback.headers.get('access-control-allow-origin'), null)
+    assert.equal(calls, 0)
+    assert.equal(polled.structuredContent.data.state, 'open')
+
+    const legit = await postConnect(connectUrl, { token: 'connect_secret' })
+    assert.equal(legit.status, 204)
+  }
+)
 
 serial('parallel connect callbacks open one checkout session', async t => {
   let posts = 0
