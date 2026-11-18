@@ -265,6 +265,7 @@ export async function createCheckoutSession ({
   try {
     const listener = await listen({
       state,
+      origin: new URL(dashboardUrl()).origin,
       timeoutMs,
       onToken: body => acceptConnect(record, body, timeoutMs),
       onTimeout: () => {
