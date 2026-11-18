@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.8.20](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.8.19...%40microlink%2Fmcp%402.8.20) (2026-11-18)
+
+### Bug Fixes
+
+* **mcp,core:** accept connect tokens only from the dashboard origin ([#90](https://github.com/microlinkhq/microlink/issues/90)) ([85ed467](https://github.com/microlinkhq/microlink/commit/85ed467ef0b5aff0931dafcec441c3cbf9c8fb61))
+
 ## [2.8.19](https://github.com/microlinkhq/microlink/compare/%40microlink%2Fmcp%402.8.18...%40microlink%2Fmcp%402.8.19) (2026-11-16)
 
 **Note:** Version bump only for package @microlink/mcp

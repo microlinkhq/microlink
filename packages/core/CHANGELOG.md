@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.7](https://github.com/microlinkhq/microlink/compare/microlink.io%401.1.6...microlink.io%401.1.7) (2026-11-18)
+
+### Bug Fixes
+
+* **mcp,core:** accept connect tokens only from the dashboard origin ([#90](https://github.com/microlinkhq/microlink/issues/90)) ([85ed467](https://github.com/microlinkhq/microlink/commit/85ed467ef0b5aff0931dafcec441c3cbf9c8fb61))
+
 ## [1.1.6](https://github.com/microlinkhq/microlink/compare/microlink.io%401.1.5...microlink.io%401.1.6) (2026-11-16)
 
 **Note:** Version bump only for package microlink.io
