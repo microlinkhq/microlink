@@ -206,7 +206,7 @@ const PRODUCTS = {
       ['--optimizeForSpeed', 'Faster encode, larger file'],
       ['--overlay', 'Browser chrome overlay as JSON'],
       ['--codeScheme', 'Syntax theme for code pages'],
-      ['--animated', 'Capture a short video (MP4/WebM) instead of a still'],
+      ['--animated', 'Capture a short video (MP4) instead of a still'],
       ['--palette', 'Also extract dominant colors'],
       ['--quality', 'JPEG quality (0–100)']
     ],
