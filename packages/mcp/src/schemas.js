@@ -122,9 +122,7 @@ export const screenshotConfigSchema = objectLikeSchema(
     .object({
       animated: booleanSchema
         .optional()
-        .describe(
-          'Capture an animated screenshot (GIF/MP4) instead of a still.'
-        ),
+        .describe('Capture an animated screenshot (MP4) instead of a still.'),
       codeScheme: z
         .string()
         .min(1)
